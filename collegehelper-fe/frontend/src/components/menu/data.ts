@@ -45,13 +45,13 @@ export const menu = [
         isLink: true,
         url: '/products',
         icon: HiOutlineCube,
-        label: 'products',
+        label: 'Manage',
       },
       {
         isLink: true,
         url: '/orders',
         icon: HiOutlineClipboardDocumentList,
-        label: 'orders',
+        label: 'Majors',
       },
       {
         isLink: true,

@@ -26,7 +26,7 @@ export const totalUsers = {
 export const totalProducts = {
   color: 'skyblue',
   IconBox: MdInventory2,
-  title: 'Total Products',
+  title: 'Total Products', // <- Cần sửa
   number: '238',
   dataKey: 'products',
   percentage: 21,
@@ -40,6 +40,7 @@ export const totalProducts = {
     { name: 'Sat', products: 450 },
   ],
 };
+
 export const totalRevenue = {
   color: 'teal',
   IconBox: MdAssessment,
