@@ -1,12 +1,5 @@
 {
-    "routes" : [
-        {
-            "src": "/",
-            "dest": "/"
-        },
-        {
-            "src": "/profile",
-            "dest": "/"
-        }                  
-    ]
+  "rewrites" : [
+    {"source": "/(.*)","destination": "/"}
+  ]
 }
