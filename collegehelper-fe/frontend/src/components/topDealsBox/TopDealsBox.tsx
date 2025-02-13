@@ -1,4 +1,4 @@
-import React from 'react';
+
 import toast from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
 import { topDealUsers } from './data';
