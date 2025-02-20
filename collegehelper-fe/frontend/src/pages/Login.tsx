@@ -4,7 +4,7 @@ import { GiLotusFlower } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
 import { auth, googleProvider } from "../firebaseConfig";
 import { UserCredential, signInWithPopup } from "firebase/auth";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Login: React.FC = () => {
@@ -14,12 +14,25 @@ const Login: React.FC = () => {
     try {
       const result: UserCredential = await signInWithPopup(auth, googleProvider);
       console.log("User Info:", result.user);
-  
-      // Chuyển hướng đến trang Home với state chứa thông báo
-      navigate("/", { state: { message: "Đăng nhập thành công!", type: "success" } });
+
+      // Hiển thị thông báo thành công
+      toast.success(`Welcome ${result.user.displayName}!`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      // Điều hướng sau khi đăng nhập thành công
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (error) {
       console.error("Login failed:", error);
-      navigate("/", { state: { message: "Đăng nhập thất bại!", type: "error" } });
+
+      // Hiển thị thông báo lỗi
+      toast.error("Login failed. Please try again!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
 
