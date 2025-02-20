@@ -1,24 +1,40 @@
-// import React from 'react';
-import ChangeThemes from '../components/ChangesThemes';
-import { DiReact } from 'react-icons/di';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import ChangeThemes from "../components/ChangesThemes";
+import { GiLotusFlower } from "react-icons/gi";
+import { useNavigate } from "react-router-dom";
+import { auth, googleProvider } from "../firebaseConfig";
+import { UserCredential, signInWithPopup } from "firebase/auth";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const Login = () => {
+const Login: React.FC = () => {
   const navigate = useNavigate();
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result: UserCredential = await signInWithPopup(auth, googleProvider);
+      console.log("User Info:", result.user);
+  
+      // Chuyển hướng đến trang Home với state chứa thông báo
+      navigate("/", { state: { message: "Đăng nhập thành công!", type: "success" } });
+    } catch (error) {
+      console.error("Login failed:", error);
+      navigate("/", { state: { message: "Đăng nhập thất bại!", type: "error" } });
+    }
+  };
+
   return (
-    // screen
     <div className="w-full p-0 m-0">
-      {/* container */}
+      <ToastContainer /> {/* Thêm container để hiển thị thông báo */}
       <div className="w-full min-h-screen flex justify-center items-center bg-base-200 relative">
-        {/* theme */}
         <div className="absolute top-5 right-5 z-[99]">
           <ChangeThemes />
         </div>
         <div className="w-full h-screen xl:h-auto xl:w-[30%] 2xl:w-[25%] 3xl:w-[20%] bg-base-100 rounded-lg shadow-md flex flex-col items-center p-5 pb-7 gap-8 pt-20 xl:pt-7">
           <div className="flex items-center gap-1 xl:gap-2">
-            <DiReact className="text-4xl sm:text-4xl xl:text-6xl 2xl:text-6xl text-primary animate-spin-slow -ml-3" />
+            <GiLotusFlower className="text-4xl sm:text-4xl xl:text-6xl 2xl:text-6xl text-primary animate-spin-slow -ml-3" />
             <span className="text-[18px] leading-[1.2] sm:text-lg xl:text-3xl 2xl:text-3xl font-semibold text-base-content dark:text-neutral-200">
-              React Dashboard
+              Login
             </span>
           </div>
           <span className="xl:text-xl font-semibold">
@@ -81,37 +97,21 @@ const Login = () => {
               </a>
             </div>
             <div
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="btn btn-block btn-primary"
             >
               Log In
             </div>
             <div className="divider text-sm">OR</div>
             <div className="w-full flex justify-center items-center gap-4">
-              <button className="btn btn-circle dark:btn-neutral">
-                <img
-                  className="w-6"
-                  src="/icons8-microsoft.svg"
-                  alt="microsoft"
-                />
-              </button>
-              <button className="btn btn-circle dark:btn-neutral">
+              <button
+                onClick={handleGoogleLogin}
+                className="btn btn-circle dark:btn-neutral flex items-center justify-center"
+              >
                 <img
                   className="w-6"
                   src="/icons8-google.svg"
-                  alt="google"
-                />
-              </button>
-              <button className="btn btn-circle dark:btn-neutral">
-                <img
-                  className="dark:hidden w-6"
-                  src="/icons8-apple-black.svg"
-                  alt="apple"
-                />
-                <img
-                  className="hidden dark:block w-6"
-                  src="/icons8-apple-white.svg"
-                  alt="apple"
+                  alt="Google"
                 />
               </button>
             </div>

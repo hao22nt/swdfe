@@ -2,6 +2,8 @@
 import TopDealsBox from '../components/topDealsBox/TopDealsBox';
 import ChartBox from '../components/charts/ChartBox';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   MdGroup,
   MdInventory2,
@@ -20,6 +22,18 @@ import {
 } from '../api/ApiCollection';
 
 const Home = () => {
+  const location = useLocation();
+  const [message, setMessage] = useState<{ text: string; type: string } | null>(null);
+  useEffect(() => {
+    if (location.state?.message) {
+      setMessage({ text: location.state.message, type: location.state.type });
+
+      // Ẩn thông báo sau 3 giây
+      setTimeout(() => {
+        setMessage(null);
+      }, 3000);
+    }
+  }, [location.state]);
   const queryGetTotalUsers = useQuery({
     queryKey: ['totalusers'],
     queryFn: fetchTotalUsers,
@@ -59,10 +73,16 @@ const Home = () => {
     queryKey: ['totalprofit'],
     queryFn: fetchTotalProfit,
   });
+  
 
   return (
     // screen
     <div className="home w-full p-0 m-0">
+       {message && (
+        <div className={`alert ${message.type === "success" ? "alert-success" : "alert-error"}`}>
+          {message.text}
+        </div>
+      )}
       {/* grid */}
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 grid-flow-dense auto-rows-[minmax(200px,auto)] xl:auto-rows-[minmax(150px,auto)] gap-3 xl:gap-3 px-0">
         <div className="box col-span-full sm:col-span-1 xl:col-span-1 row-span-3 3xl:row-span-5">
