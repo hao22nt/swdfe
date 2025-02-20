@@ -1,6 +1,12 @@
-// src/firebaseConfig.ts
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD0rqzq34MjnqEcESUnJyyXnAVuNY8S5kI",
@@ -16,4 +22,19 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-export { auth, googleProvider, signInWithPopup };
+// Đăng ký tài khoản
+const registerWithEmail = (email: string, password: string) => {
+  return createUserWithEmailAndPassword(auth, email, password);
+};
+
+// Đăng nhập bằng email
+const loginWithEmail = (email: string, password: string) => {
+  return signInWithEmailAndPassword(auth, email, password);
+};
+
+// Đăng xuất
+const logout = () => {
+  return signOut(auth);
+};
+
+export { auth, googleProvider, signInWithPopup, registerWithEmail, loginWithEmail, logout };

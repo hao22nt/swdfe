@@ -24,6 +24,7 @@ import EditProfile from './pages/EditProfile';
 import User from './pages/User';
 import Product from './pages/Product';
 import Login from './pages/Login';
+import Register from './pages/Register';
 
 function App() {
   const Layout = () => {
@@ -113,6 +114,10 @@ function App() {
     {
       path: '/login',
       element: <Login />,
+    },
+    {
+      path: '/register',
+      element: <Register />,
     },
   ]);
 
