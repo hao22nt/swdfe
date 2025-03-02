@@ -8,7 +8,7 @@ import {
   Space,
   Popconfirm,
 } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType } from 'antd/es/table'; // ✅ Corrected import
 
 interface University {
   id: number;
@@ -42,7 +42,7 @@ const UniversityPage = () => {
     {
       title: 'Thao tác',
       key: 'action',
-      render: (_, record: University) => (
+      render: (_: unknown, record: University) => (
         <Space>
           <Button type="primary" onClick={() => handleEdit(record)}>
             Sửa
@@ -75,16 +75,14 @@ const UniversityPage = () => {
   };
 
   const handleModalOk = () => {
-    form.validateFields().then((values) => {
+    form.validateFields().then((values: University) => {
       if (editingId === null) {
-        // Thêm mới
-        const newUniversity = {
+        const newUniversity: University = {
           ...values,
           id: Date.now(),
         };
         setUniversities([...universities, newUniversity]);
       } else {
-        // Cập nhật
         setUniversities(
           universities.map((uni) =>
             uni.id === editingId ? { ...uni, ...values } : uni
@@ -98,28 +96,31 @@ const UniversityPage = () => {
   return (
     <div style={{ padding: '24px' }}>
       <div style={{ marginBottom: '16px' }}>
-      <Button
-        type="default"
-        onClick={handleAdd}
-        style={{
-          backgroundColor: 'blue',         
-          border: '2px solid blue',
-          padding: '20px 20px', 
-          fontSize: '16px',         
-          cursor: 'pointer',
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = 'black')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = 'white')}
-      >
-        Thêm trường đại học+
-      </Button>
-
-
-      </div>     
+        <Button
+          type="default"
+          onClick={handleAdd}
+          style={{
+            backgroundColor: 'blue',
+            border: '2px solid blue',
+            padding: '20px 20px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            color: 'white',
+          }}
+          onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) =>
+            (e.currentTarget.style.color = 'black')
+          }
+          onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) =>
+            (e.currentTarget.style.color = 'white')
+          }
+        >
+          Add new University+
+        </Button>
+      </div>
       <Table columns={columns} dataSource={universities} rowKey="id" />
 
       <Modal
-        title={editingId === null ? "Thêm trường đại học" : "Sửa thông tin"}
+        title={editingId === null ? 'Thêm trường đại học' : 'Sửa thông tin'}
         open={isModalOpen}
         onOk={handleModalOk}
         onCancel={() => setIsModalOpen(false)}
@@ -152,4 +153,4 @@ const UniversityPage = () => {
   );
 };
 
-export default UniversityPage; 
+export default UniversityPage;
