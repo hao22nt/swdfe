@@ -25,11 +25,15 @@ const Navbar = () => {
 
   React.useEffect(() => {
     if (isFullScreen) {
-      document.exitFullscreen();
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
     } else {
-      element?.requestFullscreen({ navigationUI: 'auto' });
+      element?.requestFullscreen({ navigationUI: 'auto' }).catch((err) => {
+        console.error('Failed to enter fullscreen:', err);
+      });
     }
-  }, [element, isFullScreen]);
+  }, [isFullScreen]);
 
   return (
     // navbar screen

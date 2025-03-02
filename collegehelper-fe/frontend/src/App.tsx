@@ -25,6 +25,7 @@ import User from './pages/User';
 import Product from './pages/Product';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import University from './pages/University';
 
 function App() {
   const Layout = () => {
@@ -107,6 +108,10 @@ function App() {
         {
           path: '/logs',
           element: <Logs />,
+        },
+        {
+          path: '/university',
+          element: <University />,
         },
       ],
       errorElement: <Error />,

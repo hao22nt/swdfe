@@ -5,15 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 import {
   MdGroup,
   MdInventory2,
-  MdAssessment,
-  MdSwapHorizontalCircle,
 } from 'react-icons/md';
 import {
   fetchTotalProducts,
   fetchTotalProfit,
-  fetchTotalRatio,
-  fetchTotalRevenue,
-  fetchTotalRevenueByProducts,
   fetchTotalSource,
   fetchTotalUsers,
   fetchTotalVisit,
@@ -30,24 +25,9 @@ const Home = () => {
     queryFn: fetchTotalProducts,
   });
 
-  const queryGetTotalRatio = useQuery({
-    queryKey: ['totalratio'],
-    queryFn: fetchTotalRatio,
-  });
-
-  const queryGetTotalRevenue = useQuery({
-    queryKey: ['totalrevenue'],
-    queryFn: fetchTotalRevenue,
-  });
-
   const queryGetTotalSource = useQuery({
     queryKey: ['totalsource'],
     queryFn: fetchTotalSource,
-  });
-
-  const queryGetTotalRevenueByProducts = useQuery({
-    queryKey: ['totalrevenue-by-products'],
-    queryFn: fetchTotalRevenueByProducts,
   });
 
   const queryGetTotalVisit = useQuery({
@@ -60,7 +40,6 @@ const Home = () => {
     queryFn: fetchTotalProfit,
   });
   
-
   return (
     // screen
     <div className="home w-full p-0 m-0">
@@ -96,35 +75,6 @@ const Home = () => {
             {...queryGetTotalSource.data}
             isLoading={queryGetTotalSource.isLoading}
             isSuccess={queryGetTotalSource.isSuccess}
-          />
-        </div>
-        <div className="box col-span-full sm:col-span-1 xl:col-span-1 3xl:row-span-2">
-          <ChartBox
-            chartType={'line'}
-            IconBox={MdAssessment}
-            title="Total Ratio"
-            {...queryGetTotalRatio.data}
-            isLoading={queryGetTotalRatio.isLoading}
-            isSuccess={queryGetTotalRatio.isSuccess}
-          />
-        </div>
-        <div className="box col-span-full sm:col-span-1 xl:col-span-1 3xl:row-span-2">
-          <ChartBox
-            chartType={'line'}
-            IconBox={MdSwapHorizontalCircle}
-            title="Total Revenue"
-            {...queryGetTotalRevenue.data}
-            isLoading={queryGetTotalRevenue.isLoading}
-            isSuccess={queryGetTotalRevenue.isSuccess}
-          />
-        </div>
-        <div className="box row-span-2 col-span-full xl:col-span-2 3xl:row-span-3">
-          <ChartBox
-            chartType={'area'}
-            title="Revenue by Products"
-            {...queryGetTotalRevenueByProducts.data}
-            isLoading={queryGetTotalRevenueByProducts.isLoading}
-            isSuccess={queryGetTotalRevenueByProducts.isSuccess}
           />
         </div>
         <div className="box col-span-full sm:col-span-1 xl:col-span-1 3xl:row-span-2">

@@ -8,10 +8,10 @@ import {
   HiOutlineDocumentChartBar,
   HiOutlinePencilSquare,
   HiOutlineCalendarDays,
-  HiOutlinePresentationChartBar,
-  HiOutlineDocumentText,
   HiOutlineArrowLeftOnRectangle,
+  HiAcademicCap, 
 } from 'react-icons/hi2';
+
 // import { IoSettingsOutline } from 'react-icons/io5';
 
 export const menu = [
@@ -59,6 +59,12 @@ export const menu = [
         icon: HiOutlineDocumentChartBar,
         label: 'posts',
       },
+      {
+        isLink: true,
+        url: '/university',
+        icon: HiAcademicCap,
+        label: 'University',
+      },
     ],
   },
   {
@@ -75,23 +81,6 @@ export const menu = [
         url: '/calendar',
         icon: HiOutlineCalendarDays,
         label: 'calendar',
-      },
-    ],
-  },
-  {
-    catalog: 'analytics',
-    listItems: [
-      {
-        isLink: true,
-        url: '/charts',
-        icon: HiOutlinePresentationChartBar,
-        label: 'charts',
-      },
-      {
-        isLink: true,
-        url: '/logs',
-        icon: HiOutlineDocumentText,
-        label: 'logs',
       },
     ],
   },

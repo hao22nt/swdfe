@@ -24,6 +24,7 @@ interface ChartBoxProps {
   color?: string;
   IconBox?: IconType;
   title?: string;
+  
   dataKey?: string;
   number?: number | string;
   percentage?: number;
@@ -95,8 +96,11 @@ const ChartBox: React.FC<ChartBoxProps> = ({
               </span>
             </div>
             <span className="font-bold text-xl xl:text-2xl 2xl:text-3xl 3xl:text-4xl m-0 p-0">
+              
               {number}
             </span>
+            
+            
             <button
               onClick={() =>
                 toast('Ngapain?', {

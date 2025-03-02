@@ -9,7 +9,7 @@ export const totalUsers = {
   color: '#8884d8',
   IconBox: MdGroup,
   title: 'Total Users',
-  number: '11.238',
+  number: '11',
   dataKey: 'users',
   percentage: 45,
   chartData: [
