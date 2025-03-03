@@ -9,13 +9,15 @@ import {
 } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD0rqzq34MjnqEcESUnJyyXnAVuNY8S5kI",
-  authDomain: "addmission-d9b6e.firebaseapp.com",
-  projectId: "addmission-d9b6e",
-  storageBucket: "addmission-d9b6e.firebasestorage.app",
-  messagingSenderId: "457110151915",
-  appId: "1:457110151915:web:3e843ca0bd122f971a14ae"
+  apiKey: "AIzaSyB95ouD42m0RgdUwzbbKqL3qX3Do0UOf24",
+  authDomain: "collegeadmissionhelper.firebaseapp.com",
+  databaseURL: "https://collegeadmissionhelper-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "collegeadmissionhelper",
+  storageBucket: "collegeadmissionhelper.firebasestorage.app",
+  messagingSenderId: "730631426052",
+  appId: "1:730631426052:web:f514eb6214a048dd7de551"
 };
+
 
 // Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
