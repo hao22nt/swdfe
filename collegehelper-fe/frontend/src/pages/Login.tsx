@@ -20,13 +20,13 @@ const Login: React.FC = () => {
       const result: UserCredential = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
 
-      console.log("User Info:", result.user);
-      console.log("ID Token:", idToken);
-
       const response = await axios.post(
         "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/auth/login-google",
         { token: idToken }
       );
+
+      // Đánh dấu user đăng nhập bằng Google
+      localStorage.setItem('isGoogleUser', 'true');
 
       console.log("Backend Response:", response.data);
       toast.success(`Welcome ${result.user.displayName}!`, {
@@ -34,7 +34,8 @@ const Login: React.FC = () => {
         autoClose: 3000,
       });
 
-      setTimeout(() => navigate("/"), 1000);
+      // Chuyển hướng trực tiếp đến /user
+      setTimeout(() => navigate("/user"), 1000);
     } catch (error) {
       console.error("Login failed:", error);
       toast.error("Login failed. Please try again!", {
@@ -55,6 +56,9 @@ const Login: React.FC = () => {
         "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/auth/auth-account",
         { username, password }
       );
+
+      // Đánh dấu không phải user Google
+      localStorage.setItem('isGoogleUser', 'false');
 
       console.log("Backend Response:", response.data);
       toast.success("Login successful!", {

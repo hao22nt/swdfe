@@ -34,6 +34,26 @@ import AdmissionPage from './userpages/admission';
 import WishlistPage from './userpages/wishlist';
 import NewsPage from './userpages/news';
 
+// Sửa lại component bảo vệ route
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const isGoogleUser = localStorage.getItem('isGoogleUser') === 'true';
+  const location = useLocation();
+  const isUserPath = location.pathname.startsWith('/user'); // /user routes
+  const isUsersPath = location.pathname.startsWith('/users'); // /users routes
+  
+  // Nếu là Google user và cố truy cập route không phải /user
+  if (isGoogleUser && !isUserPath) {
+    return <Navigate to="/user" replace />;
+  }
+
+  // Nếu là admin (không phải Google user) và cố truy cập route /user (không phải /users)
+  if (!isGoogleUser && isUserPath && !isUsersPath) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 function App() {
   const Layout = () => {
     const location = useLocation();
@@ -67,7 +87,11 @@ function App() {
   const router = createBrowserRouter([
     {
       path: '/',
-      element: <Layout />,
+      element: (
+        <ProtectedRoute>
+          <Layout />
+        </ProtectedRoute>
+      ),
       children: [
         {
           path: '/',
