@@ -4,6 +4,9 @@ import {
   RouterProvider,
   Outlet,
   ScrollRestoration,
+  
+  Navigate,
+  useLocation,
 } from 'react-router-dom';
 import Home from './pages/Home';
 import Users from './pages/Users';
@@ -26,9 +29,16 @@ import Product from './pages/Product';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import University from './pages/University';
+import UserLayout from './userpages/UserLayout';
+import AdmissionPage from './userpages/admission';
+import WishlistPage from './userpages/wishlist';
+import NewsPage from './userpages/news';
 
 function App() {
   const Layout = () => {
+    const location = useLocation();
+    const isUserPage = location.pathname.startsWith('/user');
+
     return (
       <div
         id="rootContainer"
@@ -39,9 +49,11 @@ function App() {
         <div>
           <Navbar />
           <div className="w-full flex gap-0 pt-20 xl:pt-[96px] 2xl:pt-[112px] mb-auto">
-            <div className="hidden xl:block xl:w-[250px] 2xl:w-[280px] 3xl:w-[350px] border-r-2 border-base-300 dark:border-slate-700 px-3 xl:px-4 xl:py-1">
-              <Menu />
-            </div>
+            {!isUserPage && (
+              <div className="hidden xl:block xl:w-[250px] 2xl:w-[280px] 3xl:w-[350px] border-r-2 border-base-300 dark:border-slate-700 px-3 xl:px-4 xl:py-1">
+                <Menu />
+              </div>
+            )}
             <div className="w-full px-4 xl:px-4 2xl:px-5 xl:py-2 overflow-clip">
               <Outlet />
             </div>
@@ -112,6 +124,28 @@ function App() {
         {
           path: '/university',
           element: <University />,
+        },
+        {
+          path: '/user',
+          element: <UserLayout />,
+          children: [
+            {
+              path: 'admission',
+              element: <AdmissionPage />,
+            },
+            {
+              path: 'wishlist',
+              element: <WishlistPage />,
+            },
+            {
+              path: 'news',
+              element: <NewsPage />,
+            },
+            {
+              index: true,
+              element: <Navigate to="admission" replace />,
+            },
+          ],
         },
       ],
       errorElement: <Error />,
