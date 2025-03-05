@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { GiLotusFlower } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
 import { auth, googleProvider } from "../firebaseConfig";
-import { signInWithPopup, signInWithEmailAndPassword, UserCredential } from "firebase/auth";
+import { signInWithPopup, UserCredential } from "firebase/auth";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   // Đăng nhập bằng Google
@@ -46,20 +46,14 @@ const Login: React.FC = () => {
     }
   };
 
-  // Đăng nhập bằng email & mật khẩu
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  // Đăng nhập bằng username & password
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const idToken = await userCredential.user.getIdToken();
-
-      console.log("User Info:", userCredential.user);
-      console.log("ID Token:", idToken);
-
       const response = await axios.post(
-        "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/auth/login",
-        { email, password }
+        "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/auth/auth-account",
+        { username, password }
       );
 
       console.log("Backend Response:", response.data);
@@ -71,7 +65,7 @@ const Login: React.FC = () => {
       setTimeout(() => navigate("/"), 1000);
     } catch (error) {
       console.error("Login failed:", error);
-      toast.error("Invalid email or password!", {
+      toast.error("Invalid username or password!", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -87,14 +81,13 @@ const Login: React.FC = () => {
         <GiLotusFlower className="text-6xl text-primary animate-spin-slow" />
         <span className="text-xl font-semibold">Hello, 👋 Welcome Back!</span>
 
-        {/* Form đăng nhập bằng email & mật khẩu */}
-        <form onSubmit={handleEmailLogin} className="w-full mt-5">
+        <form onSubmit={handleLogin} className="w-full mt-5">
           <input 
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Username"
             className="input input-bordered w-full mb-3"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
           <input 
