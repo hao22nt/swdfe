@@ -33,7 +33,7 @@ export const menu = [
     ],
   },
   {
-    catalog: 'lists',
+    catalog: 'Management',
     listItems: [
       {
         isLink: true,
@@ -67,38 +67,6 @@ export const menu = [
       },
     ],
   },
-  {
-    catalog: 'general',
-    listItems: [
-      {
-        isLink: true,
-        url: '/notes',
-        icon: HiOutlinePencilSquare,
-        label: 'notes',
-      },
-      {
-        isLink: true,
-        url: '/calendar',
-        icon: HiOutlineCalendarDays,
-        label: 'calendar',
-      },
-    ],
-  },
-  {
-    catalog: 'miscellaneous',
-    listItems: [
-      // {
-      //   isLink: true,
-      //   url: '/settings',
-      //   icon: IoSettingsOutline,
-      //   label: 'settings',
-      // },
-      {
-        isLink: true,
-        url: '/login',
-        icon: HiOutlineArrowLeftOnRectangle,
-        label: 'log out',
-      },
-    ],
-  },
+  
+  
 ];

@@ -211,9 +211,9 @@ export const fetchSingleProduct = async (id: string) => {
 };
 
 // GET ALL ORDERS
-export const fetchOrders = async () => {
+export const fetchMajors = async () => {
   const response = await axios
-    .get('https://react-admin-ui-v1-api.vercel.app/orders')
+    .get('https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/major/all?pageNumber=1&pageSize=5')
     .then((res) => {
       console.log('axios get:', res.data);
       return res.data;
