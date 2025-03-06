@@ -1,14 +1,38 @@
 import React from 'react';
+import axios from 'axios';
 import { GridColDef } from '@mui/x-data-grid';
 import DataTable from '../components/DataTable';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { fetchMajors } from '../api/ApiCollection'; // 🔥 Gọi API đúng của Major
+
+const API_URL = "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api";
+
+// Hàm fetch API để lấy danh sách majors
+const fetchMajors = async () => {
+  try {
+    const token = localStorage.getItem("accessToken"); // Lấy token từ localStorage
+    if (!token) {
+      throw new Error("No access token found");
+    }
+
+    const response = await axios.get(`${API_URL}/majors/all`, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, // Thêm token vào headers
+      },
+    });
+    
+    return response.data; // Trả về danh sách majors
+  } catch (error) {
+    console.error("Error fetching majors:", error);
+    throw new Error("Failed to fetch majors");
+  }
+};
 
 const Major = () => {
   const { isLoading, isError, isSuccess, data } = useQuery({
-    queryKey: ['allMajors'],
-    queryFn: fetchMajors, // 🔥 Đổi API từ fetchOrders -> fetchMajors
+    queryKey: ['majors'],
+    queryFn: fetchMajors, // Gọi API lấy danh sách majors
   });
 
   const columns: GridColDef[] = [
@@ -16,32 +40,26 @@ const Major = () => {
     {
       field: 'name',
       headerName: 'Major Name',
-      minWidth: 250, 
-      maxWidth: 300, // 👈 Giới hạn chiều rộng cột
-    },
-    {
-      field: 'description',
-      headerName: 'Description',
       minWidth: 300,
-      maxWidth: 400, // 👈 Không cho nó giãn quá lớn
+      flex: 1,
     },
     {
-      field: 'faculty',
-      headerName: 'Faculty',
-      width: 200, // 👈 Giữ cố định
+      field: 'department',
+      headerName: 'Department',
+      minWidth: 250,
+      flex: 1,
     },
   ];
-  
 
   React.useEffect(() => {
     if (isLoading) {
-      toast.loading('Loading...', { id: 'promiseMajors' });
+      toast.loading('Loading majors...', { id: 'promiseMajors' });
     }
     if (isError) {
-      toast.error('Error while fetching Majors!', { id: 'promiseMajors' });
+      toast.error('Error while getting the majors!', { id: 'promiseMajors' });
     }
     if (isSuccess) {
-      toast.success('Majors loaded successfully!', { id: 'promiseMajors' });
+      toast.success('Majors fetched successfully!', { id: 'promiseMajors' });
     }
   }, [isError, isLoading, isSuccess]);
 
@@ -50,8 +68,8 @@ const Major = () => {
       <div className="w-full flex flex-col items-stretch gap-3">
         <div className="w-full flex justify-between mb-5">
           <div className="flex gap-1 justify-start flex-col items-start">
-            <h2 className="font-bold text-2xl xl:text-4xl text-base-content dark:text-neutral-200">
-              Major
+            <h2 className="font-bold text-2xl xl:text-4xl mt-0 pt-0 text-base-content dark:text-neutral-200">
+              Major List
             </h2>
             {data && data.length > 0 && (
               <span className="text-neutral dark:text-neutral-content font-medium text-base">
@@ -60,7 +78,7 @@ const Major = () => {
             )}
           </div>
         </div>
-
+        
         {isLoading ? (
           <DataTable slug="majors" columns={columns} rows={[]} includeActionColumn={false} />
         ) : isSuccess ? (
@@ -68,7 +86,9 @@ const Major = () => {
         ) : (
           <>
             <DataTable slug="majors" columns={columns} rows={[]} includeActionColumn={false} />
-            <div className="w-full flex justify-center">Error fetching Majors!</div>
+            <div className="w-full flex justify-center">
+              Error while getting the data!
+            </div>
           </>
         )}
       </div>

@@ -274,4 +274,20 @@ export const fetchLogs = async () => {
   return response;
 };
 
+// GET ALL UNIVERSITIES
+export const fetchUniversities = async () => {
+  const response = await axios
+    .get('https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/university/all?pageNumber=1&pageSize=5')
+    .then((res) => {
+      console.log('axios get:', res.data);
+      return res.data;
+    })
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+
+  return response;
+};
+
 

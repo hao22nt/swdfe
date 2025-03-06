@@ -56,6 +56,10 @@ const Login: React.FC = () => {
         "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/auth/auth-account",
         { username, password }
       );
+      const accessToken = response.data?.accessToken; // Lấy access token từ API
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken); // Lưu vào localStorage
+      }
 
       // Đánh dấu không phải user Google
       localStorage.setItem('isGoogleUser', 'false');
