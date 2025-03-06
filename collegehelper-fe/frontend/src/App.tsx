@@ -25,7 +25,6 @@ import Logs from './pages/Logs';
 import ToasterProvider from './components/ToasterProvider';
 import EditProfile from './pages/EditProfile';
 import User from './pages/User';
-import AdmissLine from './pages/AdmissLine';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import University from './pages/University';
