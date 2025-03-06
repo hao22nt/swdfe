@@ -6,13 +6,9 @@ import {
   HiOutlineCube,
   HiOutlineClipboardDocumentList,
   HiOutlineDocumentChartBar,
-  HiOutlinePencilSquare,
-  HiOutlineCalendarDays,
-  HiOutlineArrowLeftOnRectangle,
   HiAcademicCap, 
 } from 'react-icons/hi2';
 
-// import { IoSettingsOutline } from 'react-icons/io5';
 
 export const menu = [
   {

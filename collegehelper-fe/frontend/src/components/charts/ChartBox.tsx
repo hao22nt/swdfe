@@ -13,12 +13,9 @@ import {
   Cell,
   XAxis,
   YAxis,
-  // CartesianGrid,
   Tooltip,
-  // Legend,
   ResponsiveContainer,
 } from 'recharts';
-
 interface ChartBoxProps {
   chartType: string; // 'line', 'bar', 'area', 'pie'
   color?: string;
@@ -92,7 +89,7 @@ const ChartBox: React.FC<ChartBoxProps> = ({
                 <IconBox className="m-0 p-0 text-[24px] xl:text-[30px] 2xl:text-[42px] 3xl:text-[48px] leading-none" />
               )}
               <span className="w-[88px] xl:w-[60px] 2xl:w-[82px] 3xl:w-[140px] m-0 p-0 text-[16px] xl:text-[15px] 2xl:text-[20px] 3xl:text-[24px] leading-[1.15] 2xl:leading-tight font-semibold">
-              {title === 'Total Products' ? 'Total University' : title}
+              {title}
               </span>
             </div>
             <span className="font-bold text-xl xl:text-2xl 2xl:text-3xl 3xl:text-4xl m-0 p-0">

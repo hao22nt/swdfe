@@ -11,7 +11,7 @@ interface TopDealsUser {
 }
 
 const TopDealsBox = () => {
-  const tempTotalEntries = [1, 2, 3, 4, 5, 6, 7];
+  const tempTotalEntries = [1, 2, 3, 4, 5];
 
   const { isLoading, isSuccess, data } = useQuery<TopDealsUser[]>({
     queryKey: ['topdeals'],
@@ -53,10 +53,10 @@ const TopDealsBox = () => {
                   </div>
                 </div>
                 <div className="flex flex-col items-start gap-1">
-                  <span className="text-sm xl:text-[13px] 2xl:text-lg 3xl:text-xl m-0 p-0">
+                  <span className="text-sm xl:text-[13px] 2xl:text-lg 3xl:text-xl m-0 p-0 w-full text-center">
                     {university.name}
                   </span>
-                  <span className="text-xs xl:text-[10px] 2xl:text-sm 3xl:text-base">
+                  <span className="text-xs xl:text-[10px] 2xl:text-sm 3xl:text-center">
                     {university.email}
                   </span>
                 </div>
