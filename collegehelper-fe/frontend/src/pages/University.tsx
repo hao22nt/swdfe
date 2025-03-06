@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Table,
   Button,
@@ -7,21 +8,95 @@ import {
   Input,
   Space,
   Popconfirm,
+  message,
 } from 'antd';
-import type { ColumnsType } from 'antd/es/table'; // ✅ Corrected import
+import type { ColumnsType } from 'antd/es/table';
 
+// Định nghĩa interface theo cấu trúc API
 interface University {
-  id: number;
+  id: string;
   name: string;
   location: string;
-  website: string;
+  universityCode: string;
+  email: string;
+  phoneNumber: string;
+  establishedDate: string;
+  accreditation: string;
+  type: string;
+  description: string;
+  rankingNational: number;
+  rankingInternational: number;
+  image: string;
 }
 
 const UniversityPage = () => {
   const [universities, setUniversities] = useState<University[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  
+  const getAccessToken = () => {
+    return localStorage.getItem("accessToken");
+};
+
+const fetchData = async () => {
+    try {
+        const token = getAccessToken(); // Lấy token từ localStorage
+        const response = await axios.get(`https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/university/all?pageNumber=1&pageSize=5
+`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // Thêm token vào header Authorization
+            }
+        });
+
+        console.log("aaaa:",response.data);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+};
+
+fetchData();
+  const API_URL =
+    'https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/university';
+
+  // Fetch dữ liệu từ API
+  const fetchAllUniversities = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        message.error("No access token found!");
+        return;
+      }
+  
+      const response = await axios.get(`${API_URL}/all?pageNumber=1&pageSize=5`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // Thêm token vào headers
+        },
+      });
+  
+      console.log("API Response:", response.data); // Kiểm tra dữ liệu từ API
+  
+      // Kiểm tra API có trả về danh sách không
+      if (!response.data?.message?.items?.$values) {
+        message.error("API response format is incorrect!");
+        return;
+      }
+  
+      // Cập nhật danh sách universities
+      setUniversities(response.data.message.items.$values);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách trường:", error);
+      message.error("Không thể tải danh sách trường đại học");
+    }
+  };
+
+  // Gọi API khi component render
+  useEffect(() => {
+    fetchAllUniversities();
+  }, []);
 
   const columns: ColumnsType<University> = [
     {
@@ -35,9 +110,14 @@ const UniversityPage = () => {
       key: 'location',
     },
     {
-      title: 'Website',
-      dataIndex: 'website',
-      key: 'website',
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Số điện thoại',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
     },
     {
       title: 'Thao tác',
@@ -70,28 +150,67 @@ const UniversityPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    setUniversities(universities.filter((uni) => uni.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+      setUniversities(universities.filter((uni) => uni.id !== id));
+      message.success('Xóa trường thành công');
+    } catch (error) {
+      console.error('Lỗi khi xóa:', error);
+      message.error('Không thể xóa trường');
+    }
   };
 
-  const handleModalOk = () => {
-    form.validateFields().then((values: University) => {
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const token = localStorage.getItem("accessToken");
+  
+      if (!token) {
+        message.error("No access token found!");
+        return;
+      }
+  
       if (editingId === null) {
-        const newUniversity: University = {
-          ...values,
-          id: Date.now(),
-        };
-        setUniversities([...universities, newUniversity]);
+        // Thêm mới
+        const response = await axios.post(
+          `${API_URL}/create`, 
+          values,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`,
+            },
+          }
+        );
+  
+        setUniversities([...universities, response.data.message]);
+        message.success("Thêm trường mới thành công");
       } else {
+        // Cập nhật
+        await axios.put(`${API_URL}/${editingId}`, values, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+  
         setUniversities(
           universities.map((uni) =>
             uni.id === editingId ? { ...uni, ...values } : uni
           )
         );
+        message.success("Cập nhật thành công");
       }
+  
       setIsModalOpen(false);
-    });
+      fetchAllUniversities(); // Làm mới danh sách
+    } catch (error) {
+      console.error("Lỗi khi lưu dữ liệu:", error);
+      message.error("Không thể lưu dữ liệu");
+    }
   };
+  
 
   return (
     <div style={{ padding: '24px' }}>
@@ -141,9 +260,19 @@ const UniversityPage = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            name="website"
-            label="Website"
-            rules={[{ required: true, message: 'Vui lòng nhập website!' }]}
+            name="email"
+            label="Email"
+            rules={[
+              { required: true, message: 'Vui lòng nhập email!' },
+              { type: 'email', message: 'Email không hợp lệ!' },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="phoneNumber"
+            label="Số điện thoại"
+            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
           >
             <Input />
           </Form.Item>

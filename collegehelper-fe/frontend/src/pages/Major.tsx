@@ -1,157 +1,65 @@
 import React from 'react';
+import axios from 'axios';
 import { GridColDef } from '@mui/x-data-grid';
 import DataTable from '../components/DataTable';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-// import AddData from '../components/AddData';
-import { fetchOrders } from '../api/ApiCollection';
+
+const API_URL = "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api";
+
+// Hàm fetch API để lấy danh sách majors
+const fetchMajors = async () => {
+  try {
+    const token = localStorage.getItem("accessToken"); // Lấy token từ localStorage
+    if (!token) {
+      throw new Error("No access token found");
+    }
+
+    const response = await axios.get(`${API_URL}/majors/all`, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, // Thêm token vào headers
+      },
+    });
+    
+    return response.data; // Trả về danh sách majors
+  } catch (error) {
+    console.error("Error fetching majors:", error);
+    throw new Error("Failed to fetch majors");
+  }
+};
 
 const Major = () => {
-  // const [isOpen, setIsOpen] = React.useState(false);
   const { isLoading, isError, isSuccess, data } = useQuery({
-    queryKey: ['allorders'],
-    queryFn: fetchOrders,
+    queryKey: ['majors'],
+    queryFn: fetchMajors, // Gọi API lấy danh sách majors
   });
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: 'title',
-      headerName: 'Product',
+      field: 'name',
+      headerName: 'Major Name',
       minWidth: 300,
       flex: 1,
-      renderCell: (params) => {
-        return (
-          <div className="flex gap-3 items-center">
-            <div className="w-6 xl:w-10 overflow-hidden flex justify-center items-center">
-              <img
-                src={params.row.product || '/corrugated-box.jpg'}
-                alt="orders-picture"
-                className="object-cover"
-              />
-            </div>
-            <span className="mb-0 pb-0 leading-none">
-              {params.row.title}
-            </span>
-          </div>
-        );
-      },
     },
     {
-      field: 'address',
-      type: 'string',
-      headerName: 'Address',
-      minWidth: 320,
-      flex: 1,
-    },
-    {
-      field: 'recipient',
-      headerName: 'Recipient',
+      field: 'department',
+      headerName: 'Department',
       minWidth: 250,
       flex: 1,
-      renderCell: (params) => {
-        return (
-          <div className="flex gap-3 items-center">
-            <div className="avatar">
-              <div className="w-6 xl:w-9 rounded-full">
-                <img
-                  src={
-                    params.row.profile || '/Portrait_Placeholder.png'
-                  }
-                  alt="user-picture"
-                />
-              </div>
-            </div>
-            <span className="mb-0 pb-0 leading-none">
-              {params.row.recipient}
-            </span>
-          </div>
-        );
-      },
-    },
-    {
-      field: 'date',
-      headerName: 'Date',
-      minWidth: 100,
-      type: 'string',
-      flex: 1,
-    },
-    {
-      field: 'total',
-      headerName: 'Total',
-      minWidth: 100,
-      type: 'string',
-      flex: 1,
-    },
-    {
-      field: 'status',
-      headerName: 'Status',
-      minWidth: 120,
-      flex: 1,
-      renderCell: (params) => {
-        if (params.row.status == 'Pending') {
-          return (
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-warning"></div>
-              <div className="text-sm font-medium text-warning">
-                {params.row.status}
-              </div>
-            </div>
-          );
-        } else if (params.row.status == 'Dispatch') {
-          return (
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-info"></div>
-              <div className="text-sm font-medium text-info">
-                {params.row.status}
-              </div>
-            </div>
-          );
-        } else if (params.row.status == 'Cancelled') {
-          return (
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-error"></div>
-              <div className="text-sm font-medium text-error">
-                {params.row.status}
-              </div>
-            </div>
-          );
-        } else if (params.row.status == 'Completed') {
-          return (
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-success"></div>
-              <div className="text-sm font-medium text-success">
-                {params.row.status}
-              </div>
-            </div>
-          );
-        } else {
-          return (
-            <div className="flex items-center gap-2">
-              <div className="badge bg-neutral-content badge-xs"></div>
-              <span className="text-sm font-semibold text-neutral-content">
-                Unknown
-              </span>
-            </div>
-          );
-        }
-      },
     },
   ];
 
   React.useEffect(() => {
     if (isLoading) {
-      toast.loading('Loading...', { id: 'promiseOrders' });
+      toast.loading('Loading majors...', { id: 'promiseMajors' });
     }
     if (isError) {
-      toast.error('Error while getting the data!', {
-        id: 'promiseOrders',
-      });
+      toast.error('Error while getting the majors!', { id: 'promiseMajors' });
     }
     if (isSuccess) {
-      toast.success('Got the data successfully!', {
-        id: 'promiseOrders',
-      });
+      toast.success('Majors fetched successfully!', { id: 'promiseMajors' });
     }
   }, [isError, isLoading, isSuccess]);
 
@@ -161,58 +69,28 @@ const Major = () => {
         <div className="w-full flex justify-between mb-5">
           <div className="flex gap-1 justify-start flex-col items-start">
             <h2 className="font-bold text-2xl xl:text-4xl mt-0 pt-0 text-base-content dark:text-neutral-200">
-              Major
+              Major List
             </h2>
             {data && data.length > 0 && (
               <span className="text-neutral dark:text-neutral-content font-medium text-base">
-                {data.length} Major Found
+                {data.length} Majors Found
               </span>
             )}
           </div>
-          {/* <button
-            onClick={() => setIsOpen(true)}
-            className={`btn ${
-              isLoading ? 'btn-disabled' : 'btn-primary'
-            }`}
-          >
-                  Add New Major +
-          </button> */}
         </div>
+        
         {isLoading ? (
-          <DataTable
-            slug="orders"
-            columns={columns}
-            rows={[]}
-            includeActionColumn={false}
-          />
+          <DataTable slug="majors" columns={columns} rows={[]} includeActionColumn={false} />
         ) : isSuccess ? (
-          <DataTable
-            slug="orders"
-            columns={columns}
-            rows={data}
-            includeActionColumn={false}
-          />
+          <DataTable slug="majors" columns={columns} rows={data} includeActionColumn={false} />
         ) : (
           <>
-            <DataTable
-              slug="orders"
-              columns={columns}
-              rows={[]}
-              includeActionColumn={false}
-            />
+            <DataTable slug="majors" columns={columns} rows={[]} includeActionColumn={false} />
             <div className="w-full flex justify-center">
               Error while getting the data!
             </div>
           </>
         )}
-
-        {/* {isOpen && (
-          <AddData
-            slug={'user'}
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-          />
-        )} */}
       </div>
     </div>
   );
