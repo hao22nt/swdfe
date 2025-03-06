@@ -1,99 +1,145 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { GridColDef } from '@mui/x-data-grid';
-import DataTable from '../components/DataTable';
-import { useQuery } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { Table, Button, Modal, Form, Input, Space, Popconfirm, message } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 
-const API_URL = "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api";
+// Định nghĩa interface theo cấu trúc API
+interface Major {
+  id: string;
+  tuitionFee: string;
+  majorCode: string;
+}
 
-// Hàm fetch API để lấy danh sách majors
-const fetchMajors = async () => {
-  try {
-    const token = localStorage.getItem("accessToken"); // Lấy token từ localStorage
-    if (!token) {
-      throw new Error("No access token found");
+const API_URL = 'https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/unimajor';
+
+const MajorPage = () => {
+  const [majors, setMajors] = useState<Major[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const getAccessToken = () => localStorage.getItem('accessToken');
+
+  const fetchAllMajors = async () => {
+    try {
+      const token = getAccessToken();
+      if (!token) {
+        message.error('No access token found!');
+        return;
+      }
+
+      const response = await axios.get(`${API_URL}/all?pageNumber=1&pageSize=5`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setMajors(response.data.message.items.$values);
+    } catch (error) {
+      console.error('Error fetching majors:', error);
+      message.error('Không thể tải danh sách ngành học');
     }
+  };
 
-    const response = await axios.get(`${API_URL}/majors/all`, {
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`, // Thêm token vào headers
-      },
-    });
-    
-    return response.data; // Trả về danh sách majors
-  } catch (error) {
-    console.error("Error fetching majors:", error);
-    throw new Error("Failed to fetch majors");
-  }
-};
+  useEffect(() => {
+    fetchAllMajors();
+  }, []);
 
-const Major = () => {
-  const { isLoading, isError, isSuccess, data } = useQuery({
-    queryKey: ['majors'],
-    queryFn: fetchMajors, // Gọi API lấy danh sách majors
-  });
-
-  const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
+  const columns: ColumnsType<Major> = [
+    { title: 'tuitionFee', dataIndex: 'tuitionFee', key: 'tuitionFee' },
+    { title: 'majorCode', dataIndex: 'majorCode', key: 'majorCode' },
     {
-      field: 'name',
-      headerName: 'Major Name',
-      minWidth: 300,
-      flex: 1,
-    },
-    {
-      field: 'department',
-      headerName: 'Department',
-      minWidth: 250,
-      flex: 1,
+      title: 'Thao tác',
+      key: 'action',
+      render: (_: unknown, record: Major) => (
+        <Space>
+          <Button type='primary' onClick={() => handleEdit(record)}>Sửa</Button>
+          <Popconfirm title='Bạn có chắc chắn muốn xóa?' onConfirm={() => handleDelete(record.id)}>
+            <Button danger>Xóa</Button>
+          </Popconfirm>
+        </Space>
+      ),
     },
   ];
 
-  React.useEffect(() => {
-    if (isLoading) {
-      toast.loading('Loading majors...', { id: 'promiseMajors' });
+  const handleAdd = () => {
+    setEditingId(null);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (record: Major) => {
+    setEditingId(record.id);
+    form.setFieldsValue(record);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+      setMajors(majors.filter((major) => major.id !== id));
+      message.success('Xóa ngành học thành công');
+    } catch (error) {
+      console.error('Lỗi khi xóa:', error);
+      message.error('Không thể xóa ngành học');
     }
-    if (isError) {
-      toast.error('Error while getting the majors!', { id: 'promiseMajors' });
+  };
+
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const token = getAccessToken();
+      if (!token) {
+        message.error('No access token found!');
+        return;
+      }
+
+      if (editingId === null) {
+        const response = await axios.post(`${API_URL}/create`, values, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setMajors([...majors, response.data.message]);
+        message.success('Thêm ngành học mới thành công');
+      } else {
+        await axios.put(`${API_URL}/${editingId}`, values, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setMajors(majors.map((major) => (major.id === editingId ? { ...major, ...values } : major)));
+        message.success('Cập nhật thành công');
+      }
+
+      setIsModalOpen(false);
+      fetchAllMajors();
+    } catch (error) {
+      console.error('Lỗi khi lưu dữ liệu:', error);
+      message.error('Không thể lưu dữ liệu');
     }
-    if (isSuccess) {
-      toast.success('Majors fetched successfully!', { id: 'promiseMajors' });
-    }
-  }, [isError, isLoading, isSuccess]);
+  };
 
   return (
-    <div className="w-full p-0 m-0">
-      <div className="w-full flex flex-col items-stretch gap-3">
-        <div className="w-full flex justify-between mb-5">
-          <div className="flex gap-1 justify-start flex-col items-start">
-            <h2 className="font-bold text-2xl xl:text-4xl mt-0 pt-0 text-base-content dark:text-neutral-200">
-              Major List
-            </h2>
-            {data && data.length > 0 && (
-              <span className="text-neutral dark:text-neutral-content font-medium text-base">
-                {data.length} Majors Found
-              </span>
-            )}
-          </div>
-        </div>
-        
-        {isLoading ? (
-          <DataTable slug="majors" columns={columns} rows={[]} includeActionColumn={false} />
-        ) : isSuccess ? (
-          <DataTable slug="majors" columns={columns} rows={data} includeActionColumn={false} />
-        ) : (
-          <>
-            <DataTable slug="majors" columns={columns} rows={[]} includeActionColumn={false} />
-            <div className="w-full flex justify-center">
-              Error while getting the data!
-            </div>
-          </>
-        )}
+    <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: '16px' }}>
+        <Button type='default' onClick={handleAdd} style={{ backgroundColor: 'blue', color: 'white' }}>
+          Add new Major+
+        </Button>
       </div>
+      <Table columns={columns} dataSource={majors} rowKey='id' />
+
+      <Modal title={editingId === null ? 'Thêm ngành học' : 'Sửa thông tin'} open={isModalOpen} onOk={handleModalOk} onCancel={() => setIsModalOpen(false)}>
+        <Form form={form} layout='vertical'>
+          <Form.Item name='name' label='Tên ngành' rules={[{ required: true, message: 'Vui lòng nhập tên ngành!' }]}> <Input /> </Form.Item>
+          <Form.Item name='department' label='Khoa' rules={[{ required: true, message: 'Vui lòng nhập khoa!' }]}> <Input /> </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
 
-export default Major;
+export default MajorPage;

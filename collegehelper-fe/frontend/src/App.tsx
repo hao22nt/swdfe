@@ -128,14 +128,6 @@ function App() {
           path: '/posts',
           element: <Posts />,
         },
-        // {
-        //   path: '/notes',
-        //   element: <Notes />,
-        // },
-        // {
-        //   path: '/calendar',
-        //   element: <Calendar />,
-        // },
         {
           path: '/charts',
           element: <Charts />,

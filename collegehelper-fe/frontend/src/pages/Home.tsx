@@ -62,7 +62,7 @@ const Home = () => {
           <ChartBox
             chartType={'line'}
             IconBox={MdInventory2}
-            title="Total Products"
+            title=" Accepted Applications"
             {...queryGetTotalProducts.data}
             isLoading={queryGetTotalProducts.isLoading}
             isSuccess={queryGetTotalProducts.isSuccess}
