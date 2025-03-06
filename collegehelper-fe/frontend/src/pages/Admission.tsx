@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import AddData from '../components/AddData';
 
-const Products = () => {
+const Admission = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const { isLoading, isError, isSuccess, data } = useQuery({
     queryKey: ['allproducts'],
@@ -102,11 +102,11 @@ const Products = () => {
         <div className="w-full flex justify-between xl:mb-5">
           <div className="flex gap-1 justify-start flex-col items-start">
             <h2 className="font-bold text-2xl xl:text-4xl mt-0 pt-0 text-base-content dark:text-neutral-200">
-              Products
+              Admission
             </h2>
             {data && data.length > 0 && (
               <span className="text-neutral dark:text-neutral-content font-medium text-base">
-                {data.length} Products Found
+                {data.length} Admission Found
               </span>
             )}
           </div>
@@ -116,7 +116,7 @@ const Products = () => {
               isLoading ? 'btn-disabled' : 'btn-primary'
             }`}
           >
-            Add New Product +
+            Add New Admission +
           </button>
         </div>
 
@@ -160,4 +160,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default Admission;

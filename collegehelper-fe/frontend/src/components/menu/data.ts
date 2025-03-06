@@ -43,15 +43,15 @@ export const menu = [
       },
       {
         isLink: true,
-        url: '/products',
+        url: '/admission',
         icon: HiOutlineCube,
-        label: 'Manage',
+        label: 'Admission',
       },
       {
         isLink: true,
-        url: '/orders',
+        url: '/major',
         icon: HiOutlineClipboardDocumentList,
-        label: 'Majors',
+        label: 'Major',
       },
       {
         isLink: true,

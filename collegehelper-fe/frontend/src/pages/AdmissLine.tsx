@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const Product = () => {
+const AdmissLine = () => {
   const tempEntries: number[] = [1, 2, 3, 4, 5];
   const dataLine = [
     {
@@ -260,4 +260,4 @@ const Product = () => {
   );
 };
 
-export default Product;
+export default AdmissLine;
