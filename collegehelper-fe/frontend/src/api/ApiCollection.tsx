@@ -385,7 +385,6 @@ export const addUniversity = async (university: UniversityApi) => {
       throw new Error("Không có token, vui lòng đăng nhập");
     }
 
-    // Tạo query string từ các trường (trừ Image)
     const queryParams = new URLSearchParams({
       Name: university.Name,
       Location: university.Location,
@@ -400,10 +399,8 @@ export const addUniversity = async (university: UniversityApi) => {
       RankingInternational: university.RankingInternational.toString(),
     }).toString();
 
-    // Tạo FormData cho Image
     const formData = new FormData();
     if (university.Image) {
-      // Kiểm tra kích thước file (giới hạn 5MB ví dụ)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (university.Image.size > maxSize) {
         throw new Error("File ảnh vượt quá kích thước cho phép (5MB)");
@@ -418,7 +415,7 @@ export const addUniversity = async (university: UniversityApi) => {
     const timeoutId = setTimeout(() => {
       controller.abort();
       console.warn("Yêu cầu bị hủy do timeout sau 30 giây");
-    }, 30000); // Tăng timeout lên 30 giây
+    }, 30000);
 
     const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/university?${queryParams}`;
     const response = await fetch(url, {
@@ -441,20 +438,21 @@ export const addUniversity = async (university: UniversityApi) => {
     const data = await response.json();
     console.log("Dữ liệu trả về từ API:", JSON.stringify(data, null, 2));
 
+    // Chuẩn hóa dữ liệu từ university gửi đi, chỉ lấy id từ response nếu có
     const normalizedUniversity: University = {
-      id: data.id || data.universityId || "unknown",
-      name: data.name || data.Name || "Không có tên",
-      location: data.location || data.Location || "Không xác định",
-      universityCode: data.universityCode || data.UniversityCode || "N/A",
-      email: data.email || data.Email || "N/A",
-      phoneNumber: data.phoneNumber || data.PhoneNumber || "N/A",
-      establishedDate: data.establishedDate || data.EstablishedDate || "N/A",
-      accreditation: data.accreditation || data.Accreditation || "N/A",
-      type: data.type || data.Type || "N/A",
-      description: data.description || data.Description || null,
-      rankingNational: data.rankingNational || data.RankingNational || 0,
-      rankingInternational: data.rankingInternational || data.RankingInternational || 0,
-      image: data.image || data.Image || null,
+      id: data.id || "unknown", // Lấy id từ response nếu có, nếu không dùng "unknown"
+      name: university.Name,
+      location: university.Location,
+      universityCode: university.UniversityCode,
+      email: university.Email,
+      phoneNumber: university.PhoneNumber,
+      establishedDate: university.EstablishedDate || "N/A",
+      accreditation: university.Accreditation || "N/A",
+      type: university.Type,
+      description: university.Description,
+      rankingNational: university.RankingNational,
+      rankingInternational: university.RankingInternational,
+      image: data.image || (university.Image ? university.Image.name : null), // Dùng image từ response nếu có, nếu không dùng tên file
     };
 
     return normalizedUniversity;
