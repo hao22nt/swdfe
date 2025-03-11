@@ -96,18 +96,7 @@ const Navbar = () => {
 
       {/* navbar items to right */}
       <div className="flex items-center gap-0 xl:gap-1 2xl:gap-2 3xl:gap-5">
-        {/* search */}
-        <button
-          onClick={() =>
-            toast('Gaboleh cari!', {
-              icon: '😠',
-            })
-          }
-          className="hidden sm:inline-flex btn btn-circle btn-ghost"
-        >
-          <HiSearch className="text-xl 2xl:text-2xl 3xl:text-3xl" />
-        </button>
-
+       
         {/* fullscreen */}
         <button
           onClick={toggleFullScreen}
@@ -118,18 +107,6 @@ const Navbar = () => {
           ) : (
             <RxExitFullScreen className="xl:text-xl 2xl:text-2xl 3xl:text-3xl" />
           )}
-        </button>
-
-        {/* notification */}
-        <button
-          onClick={() =>
-            toast('Gaada notif!', {
-              icon: '😠',
-            })
-          }
-          className="px-0 xl:px-auto btn btn-circle btn-ghost"
-        >
-          <HiOutlineBell className="text-xl 2xl:text-2xl 3xl:text-3xl" />
         </button>
 
         {/* theme */}
@@ -155,11 +132,6 @@ const Navbar = () => {
             tabIndex={0}
             className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40"
           >
-            <Link to={'/profile'}>
-              <li>
-                <a className="justify-between">My Profile</a>
-              </li>
-            </Link>
             <li onClick={() => navigate('/login')}>
               <a>Log Out</a>
             </li>

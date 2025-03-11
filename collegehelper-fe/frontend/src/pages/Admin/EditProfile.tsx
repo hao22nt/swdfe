@@ -207,15 +207,6 @@ const EditProfile = () => {
                     setAddress(element.target.value)
                   }
                 ></textarea>
-                {/* <input
-                  type="text"
-                  placeholder="Type here"
-                  value={address}
-                  onChange={(element) =>
-                    setAddress(element.target.value)
-                  }
-                  className="input input-bordered w-full col-span-2 2xl:col-span-3"
-                /> */}
               </div>
             </div>
             {/* column 3 */}
