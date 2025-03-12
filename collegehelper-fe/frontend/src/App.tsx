@@ -32,6 +32,7 @@ import UserLayout from './userpages/UserLayout';
 import AdmissionPage from './userpages/admission';
 import WishlistPage from './userpages/wishlist';
 import NewsPage from './userpages/news';
+import Homepage from './userpages/Homepage';
 
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -165,8 +166,12 @@ function App() {
               element: <NewsPage />,
             },
             {
+              path: 'homepage',
+              element: <Homepage />,
+            },
+            {
               index: true,
-              element: <Navigate to="admission" replace />,
+              element: <Navigate to="homepage" replace />,
             },
           ],
         },
