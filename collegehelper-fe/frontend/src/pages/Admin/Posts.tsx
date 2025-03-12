@@ -4,7 +4,7 @@ import DataTable from '../../components/DataTable';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { fetchPosts } from '../../api/ApiCollection';
-import { HiOutlineGlobeAmericas, HiOutlineLockClosed } from 'react-icons/hi2';
+//import { HiOutlineGlobeAmericas, HiOutlineLockClosed } from 'react-icons/hi2';
 
 const Posts = () => {
   const { isLoading, isError, isSuccess, data } = useQuery({
