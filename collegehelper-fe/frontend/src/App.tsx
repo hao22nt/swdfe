@@ -36,7 +36,6 @@ import Homepage from './userpages/Homepage';
 
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isGoogleUser = localStorage.getItem('isGoogleUser') === 'true';
   const userRole = localStorage.getItem('userRole');
   const location = useLocation();
   const isUserPath = location.pathname.startsWith('/user');
@@ -46,17 +45,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Google user luôn vào trang admin
-  if (isGoogleUser && isUserPath) {
-    return <Navigate to="/" replace />;
+  // Admin có thể truy cập mọi route
+  if (userRole === 'admin') {
+    return <>{children}</>;
   }
 
-  // Username admin vào trang admin
-  if (userRole === 'admin' && isUserPath) {
-    return <Navigate to="/" replace />;
-  }
-
-  // Username user chỉ được vào trang user
+  // User thường chỉ được vào /user routes
   if (userRole === 'user' && !isUserPath) {
     return <Navigate to="/user" replace />;
   }
@@ -70,10 +64,7 @@ function App() {
     const isUserPage = location.pathname === '/user' || location.pathname.startsWith('/user/');
 
     return (
-      <div
-        id="rootContainer"
-        className="w-full p-0 m-0 overflow-visible min-h-screen flex flex-col justify-between"
-      >
+      <div className="w-full p-0 m-0 overflow-visible min-h-screen flex flex-col justify-between">
         <ToasterProvider />
         <ScrollRestoration />
         <div>
@@ -108,20 +99,20 @@ function App() {
           element: <Home />,
         },
         {
-          path: '/profile',
-          element: <Profile />,
-        },
-        {
-          path: '/profile/edit',
-          element: <EditProfile />,
-        },
-        {
           path: '/users',
           element: <Users />,
         },
         {
           path: '/users/:id',
           element: <User />,
+        },
+        {
+          path: '/profile',
+          element: <Profile />,
+        },
+        {
+          path: '/profile/edit',
+          element: <EditProfile />,
         },
         {
           path: '/admission',
@@ -164,6 +155,10 @@ function App() {
           element: <UserLayout />,
           children: [
             {
+              path: 'homepage',
+              element: <Homepage />,
+            },
+            {
               path: 'admission',
               element: <AdmissionPage />,
             },
@@ -174,10 +169,6 @@ function App() {
             {
               path: 'news',
               element: <NewsPage />,
-            },
-            {
-              path: 'homepage',
-              element: <Homepage />,
             },
             {
               index: true,
