@@ -37,18 +37,28 @@ import Homepage from './userpages/Homepage';
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isGoogleUser = localStorage.getItem('isGoogleUser') === 'true';
+  const userRole = localStorage.getItem('userRole');
   const location = useLocation();
-  const isUserPath = location.pathname.startsWith('/user'); // /user routes
-  const isUsersPath = location.pathname.startsWith('/users'); // /users routes
+  const isUserPath = location.pathname.startsWith('/user');
   
-  // Nếu là Google user và cố truy cập route không phải /user
-  if (isGoogleUser && !isUserPath) {
-    return <Navigate to="/user" replace />;
+  // Nếu chưa đăng nhập, chuyển về trang login
+  if (!localStorage.getItem('accessToken')) {
+    return <Navigate to="/login" replace />;
   }
 
-  // Nếu là admin (không phải Google user) và cố truy cập route /user (không phải /users)
-  if (!isGoogleUser && isUserPath && !isUsersPath) {
+  // Google user luôn vào trang admin
+  if (isGoogleUser && isUserPath) {
     return <Navigate to="/" replace />;
+  }
+
+  // Username admin vào trang admin
+  if (userRole === 'admin' && isUserPath) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Username user chỉ được vào trang user
+  if (userRole === 'user' && !isUserPath) {
+    return <Navigate to="/user" replace />;
   }
 
   return <>{children}</>;

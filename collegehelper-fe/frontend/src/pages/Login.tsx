@@ -25,25 +25,34 @@ const Login: React.FC = () => {
         { token: idToken }
       );
 
-      // Đánh dấu user đăng nhập bằng Google
+      // Lưu token và role từ response API
+      localStorage.setItem('accessToken', response.data?.accessToken);
       localStorage.setItem('isGoogleUser', 'true');
+      localStorage.setItem('userRole', 'admin');
 
-      console.log("Backend Response:", response.data);
-      toast.success(`Welcome ${result.user.displayName}!`, {
-        position: "top-right",
-        autoClose: 3000,
+      console.log('Google Login Info:', {
+        user: result.user.displayName,
+        email: result.user.email,
+        role: 'admin',
+        isGoogleUser: true
       });
 
-      // Chuyển hướng trực tiếp đến /user
-      setTimeout(() => navigate("/user"), 1000);
+      toast.success(`Welcome ${result.user.displayName}!`);
+      setTimeout(() => navigate("/"), 1000);
     } catch (error) {
       console.error("Login failed:", error);
-      toast.error("Login failed. Please try again!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error("Login failed. Please try again!");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Thêm hàm decode JWT
+  const decodeJWT = (token: string) => {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
     }
   };
 
@@ -56,27 +65,39 @@ const Login: React.FC = () => {
         "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/auth/auth-account",
         { username, password }
       );
-      const accessToken = response.data?.accessToken; // Lấy access token từ API
+
+      const accessToken = response.data?.accessToken;
+      
       if (accessToken) {
-        localStorage.setItem("accessToken", accessToken); // Lưu vào localStorage
+        // Decode JWT token để lấy thông tin
+        const decodedToken = decodeJWT(accessToken);
+        console.log('Decoded Token:', decodedToken);
+
+        // Lấy role từ decoded token
+        const userRole = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'].toLowerCase();
+
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem('isGoogleUser', 'false');
+        localStorage.setItem('userRole', userRole);
+
+        console.log('Normal Login Info:', {
+          username,
+          role: userRole,
+          decodedToken
+        });
+
+        toast.success("Login successful!");
+        setTimeout(() => {
+          if (userRole === 'admin') {
+            navigate("/");
+          } else {
+            navigate("/user");
+          }
+        }, 1000);
       }
-
-      // Đánh dấu không phải user Google
-      localStorage.setItem('isGoogleUser', 'false');
-
-      console.log("Backend Response:", response.data);
-      toast.success("Login successful!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-
-      setTimeout(() => navigate("/"), 1000);
     } catch (error) {
       console.error("Login failed:", error);
-      toast.error("Invalid username or password!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error("Invalid username or password!");
     } finally {
       setLoading(false);
     }
