@@ -1,11 +1,12 @@
 export interface AdmissionInfo {
-  id: number;
+  id: string; // Đổi từ number sang string để khớp với API
   universityName: string;
   majorName: string;
-  baseScore: number;
-  quota: number;
+  baseScore?: number; // Tùy chọn, vì API không trả về
+  quota?: string; // Đổi từ number sang string, tùy chọn
   admissionDate: string;
   isBookmarked: boolean;
+  methodName?: string;
 }
 
 export interface WishlistItem {

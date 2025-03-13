@@ -1,7 +1,7 @@
 import React from 'react';
 import { GridColDef } from '@mui/x-data-grid';
 import DataTable from '../components/DataTable';
-import { fetchUsers } from '../api/ApiCollection';
+import { getUserList } from '../api/ApiCollection';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import AddData from '../components/AddData';
@@ -10,7 +10,7 @@ const Users = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const { isLoading, isError, isSuccess, data } = useQuery({
     queryKey: ['allusers'],
-    queryFn: fetchUsers,
+    queryFn: getUserList,
   });
 
   const columns: GridColDef[] = [
@@ -57,23 +57,6 @@ const Users = () => {
       headerName: 'Created At',
       minWidth: 100,
       type: 'string',
-      flex: 1,
-    },
-    // {
-    //   field: 'fullName',
-    //   headerName: 'Full name',
-    //   description:
-    //     'This column has a value getter and is not sortable.',
-    //   sortable: false,
-    //   width: 160,
-    //   valueGetter: (params: GridValueGetterParams) =>
-    //     `${params.row.firstName || ''} ${params.row.lastName || ''}`,
-    // },
-    {
-      field: 'verified',
-      headerName: 'Verified',
-      width: 80,
-      type: 'boolean',
       flex: 1,
     },
   ];
