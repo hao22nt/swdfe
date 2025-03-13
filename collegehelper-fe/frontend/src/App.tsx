@@ -33,6 +33,7 @@ import AdmissionPage from './userpages/admission';
 import WishlistPage from './userpages/wishlist';
 import NewsPage from './userpages/news';
 import Homepage from './userpages/Homepage';
+import UserProfile from './userpages/profile/index';
 
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -157,6 +158,10 @@ function App() {
             {
               path: 'homepage',
               element: <Homepage />,
+            },
+            {
+              path: 'profile',
+              element: <UserProfile />,
             },
             {
               path: 'admission',

@@ -16,6 +16,11 @@ const UserLayout: React.FC = () => {
       label: 'Trang chủ',
     },
     {
+      key: '/user/profile',
+      icon: <FileTextOutlined />,
+      label: 'Thông tin cá nhân',
+    },
+    {
       key: '/user/admission',
       icon: <BookOutlined />,
       label: 'Tra cứu tuyển sinh',

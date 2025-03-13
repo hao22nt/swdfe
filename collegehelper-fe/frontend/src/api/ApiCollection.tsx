@@ -33,6 +33,18 @@ interface University {
   image: string;
 }
 
+// Add these interfaces near the top of the file after other interfaces
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  createdAt: string;
+  verified: boolean;
+  img?: string;
+}
+
 // GET TOP DEALS
 export const fetchTopDeals = async () => {
   const response = await axios
@@ -583,6 +595,139 @@ export const updateUniversity = async (id: string, university: UniversityApi) =>
     throw error;
   }
 };
+
+// Add this new function after other fetch functions
+export const getUserList = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch("https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/user?pageNumber=1&pageSize=5", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("🔍 User API Response:", JSON.stringify(data, null, 2));
+
+    // Extract users array from response based on your API structure
+    let users = [];
+    if (data && data.message && data.message.items && data.message.items.$values) {
+      users = data.message.items.$values;
+    } else if (data && data.items && data.items.$values) {
+      users = data.items.$values;
+    } else if (data && data.items && Array.isArray(data.items)) {
+      users = data.items;
+    } else if (Array.isArray(data)) {
+      users = data;
+    } else {
+      throw new Error("Invalid data structure from API");
+    }
+
+    // Normalize the user data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const normalizedUsers: User[] = users.map((user: any) => ({
+      id: user.id || user.userId || "unknown",
+      firstName: user.firstName || user.name || "No name",
+      lastName: user.lastName || "",
+      email: user.email || "N/A",
+      phone: user.phone || user.phoneNumber || "N/A",
+      createdAt: user.createdAt || new Date().toISOString(),
+      verified: user.verified || false,
+      img: user.img || user.image || null,
+    }));
+
+    return normalizedUsers;
+
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+interface Admission {
+  id: string;
+  universityName: string;
+  majorName: string;
+  methodName: string;
+  admissionDate: string;
+}
+
+export const getAdmissionList = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor?pageNumber=1&pageSize=5",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("🔍 Admission API Response:", JSON.stringify(data, null, 2));
+
+    // Extract admissions array from response
+    let admissions = [];
+    if (data && data.message && data.message.items && data.message.items.$values) {
+      admissions = data.message.items.$values;
+    } else {
+      throw new Error("Invalid data structure from API");
+    }
+
+    // Normalize the admission data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const normalizedAdmissions: Admission[] = admissions.map((admission: any) => ({
+      id: admission.id || "unknown",
+      universityName: admission.universityName || "N/A",
+      majorName: admission.majorName || "N/A",
+      methodName: admission.methodName || "N/A",
+      admissionDate: admission.admisstionDate || admission.admissionDate || "N/A", // Handle potential typo in API ("admisstionDate")
+    }));
+
+    return normalizedAdmissions;
+
+  } catch (error) {
+    console.error("Error fetching admissions:", error);
+    throw error;
+  }
+};
+
+
 
 
 
