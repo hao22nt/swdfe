@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { GridColDef } from '@mui/x-data-grid';
-import DataTable from '../components/DataTable';
+import DataTable from '../../components/DataTable';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 

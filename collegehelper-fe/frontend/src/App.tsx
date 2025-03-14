@@ -10,24 +10,22 @@ import {
 } from 'react-router-dom';
 import Home from './pages/Home';
 import Users from './pages/Users';
-import Admission from './pages/Admission';
-import Navbar from './components/Navbar';
+import Admission from './pages/Admin/Admission';
+import Navbar from './pages/Admin/Navbar';
 import Footer from './components/Footer';
 import Menu from './components/menu/Menu';
 import Error from './pages/Error';
 import Profile from './pages/Profile';
-import Major from './pages/Major';
-import Posts from './pages/Posts';
-import Notes from './pages/Notes';
-import Calendar from './pages/Calendar';
-import Charts from './pages/Charts';
+import Major from './pages/Admin/Major';
+import Posts from './pages/Admin/Posts';
+import Charts from './pages/Admin/Charts';
 import Logs from './pages/Logs';
 import ToasterProvider from './components/ToasterProvider';
-import EditProfile from './pages/EditProfile';
+import EditProfile from './pages/Admin/EditProfile';
 import User from './pages/User';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import University from './pages/University';
+import University from './pages/Admin/University';
 import UserLayout from './userpages/UserLayout';
 import AdmissionPage from './userpages/admission';
 import WishlistPage from './userpages/wishlist';
@@ -130,14 +128,6 @@ function App() {
         {
           path: '/posts',
           element: <Posts />,
-        },
-        {
-          path: '/notes',
-          element: <Notes />,
-        },
-        {
-          path: '/calendar',
-          element: <Calendar />,
         },
         {
           path: '/charts',

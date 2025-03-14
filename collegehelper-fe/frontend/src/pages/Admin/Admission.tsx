@@ -1,10 +1,10 @@
 import React from 'react';
 import { GridColDef } from '@mui/x-data-grid';
-import DataTable from '../components/DataTable';
-import { fetchProducts } from '../api/ApiCollection';
+import DataTable from '../../components/DataTable';
+import { fetchProducts } from '../../api/ApiCollection';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import AddData from '../components/AddData';
+import AddData from '../../components/AddData';
 
 const Admission = () => {
   const [isOpen, setIsOpen] = React.useState(false);

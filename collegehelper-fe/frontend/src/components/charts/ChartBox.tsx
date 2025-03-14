@@ -13,12 +13,9 @@ import {
   Cell,
   XAxis,
   YAxis,
-  // CartesianGrid,
   Tooltip,
-  // Legend,
   ResponsiveContainer,
 } from 'recharts';
-
 interface ChartBoxProps {
   chartType: string; // 'line', 'bar', 'area', 'pie'
   color?: string;

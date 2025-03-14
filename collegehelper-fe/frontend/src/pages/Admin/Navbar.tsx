@@ -2,13 +2,10 @@ import React from 'react';
 import { FaBookReader } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
 import { HiBars3CenterLeft } from 'react-icons/hi2';
-import { DiReact } from 'react-icons/di';
-import { HiSearch, HiOutlineBell } from 'react-icons/hi';
 import { RxEnterFullScreen, RxExitFullScreen } from 'react-icons/rx';
-import ChangeThemes from './ChangesThemes';
-import toast from 'react-hot-toast';
-import { menu } from './menu/data';
-import MenuItem from './menu/MenuItem';
+import ChangeThemes from '../../components/ChangesThemes';
+import { menu } from '../../components/menu/data';
+import MenuItem from '../../components/menu/MenuItem';
 
 const Navbar = () => {
   const [isFullScreen, setIsFullScreen] = React.useState(true);
@@ -68,9 +65,9 @@ const Navbar = () => {
                 to={'/'}
                 className="flex items-center gap-1 xl:gap-2 mt-1 mb-5"
               >
-                <DiReact className="text-3xl sm:text-4xl xl:text-4xl 2xl:text-6xl text-primary animate-spin-slow" />
+                <FaBookReader className="text-3xl sm:text-4xl xl:text-4xl 2xl:text-6xl text-primary" />
                 <span className="text-[16px] leading-[1.2] sm:text-lg xl:text-xl 2xl:text-2xl font-semibold text-base-content dark:text-neutral-200">
-                  React Dashboard
+                Admissions management
                 </span>
               </Link>
               {menu.map((item, index) => (
@@ -96,18 +93,7 @@ const Navbar = () => {
 
       {/* navbar items to right */}
       <div className="flex items-center gap-0 xl:gap-1 2xl:gap-2 3xl:gap-5">
-        {/* search */}
-        <button
-          onClick={() =>
-            toast('Gaboleh cari!', {
-              icon: '😠',
-            })
-          }
-          className="hidden sm:inline-flex btn btn-circle btn-ghost"
-        >
-          <HiSearch className="text-xl 2xl:text-2xl 3xl:text-3xl" />
-        </button>
-
+       
         {/* fullscreen */}
         <button
           onClick={toggleFullScreen}
@@ -118,18 +104,6 @@ const Navbar = () => {
           ) : (
             <RxExitFullScreen className="xl:text-xl 2xl:text-2xl 3xl:text-3xl" />
           )}
-        </button>
-
-        {/* notification */}
-        <button
-          onClick={() =>
-            toast('Gaada notif!', {
-              icon: '😠',
-            })
-          }
-          className="px-0 xl:px-auto btn btn-circle btn-ghost"
-        >
-          <HiOutlineBell className="text-xl 2xl:text-2xl 3xl:text-3xl" />
         </button>
 
         {/* theme */}
@@ -155,11 +129,6 @@ const Navbar = () => {
             tabIndex={0}
             className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40"
           >
-            <Link to={'/profile'}>
-              <li>
-                <a className="justify-between">My Profile</a>
-              </li>
-            </Link>
             <li onClick={() => navigate('/login')}>
               <a>Log Out</a>
             </li>

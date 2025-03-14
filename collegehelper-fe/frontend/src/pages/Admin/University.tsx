@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchUniversity, addUniversity, deleteUniversity, updateUniversity } from "../api/ApiCollection";
+import { fetchUniversity, addUniversity, deleteUniversity, updateUniversity } from "../../api/ApiCollection";
 
 interface University {
   id: string;

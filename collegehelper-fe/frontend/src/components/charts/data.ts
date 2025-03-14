@@ -1,8 +1,6 @@
 import {
   MdGroup,
   MdInventory2,
-  MdAssessment,
-  MdSwapHorizontalCircle,
 } from 'react-icons/md';
 
 export const totalUsers = {
@@ -23,12 +21,12 @@ export const totalUsers = {
   ],
 };
 
-export const totalProducts = {
+export const AcceptedApplications = {
   color: 'skyblue',
   IconBox: MdInventory2,
-  title: 'Total Products', // <- Cần sửa
+  title: 'Accepted Applications',  
   number: '238',
-  dataKey: 'products',
+  dataKey: 'Applications',
   percentage: 21,
   chartData: [
     { name: 'Sun', products: 400 },
@@ -41,40 +39,7 @@ export const totalProducts = {
   ],
 };
 
-export const totalRevenue = {
-  color: 'teal',
-  IconBox: MdAssessment,
-  title: 'Total Revenue',
-  number: '$56.432',
-  dataKey: 'revenue',
-  percentage: -12,
-  chartData: [
-    { name: 'Sun', revenue: 400 },
-    { name: 'Mon', revenue: 600 },
-    { name: 'Tue', revenue: 500 },
-    { name: 'Wed', revenue: 700 },
-    { name: 'Thu', revenue: 400 },
-    { name: 'Fri', revenue: 500 },
-    { name: 'Sat', revenue: 450 },
-  ],
-};
-export const totalRatio = {
-  color: 'gold',
-  IconBox: MdSwapHorizontalCircle,
-  title: 'Total Ratio',
-  number: '2.6',
-  dataKey: 'ratio',
-  percentage: 12,
-  chartData: [
-    { name: 'Sun', ratio: 400 },
-    { name: 'Mon', ratio: 600 },
-    { name: 'Tue', ratio: 500 },
-    { name: 'Wed', ratio: 700 },
-    { name: 'Thu', ratio: 400 },
-    { name: 'Fri', ratio: 500 },
-    { name: 'Sat', ratio: 450 },
-  ],
-};
+
 
 export const totalVisit = {
   title: 'Total Visit',
@@ -150,7 +115,6 @@ export const totalProfit = {
 
 export const totalSource = {
   title: 'Leads by Source',
-  // color: '#8884d8',
   dataKey: 'value',
   chartPieData: [
     { name: 'Mobile', value: 350, color: '#0088FE' },
@@ -160,59 +124,3 @@ export const totalSource = {
   ],
 };
 
-export const totalRevenueByProducts = {
-  title: 'Revenue by Products',
-  // color: '#8884d8',
-  dataKey: 'name',
-  chartAreaData: [
-    {
-      name: 'Sun',
-      smartphones: 4000,
-      consoles: 2400,
-      laptops: 2400,
-      others: 1000,
-    },
-    {
-      name: 'Mon',
-      smartphones: 3000,
-      consoles: 1398,
-      laptops: 2210,
-      others: 700,
-    },
-    {
-      name: 'Tue',
-      smartphones: 2000,
-      consoles: 9800,
-      laptops: 2290,
-      others: 675,
-    },
-    {
-      name: 'Wed',
-      smartphones: 2780,
-      consoles: 3908,
-      laptops: 2000,
-      others: 685,
-    },
-    {
-      name: 'Thu',
-      smartphones: 1890,
-      consoles: 4800,
-      laptops: 2181,
-      others: 675,
-    },
-    {
-      name: 'Fri',
-      smartphones: 2390,
-      consoles: 3800,
-      laptops: 2500,
-      others: 650,
-    },
-    {
-      name: 'Sat',
-      smartphones: 3490,
-      consoles: 4300,
-      laptops: 2100,
-      others: 1075,
-    },
-  ],
-};
