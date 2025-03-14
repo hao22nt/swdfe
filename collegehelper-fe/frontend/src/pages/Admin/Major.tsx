@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import DataTable from '../../components/DataTable';
 import { GridColDef } from '@mui/x-data-grid';
 import { fetchMajors } from '../../api/ApiCollection';
+import { useEffect } from 'react';
 
 const Major = () => {
   const { isLoading, isError, data } = useQuery({
