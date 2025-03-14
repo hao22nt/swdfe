@@ -6,9 +6,6 @@ import {
   HiOutlineCube,
   HiOutlineClipboardDocumentList,
   HiOutlineDocumentChartBar,
-  HiOutlinePencilSquare,
-  HiOutlineCalendarDays,
-  HiOutlineArrowLeftOnRectangle,
   HiAcademicCap, 
 } from 'react-icons/hi2';
 
