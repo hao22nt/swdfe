@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import DataTable from '../../components/DataTable';
