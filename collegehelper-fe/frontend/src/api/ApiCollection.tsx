@@ -1,6 +1,83 @@
 import axios from 'axios';
 
 
+
+
+ 
+ 
+
+ 
+
+const API_BASE_URL =
+  "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/major?pageNumber=1&pageSize=5";
+
+const getToken = (): string | null => {
+  const token = localStorage.getItem("accessToken"); // Lấy token từ localStorage
+  console.log("🔑 Token lấy từ localStorage:", token);
+  return token;
+};
+
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
+
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+    if (!token) {
+      console.error("⚠ Không tìm thấy token, có thể user chưa đăng nhập!");
+      throw new Error("Unauthorized - Token không tồn tại");
+    }
+    config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  },
+  (error) => {
+    console.error("❌ Lỗi interceptor request:", error);
+    return Promise.reject(error);
+  }
+);
+
+export const fetchMajors = async () => {
+  try {
+    console.log("🚀 Gọi API Major...");
+    const response = await axiosInstance.get("");
+
+    console.log("✅ API Response:", response.data);
+
+    if (!response.data || !response.data.message || !response.data.message.items || !Array.isArray(response.data.message.items.$values)) {
+      throw new Error("❌ API không trả về danh sách majors hợp lệ!");
+    }
+
+    return response.data.message.items.$values; // Trả về danh sách majors
+  } catch (error: any) {
+    console.error("❌ Lỗi khi tải Major:", error?.response?.status, error?.response?.data);
+
+    if (error.response?.status === 401) {
+      console.warn("⚠ Token có thể đã hết hạn, cần đăng nhập lại!");
+      localStorage.removeItem("accessToken");
+      window.location.href = "/login";
+    }
+
+    return [];
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
 // Add this at the top of the file, after the import statements
 interface UniversityApi {
   Name: string;

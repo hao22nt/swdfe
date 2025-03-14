@@ -19,8 +19,7 @@ const Admission = () => {
       field: 'img',
       headerName: 'Product',
       minWidth: 300,
-      flex: 1,
-      renderCell: (params) => {
+            renderCell: (params) => {
         return (
           <div className="flex gap-3 items-center">
             <div className="w-6 xl:w-10 overflow-hidden flex justify-center items-center">
@@ -37,46 +36,46 @@ const Admission = () => {
         );
       },
     },
-    // {
-    //   field: 'title',
-    //   type: 'string',
-    //   headerName: 'Title',
-    //   width: 250,
-    // },
+    {
+      field: 'title',
+      type: 'string',
+      headerName: 'Title',
+      width: 250,
+    },
     {
       field: 'color',
       type: 'string',
       headerName: 'Color',
       minWidth: 100,
-      flex: 1,
+      
     },
     {
       field: 'price',
       type: 'string',
       headerName: 'Price',
       minWidth: 100,
-      flex: 1,
+       
     },
     {
       field: 'producer',
       headerName: 'Producer',
       type: 'string',
       minWidth: 100,
-      flex: 1,
+    
     },
     {
       field: 'createdAt',
       headerName: 'Created At',
       minWidth: 100,
       type: 'string',
-      flex: 1,
+       
     },
     {
       field: 'inStock',
       headerName: 'In Stock',
       minWidth: 80,
       type: 'boolean',
-      flex: 1,
+       
     },
   ];
 
