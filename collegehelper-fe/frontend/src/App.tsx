@@ -33,6 +33,7 @@ import NewsPage from './userpages/news';
 import Homepage from './userpages/Homepage';
 import UserProfile from './userpages/profile/index';
 import AcademicYear from './pages/AcademicYear';
+import Subject from './pages/Subject';
 
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -125,6 +126,10 @@ function App() {
         {
           path: '/major',
           element: <Major />,
+        },
+        {
+          path: '/subjects',
+          element: <Subject />,
         },
         {
           path: '/posts',
