@@ -7,7 +7,7 @@ import {
   HiOutlineClipboardDocumentList,
   HiOutlineDocumentChartBar,
   HiAcademicCap,
-  HiAdjustmentsHorizontal, 
+  HiOutlineCalendarDays,
 } from 'react-icons/hi2';
 import { FaBook } from "react-icons/fa";
 
