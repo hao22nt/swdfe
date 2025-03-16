@@ -926,6 +926,184 @@ export const updateAdmissionMethod = async (id: string, admissionData: Admission
   }
 };
 
+// api/ApiCollection.ts
+
+// api/ApiCollection.ts
+
+export interface AcademicYear {
+  id: string;
+  year: number;
+}
+
+export interface AcademicYearInput {
+  year: number;
+}
+
+export interface PaginatedResponse<T> {
+  message: {
+    items: {
+      $values: T[];
+    };
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  };
+}
+
+// Lấy danh sách AcademicYear
+export const getAcademicYears = async (): Promise<AcademicYear[]> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/academicyear",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data: PaginatedResponse<AcademicYear> = await response.json();
+    return data.message.items.$values; // Trả về mảng AcademicYear
+  } catch (error) {
+    console.error("Error fetching academic years:", error);
+    throw error;
+  }
+};
+
+// Tạo mới AcademicYear
+export const createAcademicYear = async (academicYearData: AcademicYearInput) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/academicyear",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(academicYearData),
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    return await response.json() as AcademicYear;
+  } catch (error) {
+    console.error("Error creating academic year:", error);
+    throw error;
+  }
+};
+
+// Cập nhật AcademicYear
+export const updateAcademicYear = async (id: string, academicYearData: AcademicYearInput) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/academicyear/${id}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(academicYearData),
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    return await response.json() as AcademicYear;
+  } catch (error) {
+    console.error("Error updating academic year:", error);
+    throw error;
+  }
+};
+
+// Xóa AcademicYear
+export const deleteAcademicYear = async (id: string) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/academicyear/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    return id;
+  } catch (error) {
+    console.error("Error deleting academic year:", error);
+    throw error;
+  }
+};
+
 
 
 
