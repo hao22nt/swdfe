@@ -1,10 +1,10 @@
 import React from 'react';
 import { GridColDef } from '@mui/x-data-grid';
-import DataTable from '../components/DataTable';
-import { getAdmissionMethod, createAdmissionMethod, deleteAdmissionMethod, updateAdmissionMethod, AdmissionMethod, AdmissionInput } from '../api/ApiCollection';
+import DataTable from '../../components/DataTable';
+import { getAdmissionMethod, createAdmissionMethod, deleteAdmissionMethod, updateAdmissionMethod, AdmissionMethod, AdmissionInput } from '../../api/ApiCollection';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import AddData from '../components/AddData';
+import AddData from '../../components/AddData';
 import { HiOutlineXMark } from 'react-icons/hi2';
 
 const Admission = () => {

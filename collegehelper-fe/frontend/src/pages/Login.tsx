@@ -64,6 +64,7 @@ const Login: React.FC = () => {
       const response = await axios.post(
         "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/auth/auth-account",
         { username, password }
+        
       );
 
       const accessToken = response.data?.accessToken;
