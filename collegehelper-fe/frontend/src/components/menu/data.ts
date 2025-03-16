@@ -9,9 +9,10 @@ import {
   HiOutlinePencilSquare,
   HiOutlineCalendarDays,
   HiOutlineArrowLeftOnRectangle,
-  HiAcademicCap,
-  HiAdjustmentsHorizontal, 
+  HiAcademicCap, 
 } from 'react-icons/hi2';
+import { FaBook } from "react-icons/fa";
+
 
 // import { IoSettingsOutline } from 'react-icons/io5';
 
@@ -50,6 +51,12 @@ export const menu = [
       },
       {
         isLink: true,
+        url: '/subjects',
+        icon:FaBook ,
+        label: 'Subject',
+      },
+      {
+        isLink: true,
         url: '/major',
         icon: HiOutlineClipboardDocumentList,
         label: 'Major',
@@ -69,9 +76,10 @@ export const menu = [
       {
         isLink: true,
         url: '/academicYears',
-        icon:HiAdjustmentsHorizontal ,
+        icon: HiOutlineCalendarDays ,
         label: 'AcademicY',
-      }
+      },
+      
     ],
   },
   {

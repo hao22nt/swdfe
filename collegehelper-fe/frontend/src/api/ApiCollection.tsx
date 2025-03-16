@@ -1104,6 +1104,185 @@ export const deleteAcademicYear = async (id: string) => {
   }
 };
 
+// api/subject
+
+export interface Subject {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
+export interface SubjectInput {
+  name: string;
+  description?: string | null;
+}
+
+export interface PaginatedResponse<T> {
+  message: {
+    items: {
+      $values: T[];
+    };
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  };
+  cache?: boolean;
+}
+
+// Lấy danh sách Subject
+export const getSubjects = async (): Promise<Subject[]> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subject",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data: PaginatedResponse<Subject> = await response.json();
+    return data.message.items.$values; // Trả về mảng Subject
+  } catch (error) {
+    console.error("Error fetching subjects:", error);
+    throw error;
+  }
+};
+
+// Tạo mới Subject
+export const createSubject = async (subjectData: SubjectInput) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subject",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(subjectData),
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    return await response.json() as Subject;
+  } catch (error) {
+    console.error("Error creating subject:", error);
+    throw error;
+  }
+};
+
+// Cập nhật Subject
+export const updateSubject = async (id: string, subjectData: SubjectInput) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subject/${id}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(subjectData),
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    return await response.json() as Subject;
+  } catch (error) {
+    console.error("Error updating subject:", error);
+    throw error;
+  }
+};
+
+// Xóa Subject
+export const deleteSubject = async (id: string) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subject/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    return id;
+  } catch (error) {
+    console.error("Error deleting subject:", error);
+    throw error;
+  }
+};
+
 
 
 
