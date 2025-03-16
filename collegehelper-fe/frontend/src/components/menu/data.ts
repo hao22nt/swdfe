@@ -6,7 +6,8 @@ import {
   HiOutlineCube,
   HiOutlineClipboardDocumentList,
   HiOutlineDocumentChartBar,
-  HiAcademicCap, 
+  HiAcademicCap,
+  HiAdjustmentsHorizontal, 
 } from 'react-icons/hi2';
 
 // import { IoSettingsOutline } from 'react-icons/io5';
@@ -62,6 +63,12 @@ export const menu = [
         icon: HiAcademicCap,
         label: 'University',
       },
+      {
+        isLink: true,
+        url: '/academicYears',
+        icon:HiAdjustmentsHorizontal ,
+        label: 'AcademicY',
+      }
     ],
   },
   

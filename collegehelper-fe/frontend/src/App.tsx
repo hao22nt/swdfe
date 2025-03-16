@@ -32,6 +32,7 @@ import WishlistPage from './userpages/wishlist';
 import NewsPage from './userpages/news';
 import Homepage from './userpages/Homepage';
 import UserProfile from './userpages/profile/index';
+import AcademicYear from './pages/AcademicYear';
 
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -128,6 +129,10 @@ function App() {
         {
           path: '/posts',
           element: <Posts />,
+        },
+        {
+          path: '/academicYears',
+          element: <AcademicYear />,
         },
         {
           path: '/charts',
