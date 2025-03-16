@@ -1,7 +1,6 @@
 import React, { ChangeEvent, FormEvent } from 'react';
 import toast from 'react-hot-toast';
 import { HiOutlineXMark } from 'react-icons/hi2';
-import { AdmissionInput } from '../api/ApiCollection';
 
 interface Field {
   name: string;
@@ -10,33 +9,25 @@ interface Field {
   required?: boolean;
 }
 
-interface AddDataProps {
+interface AddDataProps<T> {
   slug: string;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  onSubmit?: (data: AdmissionInput) => void;
+  onSubmit?: (data: T) => void;
   fields?: Field[];
-  initialData?: Partial<AdmissionInput>; // Giữ nguyên kiểu này
+  initialData?: Partial<T>;
 }
 
-const AddData: React.FC<AddDataProps> = ({
+const AddData = <T,>({
   slug,
   isOpen,
   setIsOpen,
   onSubmit,
   fields = [],
   initialData = {},
-}) => {
+}: AddDataProps<T>): JSX.Element => {
   const [showModal, setShowModal] = React.useState(false);
-  // Cập nhật kiểu của formData để chấp nhận null
-  const [formData, setFormData] = React.useState<{ [key: string]: string | null }>(
-    // Chuyển đổi initialData để đảm bảo tương thích
-    {
-      methodName: initialData.methodName || '',
-      requiredDocuments: initialData.requiredDocuments || null,
-      description: initialData.description || null,
-    }
-  );
+  const [formData, setFormData] = React.useState<Partial<T>>(initialData);
   const [formIsEmpty, setFormIsEmpty] = React.useState(true);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -46,12 +37,7 @@ const AddData: React.FC<AddDataProps> = ({
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSubmit) {
-      const admissionData: AdmissionInput = {
-        methodName: formData.methodName || '', // methodName là bắt buộc, không thể null
-        requiredDocuments: formData.requiredDocuments || null,
-        description: formData.description || null,
-      };
-      onSubmit(admissionData);
+      onSubmit(formData as T);
     } else {
       toast('Gabisa dong!', { icon: '😛' });
     }
@@ -63,11 +49,11 @@ const AddData: React.FC<AddDataProps> = ({
 
   React.useEffect(() => {
     const requiredFields = fields.filter((field) => field.required);
-    const isEmpty = requiredFields.some((field) => !formData[field.name] || formData[field.name] === '');
+    const isEmpty = requiredFields.some((field) => !formData[field.name as keyof T]);
     setFormIsEmpty(isEmpty);
   }, [formData, fields]);
 
-  if (!isOpen) return null;
+  if (!isOpen) return <></>; // Trả về fragment rỗng thay vì null
 
   return (
     <div className="w-screen h-screen fixed top-0 left-0 flex justify-center items-center bg-black/75 z-[99]">
@@ -86,7 +72,9 @@ const AddData: React.FC<AddDataProps> = ({
           >
             <HiOutlineXMark className="text-xl font-bold" />
           </button>
-          <span className="text-2xl font-bold">{initialData.methodName ? 'Edit' : 'Add new'} {slug.replace('-', ' ')}</span>
+          <span className="text-2xl font-bold">
+            {formData && Object.keys(formData).length > 0 ? 'Edit' : 'Add new'} {slug.replace('-', ' ')}
+          </span>
         </div>
         <form onSubmit={handleSubmit} className="w-full grid grid-cols-1 gap-4">
           {fields.map((field) => (
@@ -99,7 +87,7 @@ const AddData: React.FC<AddDataProps> = ({
                   name={field.name}
                   placeholder={field.label}
                   className="textarea textarea-bordered w-full"
-                  value={formData[field.name] ?? ''} // Chuyển null thành chuỗi rỗng để hiển thị
+                  value={(formData[field.name as keyof T] as string | undefined) ?? ''}
                   onChange={handleChange}
                   required={field.required}
                 />
@@ -109,7 +97,7 @@ const AddData: React.FC<AddDataProps> = ({
                   name={field.name}
                   placeholder={field.label}
                   className="input input-bordered w-full"
-                  value={formData[field.name] ?? ''} // Chuyển null thành chuỗi rỗng để hiển thị
+                  value={(formData[field.name as keyof T] as string | number | undefined) ?? ''}
                   onChange={handleChange}
                   required={field.required}
                 />
