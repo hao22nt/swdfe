@@ -8,14 +8,14 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom';
-import Home from './pages/Home';
+import Home from './pages/Admin/Home';
 import Users from './pages/Users';
 import Admission from './pages/Admin/Admission';
 import Navbar from './pages/Admin/Navbar';
 import Footer from './components/Footer';
 import Menu from './components/menu/Menu';
 import Error from './pages/Error';
-import Profile from './pages/Profile';
+import Profile from './pages/Admin/Profile';
 import Major from './pages/Admin/Major';
 import Posts from './pages/Admin/Posts';
 import Charts from './pages/Admin/Charts';
@@ -26,14 +26,14 @@ import User from './pages/User';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import University from './pages/Admin/University';
-import UserLayout from './userpages/UserLayout';
-import AdmissionPage from './userpages/admission';
-import WishlistPage from './userpages/wishlist';
-import NewsPage from './userpages/news';
-import Homepage from './userpages/Homepage';
-import UserProfile from './userpages/profile/index';
-import AcademicYear from './pages/AcademicYear';
-import Subject from './pages/Subject';
+import UserLayout from './pages/User/UserLayout';
+import AdmissionPage from './pages/User/admission';
+import WishlistPage from './pages/User/wishlist';
+import NewsPage from './pages/User/news';
+import Homepage from './pages/User/Homepage';
+import UserProfile from './pages/User/profile/index';
+import AcademicYear from './pages/Admin/AcademicYear';
+import Subject from './pages/Admin/Subject';
 
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {

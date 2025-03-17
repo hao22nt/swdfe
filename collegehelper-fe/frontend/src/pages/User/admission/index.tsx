@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, message, Card } from 'antd';
-import { getAdmissionList } from '../../api/ApiCollection'; 
 import type { AdmissionInfo } from '../types';
+import { getAdmissionList } from '../../../api/ApiCollection';
 
 const AdmissionPage: React.FC = () => {
   const [admissionData, setAdmissionData] = useState<AdmissionInfo[]>([]);
