@@ -1,4 +1,4 @@
-import React from 'react';
+
 import TopDealsBox from '../../components/topDealsBox/TopDealsBox';
 import ChartBox from '../../components/charts/ChartBox';
 import { useQuery } from '@tanstack/react-query';
