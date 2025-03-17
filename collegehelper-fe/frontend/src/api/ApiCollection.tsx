@@ -111,16 +111,7 @@ interface University {
 }
 
 // Add these interfaces near the top of the file after other interfaces
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  createdAt: string;
-  verified: boolean;
-  img?: string;
-}
+
 
 // GET TOP DEALS
 export const fetchTopDeals = async () => {
@@ -139,35 +130,187 @@ export const fetchTopDeals = async () => {
 };
 
 // GET TOTAL USERS
-export const fetchTotalUsers = async () => {
-  const response = await axios
-    .get('https://react-admin-ui-v1-api.vercel.app/totalusers')
-    .then((res) => {
-      console.log('axios get:', res.data);
-      return res.data;
-    })
-    .catch((err) => {
-      console.log(err);
-      throw err;
-    });
+export interface TotalUsersData {
+  number: number; // Tổng số người dùng
+  percentage: number; // Phần trăm thay đổi
+  chartData: Array<{ name: string; value: number }>; // Dữ liệu cho biểu đồ
+}
 
-  return response;
+export const fetchTotalUsers = async (): Promise<TotalUsersData> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/dashboard/total-users",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("🔍 Total Users API Response:", JSON.stringify(data, null, 2));
+
+    // Xử lý dữ liệu trả về
+    if (data.totalUsers !== undefined) {
+      return {
+        number: data.totalUsers, // Lấy từ totalUsers
+        percentage: 0, // Không có trong API, đặt mặc định là 0
+        chartData: [ // Dữ liệu giả cho biểu đồ
+          { name: "Jan", value: Math.round(data.totalUsers * 0.5) },
+          { name: "Feb", value: Math.round(data.totalUsers * 0.6) },
+          { name: "Mar", value: Math.round(data.totalUsers * 0.8) },
+          { name: "Apr", value: data.totalUsers },
+        ],
+      };
+    } else {
+      throw new Error("Invalid response structure: 'totalUsers' field not found");
+    }
+  } catch (error) {
+    console.error("Error fetching total users:", error);
+    throw error;
+  }
 };
 
-// GET TOTAL PRODUCTS
-export const fetchTotalProducts = async () => {
-  const response = await axios
-    .get('https://react-admin-ui-v1-api.vercel.app/totalproducts')
-    .then((res) => {
-      console.log('axios get:', res.data);
-      return res.data;
-    })
-    .catch((err) => {
-      console.log(err);
-      throw err;
-    });
+// GET TOTAL UNIVERSITIES
+export interface TotalUniversitiesData {
+  number: number; // Tổng số trường đại học
+  chartData: Array<{ name: string; value: number }>; // Dữ liệu cho biểu đồ
+}
 
-  return response;
+export const fetchTotalUniversities = async (): Promise<TotalUniversitiesData> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/dashboard/total-universitys",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("🔍 Total Universities API Response:", JSON.stringify(data, null, 2));
+
+    // Xử lý dữ liệu trả về
+    if (data.totalUniversities !== undefined) {
+      return {
+        number: data.totalUniversities, // Lấy từ totalUniversities
+        chartData: [ // Dữ liệu giả cho biểu đồ
+          { name: "Jan", value: Math.round(data.totalUniversities * 0.5) },
+          { name: "Feb", value: Math.round(data.totalUniversities * 0.6) },
+          { name: "Mar", value: Math.round(data.totalUniversities * 0.8) },
+          { name: "Apr", value: data.totalUniversities },
+        ],
+      };
+    } else {
+      throw new Error("Invalid response structure: 'totalUniversities' field not found");
+    }
+  } catch (error) {
+    console.error("Error fetching total universities:", error);
+    throw error;
+  }
+};
+
+export interface UserLoginStat {
+  userId: string;
+  userName: string;
+  loginCount: number;
+  loginTime: string;
+}
+
+export interface UserLoginStatsData {
+  number: number; // Tổng số lần đăng nhập
+  chartData: Array<{ name: string; value: number }>; // Dữ liệu cho biểu đồ (loginCount theo userName)
+}
+
+export const fetchUserLoginStats = async (): Promise<UserLoginStatsData> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/dashboard/user-login-stats",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("🔍 User Login Stats API Response:", JSON.stringify(data, null, 2));
+
+    // Xử lý dữ liệu trả về
+    if (data.data && Array.isArray(data.data.$values)) {
+      const userStats: UserLoginStat[] = data.data.$values;
+      const totalLoginCount = userStats.reduce((sum, user) => sum + user.loginCount, 0);
+      const chartData = userStats.map(user => ({
+        name: user.userName,
+        value: user.loginCount,
+      }));
+
+      return {
+        number: totalLoginCount, // Tổng số lần đăng nhập
+        chartData, // Dữ liệu cho biểu đồ
+      };
+    } else {
+      throw new Error("Invalid response structure: 'data.$values' not found or not an array");
+    }
+  } catch (error) {
+    console.error("Error fetching user login stats:", error);
+    throw error;
+  }
 };
 
 // GET TOTAL RATIO
@@ -672,9 +815,39 @@ export const updateUniversity = async (id: string, university: UniversityApi) =>
     throw error;
   }
 };
+// api/ApiCollection.ts
 
-// Add this new function after other fetch functions
-export const getUserList = async () => {
+// api/ApiCollection.ts
+
+export interface User {
+  id: string;
+  userImage: string | null;
+  name: string;
+  email: string;
+  userName: string;
+  phoneNumber: string | null;
+}
+
+export interface UserInput {
+  name?: string; // Tất cả đều optional cho PATCH
+  email?: string;
+  userName?: string;
+  phoneNumber?: string | null;
+  userImage?: string | null;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+// Lấy danh sách người dùng (giữ nguyên từ lần sửa trước)
+export const getUserList = async (): Promise<User[]> => {
   try {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -684,14 +857,17 @@ export const getUserList = async () => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch("https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/user?pageNumber=1&pageSize=5", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      signal: controller.signal,
-    });
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/user?pageNumber=1&pageSize=5",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
 
     clearTimeout(timeoutId);
 
@@ -703,37 +879,154 @@ export const getUserList = async () => {
     const data = await response.json();
     console.log("🔍 User API Response:", JSON.stringify(data, null, 2));
 
-    // Extract users array from response based on your API structure
-    let users = [];
-    if (data && data.message && data.message.items && data.message.items.$values) {
-      users = data.message.items.$values;
-    } else if (data && data.items && data.items.$values) {
-      users = data.items.$values;
-    } else if (data && data.items && Array.isArray(data.items)) {
-      users = data.items;
-    } else if (Array.isArray(data)) {
-      users = data;
-    } else {
-      throw new Error("Invalid data structure from API");
+    if (!data.message || !data.message.items || !Array.isArray(data.message.items.$values)) {
+      throw new Error("Invalid data structure from API: 'message.items.$values' is missing or not an array");
     }
 
-    // Normalize the user data
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const users = data.message.items.$values;
+
     const normalizedUsers: User[] = users.map((user: any) => ({
-      id: user.id || user.userId || "unknown",
-      firstName: user.firstName || user.name || "No name",
-      lastName: user.lastName || "",
+      id: user.id || "unknown",
+      userImage: user.userViewsImage || null,
+      name: user.name || "No name",
       email: user.email || "N/A",
-      phone: user.phone || user.phoneNumber || "N/A",
-      createdAt: user.createdAt || new Date().toISOString(),
-      verified: user.verified || false,
-      img: user.img || user.image || null,
+      userName: user.userName || "N/A",
+      phoneNumber: user.phoneNumber || null,
     }));
 
     return normalizedUsers;
-
   } catch (error) {
     console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+// Lấy thông tin người dùng theo ID
+export const getUserById = async (id: string): Promise<User> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/user/${id}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    const user = data; // Dữ liệu trực tiếp, không cần message
+    return {
+      id: user.id || "unknown",
+      userImage: user.userImage || null,
+      name: user.name || "No name",
+      email: user.email || "N/A",
+      userName: user.userName || "N/A",
+      phoneNumber: user.phoneNumber || null,
+    };
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    throw error;
+  }
+};
+
+// Cập nhật người dùng với PATCH
+export const updateUser = async (id: string, userData: UserInput): Promise<User> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/user/${id}`,
+      {
+        method: "PATCH", //  PATCH
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    const user = data; // Giả sử response trả về user đã cập nhật
+    return {
+      id: user.id || "unknown",
+      userImage: user.userImage || null,
+      name: user.name || "No name",
+      email: user.email || "N/A",
+      userName: user.userName || "N/A",
+      phoneNumber: user.phoneNumber || null,
+    };
+  } catch (error) {
+    console.error("Error updating user:", error);   
+    throw error;
+  }
+};
+
+// Xóa người dùng
+export const deleteUser = async (id: string): Promise<string> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/user/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    return id;
+  } catch (error) {
+    console.error("Error deleting user:", error);
     throw error;
   }
 };
