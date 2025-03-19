@@ -34,6 +34,7 @@ import Homepage from './pages/User/Homepage';
 import UserProfile from './pages/User/profile/index';
 import AcademicYear from './pages/Admin/AcademicYear';
 import Subject from './pages/Admin/Subject';
+import Chatbot from './pages/User/ChatPopup';
 
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -78,7 +79,8 @@ function App() {
             )}
             <div className="w-full px-4 xl:px-4 2xl:px-5 xl:py-2 overflow-clip">
               <Outlet />
-            </div>
+            </div> 
+            <Chatbot /> 
           </div>
         </div>
         <Footer />

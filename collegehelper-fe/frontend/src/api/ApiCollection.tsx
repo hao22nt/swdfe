@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { AdmissionDetail, InforMethod } from '.././pages/User/types';
 
 
 
@@ -1039,6 +1039,7 @@ interface Admission {
   admissionDate: string;
 }
 
+// api/ApiCollection.ts
 export const getAdmissionList = async () => {
   try {
     const token = localStorage.getItem("accessToken");
@@ -1079,20 +1080,89 @@ export const getAdmissionList = async () => {
       throw new Error("Invalid data structure from API");
     }
 
+    // Log raw admission data before mapping
+    console.log("🔍 Raw Admissions:", JSON.stringify(admissions, null, 2));
+
     // Normalize the admission data
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const normalizedAdmissions: Admission[] = admissions.map((admission: any) => ({
-      id: admission.id || "unknown",
-      universityName: admission.universityName || "N/A",
-      majorName: admission.majorName || "N/A",
-      methodName: admission.methodName || "N/A",
-      admissionDate: admission.admisstionDate || admission.admissionDate || "N/A", // Handle potential typo in API ("admisstionDate")
-    }));
+    const normalizedAdmissions: Admission[] = admissions.map((admission: any) => {
+      const mappedAdmission = {
+        id: admission.id || "unknown",
+        universityName: admission.universityName || "N/A",
+        majorName: admission.majorName || "N/A",
+        admissionDate: admission.admisstionDate || admission.admissionDate || "N/A",
+        deadline: admission.deadline || "N/A",
+        quota: admission.quota !== undefined && admission.quota !== null ? admission.quota : "N/A",
+        isBookmarked: false,
+      };
+      console.log("🔍 Mapped Admission:", JSON.stringify(mappedAdmission, null, 2));
+      return mappedAdmission;
+    });
 
     return normalizedAdmissions;
-
   } catch (error) {
     console.error("Error fetching admissions:", error);
+    throw error;
+  }
+};
+export const getAdmissionDetail = async (id: string): Promise<AdmissionDetail> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor/${id}`,
+      {
+        method: "GET", // Đảm bảo phương thức là GET
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("🔍 Admission Detail Response:", JSON.stringify(data, null, 2));
+
+    if (!data || !data.message) {
+      throw new Error("Invalid data structure from API");
+    }
+
+    const message = data.message;
+    const inforMethods: InforMethod[] =
+      message.inforMethods && message.inforMethods.$values
+        ? message.inforMethods.$values.map((method: any) => ({
+            inforMethodId: method.inforMethodId || "N/A",
+            methodName: method.methodName || "N/A",
+            scoreType: method.scoreType || "N/A",
+            scoreRequirement: method.scoreRequirement || 0,
+            percentageOfQuota: method.percentageOfQuota || 0,
+          }))
+        : [];
+
+    const admissionDetail: AdmissionDetail = {
+      id: message.id || "unknown",
+      quota: message.quota || "N/A",
+      admissionDate: message.admisstionDate || message.admissionDate || "N/A",
+      deadline: message.deadline || "N/A",
+      inforMethods,
+    };
+
+    return admissionDetail;
+  } catch (error) {
+    console.error("Error fetching admission detail:", error);
     throw error;
   }
 };
