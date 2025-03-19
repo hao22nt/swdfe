@@ -1,12 +1,30 @@
+// src/types/index.ts
+// src/types/index.ts
 export interface AdmissionInfo {
-  id: string; // Đổi từ number sang string để khớp với API
+  id: string;
   universityName: string;
   majorName: string;
-  baseScore?: number; // Tùy chọn, vì API không trả về
-  quota?: string; // Đổi từ number sang string, tùy chọn
+  baseScore?: number;
+  quota?: string | number;
   admissionDate: string;
+  deadline?: string;
   isBookmarked: boolean;
-  methodName?: string;
+}
+
+export interface InforMethod {
+  inforMethodId: string;
+  methodName: string;
+  scoreType: string;
+  scoreRequirement: number;
+  percentageOfQuota: number;
+}
+
+export interface AdmissionDetail {
+  id: string;
+  quota: number;
+  admissionDate: string;
+  deadline: string;
+  inforMethods: InforMethod[];
 }
 
 export interface WishlistItem {
