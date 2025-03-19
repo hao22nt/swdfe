@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AdmissionDetail, InforMethod } from '.././pages/User/types';
+import { AdmissionInfo,AdmissionDetail, InforMethod } from '.././pages/User/types';
 
 
 
@@ -1031,16 +1031,10 @@ export const deleteUser = async (id: string): Promise<string> => {
   }
 };
 
-interface Admission {
-  id: string;
-  universityName: string;
-  majorName: string;
-  methodName: string;
-  admissionDate: string;
-}
+
 
 // api/ApiCollection.ts
-export const getAdmissionList = async () => {
+export const getAdmissionList = async (): Promise<AdmissionInfo[]> => {
   try {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -1072,7 +1066,6 @@ export const getAdmissionList = async () => {
     const data = await response.json();
     console.log("🔍 Admission API Response:", JSON.stringify(data, null, 2));
 
-    // Extract admissions array from response
     let admissions = [];
     if (data && data.message && data.message.items && data.message.items.$values) {
       admissions = data.message.items.$values;
@@ -1080,19 +1073,18 @@ export const getAdmissionList = async () => {
       throw new Error("Invalid data structure from API");
     }
 
-    // Log raw admission data before mapping
     console.log("🔍 Raw Admissions:", JSON.stringify(admissions, null, 2));
 
-    // Normalize the admission data
-    const normalizedAdmissions: Admission[] = admissions.map((admission: any) => {
-      const mappedAdmission = {
+    const normalizedAdmissions: AdmissionInfo[] = admissions.map((admission: any) => {
+      const mappedAdmission: AdmissionInfo = {
         id: admission.id || "unknown",
         universityName: admission.universityName || "N/A",
         majorName: admission.majorName || "N/A",
         admissionDate: admission.admisstionDate || admission.admissionDate || "N/A",
         deadline: admission.deadline || "N/A",
         quota: admission.quota !== undefined && admission.quota !== null ? admission.quota : "N/A",
-        isBookmarked: false,
+        isBookmarked: false, // Thêm trường isBookmarked
+        baseScore: admission.baseScore || 0, // Nếu API có baseScore
       };
       console.log("🔍 Mapped Admission:", JSON.stringify(mappedAdmission, null, 2));
       return mappedAdmission;
@@ -1104,6 +1096,7 @@ export const getAdmissionList = async () => {
     throw error;
   }
 };
+
 export const getAdmissionDetail = async (id: string): Promise<AdmissionDetail> => {
   try {
     const token = localStorage.getItem("accessToken");
@@ -1117,7 +1110,7 @@ export const getAdmissionDetail = async (id: string): Promise<AdmissionDetail> =
     const response = await fetch(
       `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor/${id}`,
       {
-        method: "GET", // Đảm bảo phương thức là GET
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
