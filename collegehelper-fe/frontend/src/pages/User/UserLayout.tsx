@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Layout, Menu } from 'antd';
 import { BookOutlined, HeartOutlined, FileTextOutlined, HomeOutlined } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import Chatbot from './ChatPopup'; // Đảm bảo đường dẫn đúng
+
 const { Content, Sider } = Layout;
 
 const UserLayout: React.FC = () => {
@@ -87,6 +89,7 @@ const UserLayout: React.FC = () => {
         }}>
           <Outlet />
         </Content>
+        <Chatbot /> {/* Thêm Chatbot vào đây */}
       </Layout>
     </Layout>
   );

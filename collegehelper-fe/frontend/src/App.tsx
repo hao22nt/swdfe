@@ -3,8 +3,7 @@ import {
   createBrowserRouter,
   RouterProvider,
   Outlet,
-  ScrollRestoration,
-  
+  ScrollRestoration, 
   Navigate,
   useLocation,
 } from 'react-router-dom';
@@ -34,7 +33,7 @@ import Homepage from './pages/User/Homepage';
 import UserProfile from './pages/User/profile/index';
 import AcademicYear from './pages/Admin/AcademicYear';
 import Subject from './pages/Admin/Subject';
-import Chatbot from './pages/User/ChatPopup';
+// import Chatbot from './pages/User/ChatPopup';
 
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -80,7 +79,7 @@ function App() {
             <div className="w-full px-4 xl:px-4 2xl:px-5 xl:py-2 overflow-clip">
               <Outlet />
             </div> 
-            <Chatbot /> 
+            {/* <Chatbot />  */}
           </div>
         </div>
         <Footer />
@@ -89,11 +88,12 @@ function App() {
   };
 
   const router = createBrowserRouter([
+    // Routes dành cho Admin
     {
       path: '/',
       element: (
         <ProtectedRoute>
-          <Layout />
+          <Layout />  {/* Chỉ áp dụng Layout này cho Admin */}
         </ProtectedRoute>
       ),
       children: [
@@ -153,39 +153,48 @@ function App() {
           path: '/university',
           element: <University />,
         },
+      ],
+      errorElement: <Error />,
+    },
+  
+    // Routes dành cho User
+    {
+      path: '/user',
+      element: (
+        <ProtectedRoute>
+          <UserLayout />  {/* Chỉ áp dụng UserLayout cho /user */}
+        </ProtectedRoute>
+      ),
+      children: [
         {
-          path: '/user',
-          element: <UserLayout />,
-          children: [
-            {
-              path: 'homepage',
-              element: <Homepage />,
-            },
-            {
-              path: 'profile',
-              element: <UserProfile />,
-            },
-            {
-              path: 'admission',
-              element: <AdmissionPage />,
-            },
-            {
-              path: 'wishlist',
-              element: <WishlistPage />,
-            },
-            {
-              path: 'news',
-              element: <NewsPage />,
-            },
-            {
-              index: true,
-              element: <Navigate to="homepage" replace />,
-            },
-          ],
+          path: 'homepage',
+          element: <Homepage />,
+        },
+        {
+          path: 'profile',
+          element: <UserProfile />,
+        },
+        {
+          path: 'admission',
+          element: <AdmissionPage />,
+        },
+        {
+          path: 'wishlist',
+          element: <WishlistPage />,
+        },
+        {
+          path: 'news',
+          element: <NewsPage />,
+        },
+        {
+          index: true,
+          element: <Navigate to="homepage" replace />,
         },
       ],
       errorElement: <Error />,
     },
+  
+    // Routes dành cho Login, Register
     {
       path: '/login',
       element: <Login />,
@@ -195,7 +204,7 @@ function App() {
       element: <Register />,
     },
   ]);
-
+  
   return <RouterProvider router={router} />;
 }
 
