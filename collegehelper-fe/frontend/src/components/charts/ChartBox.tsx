@@ -207,7 +207,7 @@ const ChartBox: React.FC<ChartBoxProps> = ({
       return (
         <div className="w-full h-full p-0 m-0 flex flex-col items-start justify-between gap-3 xl:gap-4">
           <span className="text-2xl xl:text-2xl 2xl:text-4xl font-bold">
-            {title || 'no title'}
+            {title}
           </span>
           <div className="w-full min-h-[300px] skeleton"></div>
           <div className="w-full flex flex-col 2xl:flex-row justify-between gap-2 items-start 2xl:items-center 2xl:flex-wrap">
@@ -221,10 +221,11 @@ const ChartBox: React.FC<ChartBoxProps> = ({
     }
 
     if (isSuccess) {
+      console.log('chartPieData:', chartPieData);
       return (
         <div className="w-full h-full p-0 m-0 flex flex-col items-start justify-between gap-3 xl:gap-4">
           <span className="text-2xl xl:text-2xl 2xl:text-4xl font-bold">
-            {title || 'no title'}
+          {title || 'no title'}
           </span>
           <div className="w-full min-h-[300px] 2xl:min-h-[360px] 3xl:min-h-[420px]">
             {chartPieData ? (
@@ -260,12 +261,9 @@ const ChartBox: React.FC<ChartBoxProps> = ({
                 key={item.name}
               >
                 <div className="flex flex-row gap-2 items-center">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span>{item.name}</span>
-                </div>
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span>{item.name}</span>                  
+                </div>               
                 <span>({item.value})</span>
               </div>
             ))}

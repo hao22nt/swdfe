@@ -24,7 +24,7 @@ export const totalUsers = {
 export const AcceptedApplications = {
   color: 'skyblue',
   IconBox: MdInventory2,
-  title: 'Accepted Applications',  
+  title: 'Total University',  
   number: '238',
   dataKey: 'Applications',
   percentage: 21,
@@ -114,13 +114,13 @@ export const totalProfit = {
 };
 
 export const totalSource = {
-  title: 'Leads by Source',
+  title: 'Popular Fields of Study',
   dataKey: 'value',
   chartPieData: [
-    { name: 'Mobile', value: 350, color: '#0088FE' },
-    { name: 'Desktop', value: 250, color: '#00C49F' },
-    { name: 'Laptop', value: 325, color: '#FFBB28' },
-    { name: 'Tablet', value: 75, color: '#FF8042' },
+    { name: 'IT', value: 350, color: '#0088FE' },
+    { name: 'Pharmacy', value: 250, color: '#00C49F' },
+    { name: 'Business', value: 325, color: '#FFBB28' },
+    { name: 'Other', value: 75, color: '#FF8042' },
   ],
 };
 
