@@ -109,10 +109,10 @@ function App() {
           path: '/users/:id',
           element: <User />,
         },
-        {
-          path: '/profile',
-          element: <Profile />,
-        },
+        // {
+        //   path: '/profile',
+        //   element: <Profile />,
+        // },
         {
           path: '/profile/edit',
           element: <EditProfile />,

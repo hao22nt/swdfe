@@ -24,12 +24,12 @@ export const menu = [
         icon: HiOutlineHome,
         label: 'homepage',
       },
-      {
-        isLink: true,
-        url: '/profile',
-        icon: HiOutlineUser,
-        label: 'profile',
-      },
+      // {
+      //   isLink: true,
+      //   url: '/profile',
+      //   icon: HiOutlineUser,
+      //   label: 'profile',
+      // },
     ],
   },
   {
