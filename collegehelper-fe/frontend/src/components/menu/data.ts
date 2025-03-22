@@ -1,7 +1,7 @@
 // import toast from 'react-hot-toast';
 import {
   HiOutlineHome,
-  HiOutlineUser,
+ // HiOutlineUser,
   HiOutlineUsers,
   HiOutlineCube,
   HiOutlineClipboardDocumentList,

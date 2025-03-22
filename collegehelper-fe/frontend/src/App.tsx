@@ -14,7 +14,7 @@ import Navbar from './pages/Admin/Navbar';
 import Footer from './components/Footer';
 import Menu from './components/menu/Menu';
 import Error from './pages/Error';
-import Profile from './pages/Admin/Profile';
+// import Profile from './pages/Admin/Profile';
 import Major from './pages/Admin/Major';
 import Posts from './pages/Admin/Posts';
 import Charts from './pages/Admin/Charts';
