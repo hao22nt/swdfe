@@ -43,7 +43,6 @@ const Users = () => {
   });
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 120 },
     {
       field: 'name',
       headerName: 'Name',
@@ -80,6 +79,7 @@ const Users = () => {
       ),
     },
   ];
+  
 
   React.useEffect(() => {
     if (isLoading) {

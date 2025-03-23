@@ -55,7 +55,7 @@ const AcademicYearPage = () => {
   });
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 120 },
+    //{ field: 'id', headerName: 'ID', width: 120 },
     { field: 'year', headerName: 'Year', minWidth: 150, flex: 1 },
   ];
 
