@@ -23,7 +23,7 @@ const Major = () => {
   }, [isLoading, isError]);
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
+    //{ field: 'id', headerName: 'ID', width: 90 },
     { field: 'name', headerName: 'Major Name', minWidth: 300 },
     { field: 'relatedSkills', headerName: 'Related Skills', minWidth: 250 },
     { field: 'description', headerName: 'Description', minWidth: 400 },

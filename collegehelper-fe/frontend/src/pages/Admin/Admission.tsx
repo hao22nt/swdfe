@@ -55,7 +55,7 @@ const Admission = () => {
   });
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 120 },
+    //{ field: 'id', headerName: 'ID', width: 120 },
     { field: 'methodName', headerName: 'Method Name', minWidth: 250, flex: 1 },
     { field: 'requiredDocuments', headerName: 'Required Documents', minWidth: 200, flex: 1 },
     { field: 'description', headerName: 'Description', minWidth: 300, flex: 1 },

@@ -55,7 +55,7 @@ const SubjectPage = () => {
   });
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 120 },
+    //{ field: 'id', headerName: 'ID', width: 120 },
     { field: 'name', headerName: 'Name', minWidth: 200, flex: 1 },
     { field: 'description', headerName: 'Description', minWidth: 300, flex: 1 },
   ];
