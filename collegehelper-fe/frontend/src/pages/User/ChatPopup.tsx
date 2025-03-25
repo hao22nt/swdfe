@@ -71,7 +71,7 @@ const Chatbot: React.FC = () => {
                 timestamp: new Date().toISOString()
             }
         ]);
-S
+
         console.log("📩 JSON gửi đi:", requestBody);  
 
         // 🔹 Định dạng URL theo cURL (thêm prompt vào query)
