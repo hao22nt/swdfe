@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { database, auth } from '../../firebaseConfig';
-import { ref, onValue, push, set } from 'firebase/database';
+import { ref, onValue} from 'firebase/database';
 import { MdChat, MdClose } from 'react-icons/md';
 
 interface ChatMessage {
