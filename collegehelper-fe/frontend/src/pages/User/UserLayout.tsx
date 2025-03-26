@@ -30,11 +30,7 @@ const UserLayout: React.FC = () => {
       icon: <HeartOutlined />,
       label: 'Danh sách yêu thích',
     },
-    {
-      key: '/user/news',
-      icon: <FileTextOutlined />,
-      label: 'Tin tức',
-    },
+    
     {
       key: '/user/scores',
       icon: <FileTextOutlined />,

@@ -29,7 +29,6 @@ import University from './pages/Admin/University';
 import UserLayout from './pages/User/UserLayout';
 import AdmissionPage from './pages/User/admission';
 import WishlistPage from './pages/User/wishlist';
-import NewsPage from './pages/User/news';
 import Homepage from './pages/User/Homepage';
 import UserProfile from './pages/User/profile/index';
 import Subject from './pages/Admin/Subject';
@@ -174,10 +173,7 @@ function App() {
               path: 'scores',
               element: <ScoreInput />,
             },
-            {
-              path: 'news',
-              element: <NewsPage />,
-            },
+            
             {
               index: true,
               element: <Navigate to="homepage" replace />,

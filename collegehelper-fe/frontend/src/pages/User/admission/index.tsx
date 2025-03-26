@@ -1,7 +1,6 @@
-// src/components/AdmissionPage.tsx
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, message, Card, Modal, Descriptions, List } from 'antd';
-import type { AdmissionInfo, AdmissionDetail } from '../types';
+import type { AdmissionInfo, AdmissionDetail, WishlistItem } from '../types';
 import { getAdmissionList, getAdmissionDetail, markWishlist, unmarkWishlist, getWishlist } from '../../../api/ApiCollection';
 
 const AdmissionPage: React.FC = () => {
@@ -10,42 +9,32 @@ const AdmissionPage: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const [selectedAdmission, setSelectedAdmission] = useState<AdmissionDetail & { universityName?: string } | null>(null);
+  const [selectedAdmission, setSelectedAdmission] = useState<(AdmissionDetail & { universityName?: string }) | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  // Fetch data khi component mount
   useEffect(() => {
     const fetchAdmissions = async () => {
       setLoading(true);
       try {
-        // Lấy danh sách thông tin tuyển sinh
         const data = await getAdmissionList();
         console.log('🔍 Fetched Admission Data:', JSON.stringify(data, null, 2));
-  
-        // Lấy danh sách quan tâm từ server
-        let wishlist = [];
+
+        let wishlist: WishlistItem[] = [];
         try {
           const wishlistResponse = await getWishlist();
           console.log('🔍 Fetched Wishlist:', JSON.stringify(wishlistResponse, null, 2));
-  
-          // Kiểm tra nếu wishlistResponse là một đối tượng và có trường data
-          wishlist = Array.isArray(wishlistResponse)
-            ? wishlistResponse
-            : wishlistResponse.data && Array.isArray(wishlistResponse.data)
-            ? wishlistResponse.data
-            : [];
+          wishlist = wishlistResponse?.message?.items?.$values || []; // Điều chỉnh dựa trên cấu trúc thực tế
         } catch (error) {
           console.error("Không thể lấy danh sách quan tâm:", error);
           message.warning("Không thể lấy danh sách quan tâm. Trạng thái quan tâm có thể không chính xác.");
-          wishlist = []; // Đảm bảo wishlist là mảng rỗng nếu có lỗi
+          wishlist = [];
         }
-  
-        // Cập nhật trạng thái isBookmarked dựa trên danh sách quan tâm
+
         const updatedData = data.map((item: AdmissionInfo) => ({
           ...item,
-          isBookmarked: wishlist.some((wishlistItem: any) => wishlistItem.id === item.id) || false,
+          isBookmarked: wishlist.some((wishlistItem: WishlistItem) => wishlistItem.id === item.id) || false,
         }));
-  
+
         setAdmissionData(updatedData);
         setFilteredData(updatedData);
       } catch (error) {
@@ -56,11 +45,10 @@ const AdmissionPage: React.FC = () => {
         setLoading(false);
       }
     };
-  
+
     fetchAdmissions();
   }, []);
 
-  // Xử lý tìm kiếm
   useEffect(() => {
     const filtered = admissionData.filter(
       (item) =>
@@ -70,12 +58,10 @@ const AdmissionPage: React.FC = () => {
     setFilteredData(filtered);
   }, [searchText, admissionData]);
 
-  // Xử lý khi nhấn nút View
   const handleView = async (id: string) => {
     setDetailLoading(true);
     try {
       const detail = await getAdmissionDetail(id);
-      // Tìm universityName từ admissionData
       const admission = admissionData.find((item) => item.id === id);
       const universityName = admission ? admission.universityName : 'N/A';
       setSelectedAdmission({ ...detail, universityName });
@@ -89,14 +75,12 @@ const AdmissionPage: React.FC = () => {
     }
   };
 
-  // Định nghĩa các cột của bảng
   const columns = [
     {
       title: 'Trường',
       dataIndex: 'universityName',
       key: 'universityName',
-      sorter: (a: AdmissionInfo, b: AdmissionInfo) =>
-        a.universityName.localeCompare(b.universityName),
+      sorter: (a: AdmissionInfo, b: AdmissionInfo) => a.universityName.localeCompare(b.universityName),
     },
     {
       title: 'Ngành',
@@ -107,32 +91,25 @@ const AdmissionPage: React.FC = () => {
       title: 'Chỉ tiêu',
       dataIndex: 'quota',
       key: 'quota',
-      render: (text: string | number) => {
-        console.log('🔍 Quota Render:', text);
-        return text !== undefined && text !== null ? text : 'N/A';
-      },
+      render: (text: string | number) => (text !== undefined && text !== null ? text : 'N/A'),
     },
     {
       title: 'Thời gian xét tuyển',
       dataIndex: 'admissionDate',
       key: 'admissionDate',
-      render: (text: string) => {
-        console.log('🔍 Admission Date Render:', text);
-        if (!text || text === '0001-01-01T00:00:00') return 'Chưa xác định';
-        const date = new Date(text);
-        return isNaN(date.getTime()) ? 'Chưa xác định' : date.toLocaleDateString();
-      },
+      render: (text: string) =>
+        !text || text === '0001-01-01T00:00:00'
+          ? 'Chưa xác định'
+          : new Date(text).toLocaleDateString(),
     },
     {
       title: 'Hạn nộp hồ sơ',
       dataIndex: 'deadline',
       key: 'deadline',
-      render: (text: string) => {
-        console.log('🔍 Deadline Render:', text);
-        if (!text || text === '0001-01-01T00:00:00') return 'Chưa xác định';
-        const date = new Date(text);
-        return isNaN(date.getTime()) ? 'Chưa xác định' : date.toLocaleDateString();
-      },
+      render: (text: string) =>
+        !text || text === '0001-01-01T00:00:00'
+          ? 'Chưa xác định'
+          : new Date(text).toLocaleDateString(),
     },
     {
       title: 'Thao tác',
@@ -159,14 +136,9 @@ const AdmissionPage: React.FC = () => {
       message.error("Không tìm thấy thông tin tuyển sinh.");
       return;
     }
-  
-    if (!id) {
-      message.error("ID không hợp lệ.");
-      return;
-    }
-  
+
     const willBookmark = !item.isBookmarked;
-  
+
     setAdmissionData((prevData) =>
       prevData.map((item) =>
         item.id === id ? { ...item, isBookmarked: willBookmark } : item
@@ -177,7 +149,7 @@ const AdmissionPage: React.FC = () => {
         item.id === id ? { ...item, isBookmarked: willBookmark } : item
       )
     );
-  
+
     try {
       if (willBookmark) {
         await markWishlist(id);
@@ -238,7 +210,6 @@ const AdmissionPage: React.FC = () => {
         />
       </Card>
 
-      {/* Modal hiển thị thông tin chi tiết */}
       <Modal
         title="Thông tin chi tiết tuyển sinh"
         open={detailModalVisible}
