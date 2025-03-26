@@ -35,6 +35,11 @@ const UserLayout: React.FC = () => {
       icon: <FileTextOutlined />,
       label: 'Tin tức',
     },
+    {
+      key: '/user/scores',
+      icon: <FileTextOutlined />,
+      label: 'Điểm số',
+    },
   ];
 
   return (

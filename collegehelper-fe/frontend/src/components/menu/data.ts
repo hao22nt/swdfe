@@ -70,14 +70,7 @@ export const menu = [
         url: '/university',
         icon: HiAcademicCap,
         label: 'University',
-      },
-      {
-        isLink: true,
-        url: '/academicYears',
-        icon: HiOutlineCalendarDays ,
-        label: 'AcademicY',
-      },
-      
+      },               
     ],
   },
   

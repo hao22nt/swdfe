@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, message, Card, Modal, Descriptions, List } from 'antd';
 import type { AdmissionInfo, AdmissionDetail } from '../types';
-import { getAdmissionList, getAdmissionDetail } from '../../../api/ApiCollection';
+import { getAdmissionList, getAdmissionDetail, markWishlist, unmarkWishlist, getWishlist } from '../../../api/ApiCollection';
 
 const AdmissionPage: React.FC = () => {
   const [admissionData, setAdmissionData] = useState<AdmissionInfo[]>([]);
@@ -18,10 +18,36 @@ const AdmissionPage: React.FC = () => {
     const fetchAdmissions = async () => {
       setLoading(true);
       try {
+        // Lấy danh sách thông tin tuyển sinh
         const data = await getAdmissionList();
         console.log('🔍 Fetched Admission Data:', JSON.stringify(data, null, 2));
-        setAdmissionData(data);
-        setFilteredData(data);
+  
+        // Lấy danh sách quan tâm từ server
+        let wishlist = [];
+        try {
+          const wishlistResponse = await getWishlist();
+          console.log('🔍 Fetched Wishlist:', JSON.stringify(wishlistResponse, null, 2));
+  
+          // Kiểm tra nếu wishlistResponse là một đối tượng và có trường data
+          wishlist = Array.isArray(wishlistResponse)
+            ? wishlistResponse
+            : wishlistResponse.data && Array.isArray(wishlistResponse.data)
+            ? wishlistResponse.data
+            : [];
+        } catch (error) {
+          console.error("Không thể lấy danh sách quan tâm:", error);
+          message.warning("Không thể lấy danh sách quan tâm. Trạng thái quan tâm có thể không chính xác.");
+          wishlist = []; // Đảm bảo wishlist là mảng rỗng nếu có lỗi
+        }
+  
+        // Cập nhật trạng thái isBookmarked dựa trên danh sách quan tâm
+        const updatedData = data.map((item: AdmissionInfo) => ({
+          ...item,
+          isBookmarked: wishlist.some((wishlistItem: any) => wishlistItem.id === item.id) || false,
+        }));
+  
+        setAdmissionData(updatedData);
+        setFilteredData(updatedData);
       } catch (error) {
         const err = error as Error;
         message.error('Không thể tải thông tin tuyển sinh: ' + err.message);
@@ -30,7 +56,7 @@ const AdmissionPage: React.FC = () => {
         setLoading(false);
       }
     };
-
+  
     fetchAdmissions();
   }, []);
 
@@ -114,7 +140,7 @@ const AdmissionPage: React.FC = () => {
       render: (_: React.ReactNode, record: AdmissionInfo) => (
         <div className="flex gap-2">
           <Button
-            type={record.isBookmarked ? 'default' : 'primary'}
+            className={`bookmark-button ${record.isBookmarked ? 'bookmarked' : 'not-bookmarked'}`}
             onClick={() => handleBookmark(record.id)}
           >
             {record.isBookmarked ? 'Bỏ quan tâm' : 'Quan tâm'}
@@ -127,18 +153,54 @@ const AdmissionPage: React.FC = () => {
     },
   ];
 
-  const handleBookmark = (id: string) => {
+  const handleBookmark = async (id: string) => {
+    const item = admissionData.find((item) => item.id === id);
+    if (!item) {
+      message.error("Không tìm thấy thông tin tuyển sinh.");
+      return;
+    }
+  
+    if (!id) {
+      message.error("ID không hợp lệ.");
+      return;
+    }
+  
+    const willBookmark = !item.isBookmarked;
+  
     setAdmissionData((prevData) =>
       prevData.map((item) =>
-        item.id === id ? { ...item, isBookmarked: !item.isBookmarked } : item
+        item.id === id ? { ...item, isBookmarked: willBookmark } : item
       )
     );
     setFilteredData((prevData) =>
       prevData.map((item) =>
-        item.id === id ? { ...item, isBookmarked: !item.isBookmarked } : item
+        item.id === id ? { ...item, isBookmarked: willBookmark } : item
       )
     );
-    message.success('Đã cập nhật trạng thái quan tâm');
+  
+    try {
+      if (willBookmark) {
+        await markWishlist(id);
+        message.success("Đã thêm vào danh sách quan tâm");
+      } else {
+        await unmarkWishlist(id);
+        message.success("Đã xóa khỏi danh sách quan tâm");
+      }
+    } catch (error) {
+      const err = error as Error;
+      setAdmissionData((prevData) =>
+        prevData.map((item) =>
+          item.id === id ? { ...item, isBookmarked: !willBookmark } : item
+        )
+      );
+      setFilteredData((prevData) =>
+        prevData.map((item) =>
+          item.id === id ? { ...item, isBookmarked: !willBookmark } : item
+        )
+      );
+      message.error("Không thể cập nhật danh sách quan tâm. Vui lòng thử lại sau.");
+      console.error("Lỗi khi cập nhật trạng thái quan tâm:", err);
+    }
   };
 
   return (
