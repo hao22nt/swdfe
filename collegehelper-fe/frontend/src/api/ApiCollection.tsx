@@ -1715,6 +1715,132 @@ export const deleteSubject = async (id: string) => {
     throw error;
   }
 };
+//wishlist========================================================
+// Đánh dấu một thông tin tuyển sinh vào danh sách quan tâm
+export const markWishlist = async (id: string) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    console.log("Token:", token);
+    console.log("Requesting markWishlist with ID:", id);
+
+    if (!token) {
+      throw new Error("Không tìm thấy token, vui lòng đăng nhập");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    // Gửi admissionInforId dưới dạng query parameter
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor/mark-wishlist?admissionInforId=${id}`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    console.log("Response status:", response.status);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log("Error response text:", errorText);
+      throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Lỗi khi đánh dấu danh sách quan tâm:", error);
+    throw error;
+  }
+};
+
+export const unmarkWishlist = async (id: string) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    console.log("Token:", token);
+    console.log("Requesting unmarkWishlist with ID:", id);
+
+    if (!token) {
+      throw new Error("Không tìm thấy token, vui lòng đăng nhập");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    // Gửi admissionInforId dưới dạng query parameter
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor/unmark-wishlist?admissionInforId=${id}`;
+
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    console.log("Response status:", response.status);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log("Error response text:", errorText);
+      throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Lỗi khi bỏ đánh dấu danh sách quan tâm:", error);
+    throw error;
+  }
+};
+
+export const getWishlist = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    console.log("Token:", token);
+
+    if (!token) {
+      throw new Error("Không tìm thấy token, vui lòng đăng nhập");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor/wishlist`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    console.log("Response status:", response.status);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log("Error response text:", errorText);
+      throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách quan tâm:", error);
+    throw error;
+  }
+};
+
+// get score =================================================================
+
+
 
 
 

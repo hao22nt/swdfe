@@ -29,12 +29,11 @@ import University from './pages/Admin/University';
 import UserLayout from './pages/User/UserLayout';
 import AdmissionPage from './pages/User/admission';
 import WishlistPage from './pages/User/wishlist';
-import NewsPage from './pages/User/news';
 import Homepage from './pages/User/Homepage';
 import UserProfile from './pages/User/profile/index';
-import AcademicYear from './pages/Admin/AcademicYear';
 import Subject from './pages/Admin/Subject';
 import Chatbot from './pages/User/ChatPopup';
+import ScoreInput from './pages/User/scores';
 
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -137,10 +136,7 @@ function App() {
           path: '/posts',
           element: <Posts />,
         },
-        {
-          path: '/academicYears',
-          element: <AcademicYear />,
-        },
+        
         {
           path: '/charts',
           element: <Charts />,
@@ -174,9 +170,10 @@ function App() {
               element: <WishlistPage />,
             },
             {
-              path: 'news',
-              element: <NewsPage />,
+              path: 'scores',
+              element: <ScoreInput />,
             },
+            
             {
               index: true,
               element: <Navigate to="homepage" replace />,

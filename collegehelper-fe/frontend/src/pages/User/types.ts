@@ -27,18 +27,14 @@ export interface AdmissionDetail {
   inforMethods: InforMethod[];
 }
 
+
 export interface WishlistItem {
-  id: number;
-  universityName: string;
+  id: string;
+  universityName: string; // Không còn optional
   majorName: string;
-  addedDate: string;
+  admissionDate?: string;
+  deadline?: string;
+  quota?: string | number;
 }
 
-export interface NewsItem {
-  id: number;
-  title: string;
-  summary: string;
-  imageUrl: string;
-  publishDate: string;
-  url: string;
-}
+

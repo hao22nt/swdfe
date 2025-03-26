@@ -1,8 +1,7 @@
-// src/components/AdmissionPage.tsx
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, message, Card, Modal, Descriptions, List } from 'antd';
-import type { AdmissionInfo, AdmissionDetail } from '../types';
-import { getAdmissionList, getAdmissionDetail } from '../../../api/ApiCollection';
+import type { AdmissionInfo, AdmissionDetail, WishlistItem } from '../types';
+import { getAdmissionList, getAdmissionDetail, markWishlist, unmarkWishlist, getWishlist } from '../../../api/ApiCollection';
 
 const AdmissionPage: React.FC = () => {
   const [admissionData, setAdmissionData] = useState<AdmissionInfo[]>([]);
@@ -10,18 +9,34 @@ const AdmissionPage: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const [selectedAdmission, setSelectedAdmission] = useState<AdmissionDetail & { universityName?: string } | null>(null);
+  const [selectedAdmission, setSelectedAdmission] = useState<(AdmissionDetail & { universityName?: string }) | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  // Fetch data khi component mount
   useEffect(() => {
     const fetchAdmissions = async () => {
       setLoading(true);
       try {
         const data = await getAdmissionList();
         console.log('🔍 Fetched Admission Data:', JSON.stringify(data, null, 2));
-        setAdmissionData(data);
-        setFilteredData(data);
+
+        let wishlist: WishlistItem[] = [];
+        try {
+          const wishlistResponse = await getWishlist();
+          console.log('🔍 Fetched Wishlist:', JSON.stringify(wishlistResponse, null, 2));
+          wishlist = wishlistResponse?.message?.items?.$values || []; // Điều chỉnh dựa trên cấu trúc thực tế
+        } catch (error) {
+          console.error("Không thể lấy danh sách quan tâm:", error);
+          message.warning("Không thể lấy danh sách quan tâm. Trạng thái quan tâm có thể không chính xác.");
+          wishlist = [];
+        }
+
+        const updatedData = data.map((item: AdmissionInfo) => ({
+          ...item,
+          isBookmarked: wishlist.some((wishlistItem: WishlistItem) => wishlistItem.id === item.id) || false,
+        }));
+
+        setAdmissionData(updatedData);
+        setFilteredData(updatedData);
       } catch (error) {
         const err = error as Error;
         message.error('Không thể tải thông tin tuyển sinh: ' + err.message);
@@ -34,7 +49,6 @@ const AdmissionPage: React.FC = () => {
     fetchAdmissions();
   }, []);
 
-  // Xử lý tìm kiếm
   useEffect(() => {
     const filtered = admissionData.filter(
       (item) =>
@@ -44,12 +58,10 @@ const AdmissionPage: React.FC = () => {
     setFilteredData(filtered);
   }, [searchText, admissionData]);
 
-  // Xử lý khi nhấn nút View
   const handleView = async (id: string) => {
     setDetailLoading(true);
     try {
       const detail = await getAdmissionDetail(id);
-      // Tìm universityName từ admissionData
       const admission = admissionData.find((item) => item.id === id);
       const universityName = admission ? admission.universityName : 'N/A';
       setSelectedAdmission({ ...detail, universityName });
@@ -63,14 +75,12 @@ const AdmissionPage: React.FC = () => {
     }
   };
 
-  // Định nghĩa các cột của bảng
   const columns = [
     {
       title: 'Trường',
       dataIndex: 'universityName',
       key: 'universityName',
-      sorter: (a: AdmissionInfo, b: AdmissionInfo) =>
-        a.universityName.localeCompare(b.universityName),
+      sorter: (a: AdmissionInfo, b: AdmissionInfo) => a.universityName.localeCompare(b.universityName),
     },
     {
       title: 'Ngành',
@@ -81,32 +91,25 @@ const AdmissionPage: React.FC = () => {
       title: 'Chỉ tiêu',
       dataIndex: 'quota',
       key: 'quota',
-      render: (text: string | number) => {
-        console.log('🔍 Quota Render:', text);
-        return text !== undefined && text !== null ? text : 'N/A';
-      },
+      render: (text: string | number) => (text !== undefined && text !== null ? text : 'N/A'),
     },
     {
       title: 'Thời gian xét tuyển',
       dataIndex: 'admissionDate',
       key: 'admissionDate',
-      render: (text: string) => {
-        console.log('🔍 Admission Date Render:', text);
-        if (!text || text === '0001-01-01T00:00:00') return 'Chưa xác định';
-        const date = new Date(text);
-        return isNaN(date.getTime()) ? 'Chưa xác định' : date.toLocaleDateString();
-      },
+      render: (text: string) =>
+        !text || text === '0001-01-01T00:00:00'
+          ? 'Chưa xác định'
+          : new Date(text).toLocaleDateString(),
     },
     {
       title: 'Hạn nộp hồ sơ',
       dataIndex: 'deadline',
       key: 'deadline',
-      render: (text: string) => {
-        console.log('🔍 Deadline Render:', text);
-        if (!text || text === '0001-01-01T00:00:00') return 'Chưa xác định';
-        const date = new Date(text);
-        return isNaN(date.getTime()) ? 'Chưa xác định' : date.toLocaleDateString();
-      },
+      render: (text: string) =>
+        !text || text === '0001-01-01T00:00:00'
+          ? 'Chưa xác định'
+          : new Date(text).toLocaleDateString(),
     },
     {
       title: 'Thao tác',
@@ -114,7 +117,7 @@ const AdmissionPage: React.FC = () => {
       render: (_: React.ReactNode, record: AdmissionInfo) => (
         <div className="flex gap-2">
           <Button
-            type={record.isBookmarked ? 'default' : 'primary'}
+            className={`bookmark-button ${record.isBookmarked ? 'bookmarked' : 'not-bookmarked'}`}
             onClick={() => handleBookmark(record.id)}
           >
             {record.isBookmarked ? 'Bỏ quan tâm' : 'Quan tâm'}
@@ -127,18 +130,49 @@ const AdmissionPage: React.FC = () => {
     },
   ];
 
-  const handleBookmark = (id: string) => {
+  const handleBookmark = async (id: string) => {
+    const item = admissionData.find((item) => item.id === id);
+    if (!item) {
+      message.error("Không tìm thấy thông tin tuyển sinh.");
+      return;
+    }
+
+    const willBookmark = !item.isBookmarked;
+
     setAdmissionData((prevData) =>
       prevData.map((item) =>
-        item.id === id ? { ...item, isBookmarked: !item.isBookmarked } : item
+        item.id === id ? { ...item, isBookmarked: willBookmark } : item
       )
     );
     setFilteredData((prevData) =>
       prevData.map((item) =>
-        item.id === id ? { ...item, isBookmarked: !item.isBookmarked } : item
+        item.id === id ? { ...item, isBookmarked: willBookmark } : item
       )
     );
-    message.success('Đã cập nhật trạng thái quan tâm');
+
+    try {
+      if (willBookmark) {
+        await markWishlist(id);
+        message.success("Đã thêm vào danh sách quan tâm");
+      } else {
+        await unmarkWishlist(id);
+        message.success("Đã xóa khỏi danh sách quan tâm");
+      }
+    } catch (error) {
+      const err = error as Error;
+      setAdmissionData((prevData) =>
+        prevData.map((item) =>
+          item.id === id ? { ...item, isBookmarked: !willBookmark } : item
+        )
+      );
+      setFilteredData((prevData) =>
+        prevData.map((item) =>
+          item.id === id ? { ...item, isBookmarked: !willBookmark } : item
+        )
+      );
+      message.error("Không thể cập nhật danh sách quan tâm. Vui lòng thử lại sau.");
+      console.error("Lỗi khi cập nhật trạng thái quan tâm:", err);
+    }
   };
 
   return (
@@ -176,7 +210,6 @@ const AdmissionPage: React.FC = () => {
         />
       </Card>
 
-      {/* Modal hiển thị thông tin chi tiết */}
       <Modal
         title="Thông tin chi tiết tuyển sinh"
         open={detailModalVisible}
