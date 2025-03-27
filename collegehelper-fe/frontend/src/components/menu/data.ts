@@ -48,6 +48,12 @@ export const menu = [
       },
       {
         isLink: true,
+        url: '/admissionin4',
+        icon: HiOutlineCube,
+        label: 'AdmissInfor',
+      },
+      {
+        isLink: true,
         url: '/subjects',
         icon:FaBook ,
         label: 'Subject',

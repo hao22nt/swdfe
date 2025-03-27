@@ -1136,6 +1136,109 @@ export const getAdmissionList = async (): Promise<AdmissionInfo[]> => {
     throw error;
   }
 };
+interface CreateAdmissionRequest {
+  uniMajorId: string;
+  academicYearId: string;
+  deadline: string;
+  admissionDate: string; // Sử dụng admissionDate thay vì admisstionDate để tránh typo
+  quota: number;
+  inforMethods: {
+    admissionMethodId: string;
+    scoreType: string;
+    scoreRequirement: number;
+    percentageOfQuota: number;
+  }[];
+}
+
+// Interface cho response từ API
+interface CreateAdmissionResponse {
+  uniMajorId: string;
+  academicYearId: string;
+  deadline: string;
+  admissionDate: string;
+  quota: number;
+  inforMethods: {
+    admissionMethodId: string;
+    scoreType: string;
+    scoreRequirement: number;
+    percentageOfQuota: number;
+  }[];
+}
+
+// Hàm POST để tạo admission
+export const createAdmission = async (
+  admissionData: CreateAdmissionRequest
+): Promise<CreateAdmissionResponse> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(admissionData),
+        signal: controller.signal,
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("🔍 Create Admission API Response:", JSON.stringify(data, null, 2));
+
+    // Xử lý response từ API
+    let createdAdmission;
+    if (data && data.message) {
+      createdAdmission = data.message; // Giả định API trả về dữ liệu trong message
+    } else {
+      createdAdmission = data; // Nếu không có message, dùng dữ liệu trực tiếp
+    }
+
+    if (!createdAdmission) {
+      throw new Error("Invalid data structure from API");
+    }
+
+    console.log("🔍 Raw Created Admission:", JSON.stringify(createdAdmission, null, 2));
+
+    // Chuẩn hóa dữ liệu trả về theo CreateAdmissionResponse
+    const normalizedAdmission: CreateAdmissionResponse = {
+      uniMajorId: createdAdmission.uniMajorId || "N/A",
+      academicYearId: createdAdmission.academicYearId || "N/A",
+      admissionDate: createdAdmission.admissionDate || createdAdmission.admisstionDate || "N/A", // Hỗ trợ typo nếu có
+      deadline: createdAdmission.deadline || "N/A",
+      quota: createdAdmission.quota !== undefined && createdAdmission.quota !== null ? createdAdmission.quota : 0,
+      inforMethods: Array.isArray(createdAdmission.inforMethods)
+        ? createdAdmission.inforMethods.map((method: any) => ({
+            admissionMethodId: method.admissionMethodId || "N/A",
+            scoreType: method.scoreType || "N/A",
+            scoreRequirement: method.scoreRequirement || 0,
+            percentageOfQuota: method.percentageOfQuota || 0,
+          }))
+        : [],
+    };
+
+    console.log("🔍 Normalized Admission:", JSON.stringify(normalizedAdmission, null, 2));
+    return normalizedAdmission;
+  } catch (error) {
+    console.error("Error creating admission:", error);
+    throw error;
+  }
+};
 
 export const getAdmissionDetail = async (id: string): Promise<AdmissionDetail> => {
   try {
