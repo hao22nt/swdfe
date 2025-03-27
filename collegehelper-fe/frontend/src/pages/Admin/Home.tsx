@@ -9,6 +9,7 @@ import {
   fetchTotalUsers,
   fetchUserLoginStats, // Thay fetchTotalVisit
 } from '../../api/ApiCollection';
+import { totalSource } from '../../components/charts/data';
 
 const Home = () => {
   const queryGetTotalUsers = useQuery({
@@ -58,7 +59,7 @@ const Home = () => {
           <ChartBox
             chartType={'line'}
             IconBox={MdInventory2}
-            title="Total Products" // UI sẽ đổi thành "Total University" trong ChartBox
+            title="Total University"  
             dataKey="value"
             number={queryGetTotalUniversities.data?.number}
             chartData={queryGetTotalUniversities.data?.chartData}
@@ -69,8 +70,11 @@ const Home = () => {
         <div className="box row-span-3 col-span-full sm:col-span-1 xl:col-span-1 3xl:row-span-5">
           <ChartBox
             chartType={'pie'}
-            title="Leads by Source"
-            {...queryGetTotalSource.data}
+            title={totalSource.title}
+            dataKey={totalSource.dataKey}
+            chartPieData={totalSource.chartPieData} 
+            // number={queryGetTotalSource.data?.number}
+            // chartData={queryGetTotalSource.data?.chartData}
             isLoading={queryGetTotalSource.isLoading}
             isSuccess={queryGetTotalSource.isSuccess}
           />

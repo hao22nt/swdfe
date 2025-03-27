@@ -1,7 +1,7 @@
 // import toast from 'react-hot-toast';
 import {
   HiOutlineHome,
-  HiOutlineUser,
+ // HiOutlineUser,
   HiOutlineUsers,
   HiOutlineCube,
   HiOutlineClipboardDocumentList,
@@ -22,12 +22,12 @@ export const menu = [
         icon: HiOutlineHome,
         label: 'homepage',
       },
-      {
-        isLink: true,
-        url: '/profile',
-        icon: HiOutlineUser,
-        label: 'profile',
-      },
+      // {
+      //   isLink: true,
+      //   url: '/profile',
+      //   icon: HiOutlineUser,
+      //   label: 'profile',
+      // },
     ],
   },
   {
