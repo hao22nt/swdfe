@@ -31,7 +31,7 @@ import WishlistPage from './pages/User/wishlist';
 import NewsPage from './pages/User/news';
 import Homepage from './pages/User/Homepage';
 import UserProfile from './pages/User/profile/index';
-import AcademicYear from './pages/Admin/AcademicYear';
+// import AcademicYear from './pages/Admin/AcademicYear';
 import Subject from './pages/Admin/Subject';
 // import Chatbot from './pages/User/ChatPopup';
 
@@ -137,10 +137,10 @@ function App() {
           path: '/posts',
           element: <Posts />,
         },
-        {
-          path: '/academicYears',
-          element: <AcademicYear />,
-        },
+        // {
+        //   path: '/academicYears',
+        //   element: <AcademicYear />,
+        // },
         {
           path: '/charts',
           element: <Charts />,

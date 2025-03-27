@@ -7,7 +7,7 @@ import {
   HiOutlineClipboardDocumentList,
   HiOutlineDocumentChartBar,
   HiAcademicCap,
-  HiOutlineCalendarDays,
+  // HiOutlineCalendarDays,
 } from 'react-icons/hi2';
 import { FaBook } from "react-icons/fa";
 
@@ -71,12 +71,12 @@ export const menu = [
         icon: HiAcademicCap,
         label: 'University',
       },
-      {
-        isLink: true,
-        url: '/academicYears',
-        icon: HiOutlineCalendarDays ,
-        label: 'AcademicY',
-      },
+      // {
+      //   isLink: true,
+      //   url: '/academicYears',
+      //   icon: HiOutlineCalendarDays ,
+      //   label: 'AcademicY',
+      // },
       
     ],
   },
