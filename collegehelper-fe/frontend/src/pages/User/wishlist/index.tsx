@@ -62,26 +62,31 @@ const WishlistPage: React.FC = () => {
       key: 'universityName',
       sorter: (a: WishlistItem, b: WishlistItem) =>
         a.universityName.localeCompare(b.universityName),
+      className: 'text-gray-700 font-medium',
     },
     {
       title: 'Ngành',
       dataIndex: 'majorName',
       key: 'majorName',
+      className: 'text-gray-700 font-medium',
     },
     {
       title: 'Thời gian xét tuyển',
       dataIndex: 'admissionDate',
       key: 'admissionDate',
+      className: 'text-gray-700 font-medium',
     },
     {
       title: 'Hạn nộp hồ sơ',
       dataIndex: 'deadline',
       key: 'deadline',
+      className: 'text-gray-700 font-medium',
     },
     {
       title: 'Chỉ tiêu',
       dataIndex: 'quota',
       key: 'quota',
+      className: 'text-gray-700 font-medium',
     },
     {
       title: 'Thao tác',
@@ -94,23 +99,18 @@ const WishlistPage: React.FC = () => {
           cancelText="Không"
           okType="default"
           okButtonProps={{
-            style: {
-              color: '#000',
-            },
+            className: 'text-black hover:bg-gray-200',
           }}
         >
           <Button
             type="primary"
-            style={{
-              color: '#000',
-              backgroundColor: '#fff',
-              borderColor: '#d9d9d9',
-            }}
+            className="bg-red-500 text-white border-none hover:bg-red-600 transition-all duration-300 rounded-lg px-4 py-1"
           >
             Xóa khỏi danh sách
           </Button>
         </Popconfirm>
       ),
+      className: 'text-center',
     },
   ];
 
@@ -139,7 +139,7 @@ const WishlistPage: React.FC = () => {
       const err = error as Error;
       message.error('Không thể xóa khỏi danh sách quan tâm: ' + err.message);
       console.error('Remove wishlist item error:', err);
-      await fetchWishlist(); // Chỉ gọi nếu thực sự cần
+      await fetchWishlist();
     }
   };
 
@@ -148,31 +148,49 @@ const WishlistPage: React.FC = () => {
   };
 
   return (
-    <Card
-      title="Danh sách trường/ngành yêu thích"
-      extra={<Button onClick={handleRefresh}>Làm mới</Button>}
-      className="shadow-md hover:shadow-lg transition-shadow"
-      headStyle={{
-        fontSize: '1.25rem',
-        fontWeight: 'bold',
-        borderBottom: '2px solid #f0f0f0',
-      }}
-    >
-      <Table
-        columns={columns}
-        dataSource={wishlist}
-        rowKey="id"
-        loading={loading}
-        pagination={{
-          ...pagination,
-          showSizeChanger: true,
-          showTotal: (total) => `Tổng ${total} mục yêu thích`,
+    <div className="min-h-screen bg-gray-100 p-6 font-sans">
+      <Card
+        title="Danh sách trường/ngành yêu thích"
+        extra={
+          <Button
+            onClick={handleRefresh}
+            className="bg-blue-500 text-white border-none hover:bg-blue-600 transition-all duration-300 rounded-lg px-4 py-1 font-medium"
+          >
+            Làm mới
+          </Button>
+        }
+        className="rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white"
+        headStyle={{
+          background: 'linear-gradient(to right, #3b82f6, #60a5fa)',
+          color: 'white',
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+          borderTopLeftRadius: '12px',
+          borderTopRightRadius: '12px',
+          padding: '16px 24px',
         }}
-        className="custom-table"
-        rowClassName="hover:bg-gray-50"
-        locale={{ emptyText: 'Chưa có trường/ngành yêu thích' }}
-      />
-    </Card>
+        bodyStyle={{
+          padding: '24px',
+        }}
+      >
+        <Table
+          columns={columns}
+          dataSource={wishlist}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            ...pagination,
+            showSizeChanger: true,
+            showTotal: (total) => `Tổng ${total} mục yêu thích`,
+            className: 'mt-4',
+          }}
+          className="rounded-lg overflow-hidden"
+          rowClassName="hover:bg-gray-50 transition-colors duration-200"
+          locale={{ emptyText: 'Chưa có trường/ngành yêu thích' }}
+          scroll={{ x: 'max-content' }} // Responsive cho table
+        />
+      </Card>
+    </div>
   );
 };
 

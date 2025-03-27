@@ -23,7 +23,7 @@ const AdmissionPage: React.FC = () => {
         try {
           const wishlistResponse = await getWishlist();
           console.log('🔍 Fetched Wishlist:', JSON.stringify(wishlistResponse, null, 2));
-          wishlist = wishlistResponse?.message?.items?.$values || []; // Điều chỉnh dựa trên cấu trúc thực tế
+          wishlist = wishlistResponse?.message?.items?.$values || [];
         } catch (error) {
           console.error("Không thể lấy danh sách quan tâm:", error);
           message.warning("Không thể lấy danh sách quan tâm. Trạng thái quan tâm có thể không chính xác.");
@@ -81,17 +81,20 @@ const AdmissionPage: React.FC = () => {
       dataIndex: 'universityName',
       key: 'universityName',
       sorter: (a: AdmissionInfo, b: AdmissionInfo) => a.universityName.localeCompare(b.universityName),
+      className: 'text-gray-700 font-medium',
     },
     {
       title: 'Ngành',
       dataIndex: 'majorName',
       key: 'majorName',
+      className: 'text-gray-700 font-medium',
     },
     {
       title: 'Chỉ tiêu',
       dataIndex: 'quota',
       key: 'quota',
       render: (text: string | number) => (text !== undefined && text !== null ? text : 'N/A'),
+      className: 'text-gray-700 font-medium',
     },
     {
       title: 'Thời gian xét tuyển',
@@ -101,6 +104,7 @@ const AdmissionPage: React.FC = () => {
         !text || text === '0001-01-01T00:00:00'
           ? 'Chưa xác định'
           : new Date(text).toLocaleDateString(),
+      className: 'text-gray-700 font-medium',
     },
     {
       title: 'Hạn nộp hồ sơ',
@@ -110,23 +114,33 @@ const AdmissionPage: React.FC = () => {
         !text || text === '0001-01-01T00:00:00'
           ? 'Chưa xác định'
           : new Date(text).toLocaleDateString(),
+      className: 'text-gray-700 font-medium',
     },
     {
       title: 'Thao tác',
       key: 'action',
       render: (_: React.ReactNode, record: AdmissionInfo) => (
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Button
-            className={`bookmark-button ${record.isBookmarked ? 'bookmarked' : 'not-bookmarked'}`}
+            className={`${
+              record.isBookmarked
+                ? 'bg-yellow-500 text-white border-none hover:bg-yellow-600'
+                : 'bg-green-500 text-white border-none hover:bg-green-600'
+            } transition-all duration-300 rounded-lg px-4 py-1 font-medium`}
             onClick={() => handleBookmark(record.id)}
           >
             {record.isBookmarked ? 'Bỏ quan tâm' : 'Quan tâm'}
           </Button>
-          <Button type="link" onClick={() => handleView(record.id)}>
-            View
+          <Button
+            type="link"
+            className="text-blue-500 hover:text-blue-700 font-medium"
+            onClick={() => handleView(record.id)}
+          >
+            Xem chi tiết
           </Button>
         </div>
       ),
+      className: 'text-center',
     },
   ];
 
@@ -176,24 +190,30 @@ const AdmissionPage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100 p-6 font-sans">
       <Card
         title="Tra cứu thông tin tuyển sinh"
-        className="shadow-md hover:shadow-lg transition-shadow"
+        className="rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white"
         headStyle={{
-          fontSize: '1.25rem',
+          background: 'linear-gradient(to right, #3b82f6, #60a5fa)',
+          color: 'white',
+          fontSize: '1.5rem',
           fontWeight: 'bold',
-          borderBottom: '2px solid #f0f0f0',
+          borderTopLeftRadius: '12px',
+          borderTopRightRadius: '12px',
+          padding: '16px 24px',
+        }}
+        bodyStyle={{
+          padding: '24px',
         }}
       >
         <Input.Search
           placeholder="Tìm kiếm theo tên trường hoặc ngành..."
-          style={{ marginBottom: 16 }}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           allowClear
           size="large"
-          className="max-w-xl"
+          className="max-w-xl mb-6 rounded-lg shadow-sm border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-300"
         />
         <Table
           columns={columns}
@@ -204,9 +224,11 @@ const AdmissionPage: React.FC = () => {
             pageSize: 10,
             showSizeChanger: true,
             showTotal: (total) => `Tổng ${total} kết quả`,
+            className: 'mt-4',
           }}
-          className="custom-table"
-          rowClassName="hover:bg-gray-50"
+          className="rounded-lg overflow-hidden"
+          rowClassName="hover:bg-gray-50 transition-colors duration-200"
+          scroll={{ x: 'max-content' }}
         />
       </Card>
 
@@ -216,47 +238,78 @@ const AdmissionPage: React.FC = () => {
         onCancel={() => setDetailModalVisible(false)}
         footer={null}
         width={600}
+        className="rounded-lg"
+        styles={{
+          header: {
+            background: 'linear-gradient(to right, #3b82f6, #60a5fa)',
+            color: 'white',
+            fontSize: '1.25rem',
+            fontWeight: 'bold',
+            borderTopLeftRadius: '8px',
+            borderTopRightRadius: '8px',
+            padding: '16px 24px',
+          },
+          body: {
+            padding: '24px',
+            backgroundColor: '#fff',
+            borderBottomLeftRadius: '8px',
+            borderBottomRightRadius: '8px',
+          },
+        }}
       >
         {detailLoading ? (
-          <div>Loading...</div>
+          <div className="text-center text-gray-500">Đang tải...</div>
         ) : selectedAdmission ? (
-          <div>
-            <Descriptions bordered column={1}>
-              <Descriptions.Item label="Trường">{selectedAdmission.universityName}</Descriptions.Item>
-              <Descriptions.Item label="Chỉ tiêu">{selectedAdmission.quota}</Descriptions.Item>
-              <Descriptions.Item label="Thời gian xét tuyển">
+          <div className="space-y-6">
+            <Descriptions bordered column={1} className="rounded-lg">
+              <Descriptions.Item label="Trường" className="text-gray-700 font-medium">
+                {selectedAdmission.universityName}
+              </Descriptions.Item>
+              <Descriptions.Item label="Chỉ tiêu" className="text-gray-700 font-medium">
+                {selectedAdmission.quota}
+              </Descriptions.Item>
+              <Descriptions.Item label="Thời gian xét tuyển" className="text-gray-700 font-medium">
                 {selectedAdmission.admissionDate === 'N/A'
                   ? 'Chưa xác định'
                   : new Date(selectedAdmission.admissionDate).toLocaleDateString()}
               </Descriptions.Item>
-              <Descriptions.Item label="Hạn nộp hồ sơ">
+              <Descriptions.Item label="Hạn nộp hồ sơ" className="text-gray-700 font-medium">
                 {selectedAdmission.deadline === 'N/A'
                   ? 'Chưa xác định'
                   : new Date(selectedAdmission.deadline).toLocaleDateString()}
               </Descriptions.Item>
             </Descriptions>
 
-            <h3 className="mt-4 font-semibold">Phương thức xét tuyển:</h3>
+            <h3 className="mt-6 text-lg font-semibold text-gray-800">Phương thức xét tuyển:</h3>
             {selectedAdmission.inforMethods.length > 0 ? (
               <List
                 dataSource={selectedAdmission.inforMethods}
                 renderItem={(method) => (
-                  <List.Item>
-                    <Descriptions bordered column={1} size="small">
-                      <Descriptions.Item label="Phương thức">{method.methodName}</Descriptions.Item>
-                      <Descriptions.Item label="Khối">{method.scoreType}</Descriptions.Item>
-                      <Descriptions.Item label="Điểm yêu cầu">{method.scoreRequirement}</Descriptions.Item>
-                      <Descriptions.Item label="Tỷ lệ chỉ tiêu">{method.percentageOfQuota}%</Descriptions.Item>
+                  <List.Item className="border-b border-gray-200 py-4">
+                    <Descriptions bordered column={1} size="small" className="rounded-lg">
+                      <Descriptions.Item label="Phương thức" className="text-gray-700 font-medium">
+                        {method.methodName}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Khối" className="text-gray-700 font-medium">
+                        {method.scoreType}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Điểm yêu cầu" className="text-gray-700 font-medium">
+                        {method.scoreRequirement}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Tỷ lệ chỉ tiêu" className="text-gray-700 font-medium">
+                        {method.percentageOfQuota}%
+                      </Descriptions.Item>
                     </Descriptions>
                   </List.Item>
                 )}
+                className="bg-gray-50 rounded-lg p-4"
               />
             ) : (
-              <div>Không có phương thức xét tuyển</div>
+              <div className="text-gray-500">Không có phương thức xét tuyển</div>
             )}
           </div>
         ) : (
-          <div>Không có dữ liệu</div>
+          <div className="text-gray-500">Không có dữ liệu</div>
         )}
       </Modal>
     </div>
