@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { AdmissionInfo,AdmissionDetail, InforMethod } from '.././pages/User/types';
 
 
@@ -8,11 +8,14 @@ import { AdmissionInfo,AdmissionDetail, InforMethod } from '.././pages/User/type
 
  
 
-const API_BASE_URL =
-  "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/major?pageNumber=1&pageSize=5";
 
-const getToken = (): string | null => {
-  const token = localStorage.getItem("accessToken"); // Lấy token từ localStorage
+
+
+
+const API_BASE_URL = "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/major";
+
+const getToken = () => {
+  const token = localStorage.getItem("accessToken");
   console.log("🔑 Token lấy từ localStorage:", token);
   return token;
 };
@@ -42,30 +45,153 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-export const fetchMajors = async () => {
+// export const fetchMajors = async (pageNumber = 1, pageSize = 5) => {
+//   try {
+//     console.log("🚀 Gọi API Major...");
+//     const response = await axiosInstance.get(`?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+//     console.log("✅ API Response:", response.data);
+//     if (
+//       !response.data ||
+//       !response.data.message ||
+//       !response.data.message.items ||
+//       !Array.isArray(response.data.message.items.$values)
+//     ) {
+//       throw new Error("❌ API không trả về danh sách majors hợp lệ!");
+//     }
+//     return response.data.message.items.$values;
+//   } catch (error) {
+//     console.error("❌ Lỗi khi tải Major:", error?.response?.status, error?.response?.data);
+//     if (error.response?.status === 401) {
+//       console.warn("⚠ Token có thể đã hết hạn, cần đăng nhập lại!");
+//       localStorage.removeItem("accessToken");
+//       window.location.href = "/login";
+//     }
+//     return [];
+//   }
+// };
+
+
+// export const fetchMajors = async (pageNumber = 1, pageSize = 500) => {
+//   try {
+//     console.log("🚀 Gọi API Major...");
+//     const response = await axiosInstance.get(`?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+//     console.log("✅ API Response:", response.data);
+//     if (
+//       !response.data ||
+//       !response.data.message ||
+//       !response.data.message.items ||
+//       !Array.isArray(response.data.message.items.$values)
+//     ) {
+//       throw new Error("❌ API không trả về danh sách majors hợp lệ!");
+//     }
+//     const items = response.data.message.items.$values;
+//     // Giả sử API trả về tổng số bản ghi tại response.data.message.total, nếu không có thì dùng độ dài mảng
+//     const total = response.data.message.total || items.length;
+//     return { items, total };
+//   } catch (error) {
+//     console.error("❌ Lỗi khi tải Major:", error?.response?.status, error?.response?.data);
+//     if (error.response?.status === 401) {
+//       console.warn("⚠ Token có thể đã hết hạn, cần đăng nhập lại!");
+//       localStorage.removeItem("accessToken");
+//       window.location.href = "/login";
+//     }
+//     return { items: [], total: 0 };
+//   }
+// };
+
+
+
+export const fetchAllMajors = async (): Promise<{ items: any[]; total: number }> => {
   try {
-    console.log("🚀 Gọi API Major...");
-    const response = await axiosInstance.get("");
-
+    console.log("🚀 Gọi API Major với pageSize lớn...");
+    const response = await axiosInstance.get(`?pageNumber=1&pageSize=1000`);
     console.log("✅ API Response:", response.data);
-
-    if (!response.data || !response.data.message || !response.data.message.items || !Array.isArray(response.data.message.items.$values)) {
+    if (
+      !response.data ||
+      !response.data.message ||
+      !response.data.message.items ||
+      !Array.isArray(response.data.message.items.$values)
+    ) {
       throw new Error("❌ API không trả về danh sách majors hợp lệ!");
     }
-
-    return response.data.message.items.$values; // Trả về danh sách majors
-  } catch (error: any) {
-    console.error("❌ Lỗi khi tải Major:", error?.response?.status, error?.response?.data);
-
-    if (error.response?.status === 401) {
+    const items = response.data.message.items.$values;
+    // Giả sử API có trả về tổng số bản ghi, nếu không thì dùng items.length
+    const total = response.data.message.total || items.length;
+    return { items, total };
+  } catch (error: unknown) {
+    const axiosError = error as AxiosError;
+    console.error("❌ Lỗi khi tải Major:", axiosError.response?.status, axiosError.response?.data);
+    if (axiosError.response?.status === 401) {
       console.warn("⚠ Token có thể đã hết hạn, cần đăng nhập lại!");
       localStorage.removeItem("accessToken");
       window.location.href = "/login";
     }
-
-    return [];
+    return { items: [], total: 0 };
   }
 };
+
+
+
+export const createMajor = async (data: any): Promise<any> => {
+  try {
+    console.log("🚀 Tạo Major với dữ liệu:", data);
+    const response = await axiosInstance.post("", data);
+    console.log("✅ API Response (createMajor):", response.data);
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "❌ Lỗi khi tạo Major:",
+        error.response?.status,
+        error.response?.data
+      );
+    } else {
+      console.error("❌ Lỗi khi tạo Major:", error);
+    }
+    throw error;
+  }
+};
+
+export const updateMajor = async (id: string, data: any): Promise<any> => {
+  try {
+    console.log("🚀 Cập nhật Major với id:", id, "dữ liệu:", data);
+    const response = await axiosInstance.patch(`/${id}`, data);
+    console.log("✅ API Response (updateMajor):", response.data);
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "❌ Lỗi khi cập nhật Major:",
+        error.response?.status,
+        error.response?.data
+      );
+    } else {
+      console.error("❌ Lỗi khi cập nhật Major:", error);
+    }
+    throw error;
+  }
+};
+
+export const deleteMajor = async (id: string): Promise<any> => {
+  try {
+    console.log("🚀 Xóa Major với id:", id);
+    const response = await axiosInstance.delete(`/${id}`);
+    console.log("✅ API Response (deleteMajor):", response.data);
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "❌ Lỗi khi xóa Major:",
+        error.response?.status,
+        error.response?.data
+      );
+    } else {
+      console.error("❌ Lỗi khi xóa Major:", error);
+    }
+    throw error;
+  }
+};
+
 
 
 
@@ -476,9 +602,9 @@ export const fetchSingleProduct = async (id: string) => {
 };
 
 // GET ALL ORDERS
-export const fetchOrders = async () => {
+export const fetchMajors = async () => {
   const response = await axios
-    .get('https://react-admin-ui-v1-api.vercel.app/orders')
+    .get('https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/major/all?pageNumber=1&pageSize=5')
     .then((res) => {
       console.log('axios get:', res.data);
       return res.data;

@@ -1,7 +1,7 @@
 // import toast from 'react-hot-toast';
 import {
   HiOutlineHome,
-  HiOutlineUser,
+ // HiOutlineUser,
   HiOutlineUsers,
   HiOutlineCube,
   HiOutlineClipboardDocumentList,
@@ -11,7 +11,6 @@ import {
 import { FaBook } from "react-icons/fa";
 
 
-// import { IoSettingsOutline } from 'react-icons/io5';
 
 export const menu = [
   {
@@ -23,12 +22,12 @@ export const menu = [
         icon: HiOutlineHome,
         label: 'homepage',
       },
-      {
-        isLink: true,
-        url: '/profile',
-        icon: HiOutlineUser,
-        label: 'profile',
-      },
+      // {
+      //   isLink: true,
+      //   url: '/profile',
+      //   icon: HiOutlineUser,
+      //   label: 'profile',
+      // },
     ],
   },
   {

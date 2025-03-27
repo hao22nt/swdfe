@@ -3,8 +3,7 @@ import {
   createBrowserRouter,
   RouterProvider,
   Outlet,
-  ScrollRestoration,
-  
+  ScrollRestoration, 
   Navigate,
   useLocation,
 } from 'react-router-dom';
@@ -15,7 +14,7 @@ import Navbar from './pages/Admin/Navbar';
 import Footer from './components/Footer';
 import Menu from './components/menu/Menu';
 import Error from './pages/Error';
-import Profile from './pages/Admin/Profile';
+// import Profile from './pages/Admin/Profile';
 import Major from './pages/Admin/Major';
 import Posts from './pages/Admin/Posts';
 import Charts from './pages/Admin/Charts';
@@ -31,8 +30,9 @@ import AdmissionPage from './pages/User/admission';
 import WishlistPage from './pages/User/wishlist';
 import Homepage from './pages/User/Homepage';
 import UserProfile from './pages/User/profile/index';
+// import AcademicYear from './pages/Admin/AcademicYear';
 import Subject from './pages/Admin/Subject';
-import Chatbot from './pages/User/ChatPopup';
+// import Chatbot from './pages/User/ChatPopup';
 import ScoreInput from './pages/User/scores';
 import AdmissionsPage1 from './pages/Admin/Admissionin4';
 // Sửa lại component bảo vệ route
@@ -79,7 +79,7 @@ function App() {
             <div className="w-full px-4 xl:px-4 2xl:px-5 xl:py-2 overflow-clip">
               <Outlet />
             </div> 
-            <Chatbot /> 
+            {/* <Chatbot />  */}
           </div>
         </div>
         <Footer />
@@ -88,11 +88,12 @@ function App() {
   };
 
   const router = createBrowserRouter([
+    // Routes dành cho Admin
     {
       path: '/',
       element: (
         <ProtectedRoute>
-          <Layout />
+          <Layout />  {/* Chỉ áp dụng Layout này cho Admin */}
         </ProtectedRoute>
       ),
       children: [
@@ -108,10 +109,10 @@ function App() {
           path: '/users/:id',
           element: <User />,
         },
-        {
-          path: '/profile',
-          element: <Profile />,
-        },
+        // {
+        //   path: '/profile',
+        //   element: <Profile />,
+        // },
         {
           path: '/profile/edit',
           element: <EditProfile />,
@@ -153,40 +154,49 @@ function App() {
           path: '/university',
           element: <University />,
         },
+      ],
+      errorElement: <Error />,
+    },
+  
+    // Routes dành cho User
+    {
+      path: '/user',
+      element: (
+        <ProtectedRoute>
+          <UserLayout />  {/* Chỉ áp dụng UserLayout cho /user */}
+        </ProtectedRoute>
+      ),
+      children: [
         {
-          path: '/user',
-          element: <UserLayout />,
-          children: [
-            {
-              path: 'homepage',
-              element: <Homepage />,
-            },
-            {
-              path: 'profile',
-              element: <UserProfile />,
-            },
-            {
-              path: 'admission',
-              element: <AdmissionPage />,
-            },
-            {
-              path: 'wishlist',
-              element: <WishlistPage />,
-            },
-            {
-              path: 'scores',
-              element: <ScoreInput />,
-            },
+          path: 'homepage',
+          element: <Homepage />,
+        },
+        {
+          path: 'profile',
+          element: <UserProfile />,
+        },
+        {
+          path: 'admission',
+          element: <AdmissionPage />,
+        },
+        {
+          path: 'wishlist',
+          element: <WishlistPage />,
+        },
+        {
+          path: 'scores',
+          element: <ScoreInput />,
+        },
             
-            {
-              index: true,
-              element: <Navigate to="homepage" replace />,
-            },
-          ],
+        {
+          index: true,
+          element: <Navigate to="homepage" replace />,
         },
       ],
       errorElement: <Error />,
     },
+  
+    // Routes dành cho Login, Register
     {
       path: '/login',
       element: <Login />,
@@ -196,7 +206,7 @@ function App() {
       element: <Register />,
     },
   ]);
-
+  
   return <RouterProvider router={router} />;
 }
 

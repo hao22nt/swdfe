@@ -1,0 +1,70 @@
+/* UserLayout.css */
+
+/* 
+  1) Override màu nền Header (do inline style background: #1890ff)
+     => dùng !important để ghi đè
+*/
+.ant-layout-header {
+  background: linear-gradient(90deg, #002766, #003a8c) !important;
+  /* Tạo hiệu ứng đổ bóng header */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+
+
+/*
+  2) Tô điểm cho menu
+*/
+.ant-menu-dark.ant-menu-horizontal {
+  background: transparent !important; /* Cho menu nền trong suốt để lộ gradient */
+  border: none !important;
+}
+
+/* Tăng khoảng cách giữa các mục menu */
+.ant-menu-horizontal > .ant-menu-item {
+  margin: -10px 0px !important; /* Điều chỉnh khoảng cách ngang giữa các mục */
+  padding: 10px 20px !important; /* Giữ vùng hover đủ lớn */
+  border-radius: 0px; /* Bo góc để hover đẹp hơn */
+}
+
+/* Hover đẹp hơn */
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 0px; /* Giữ bo góc khi hover */
+}
+
+/* Khi mục được chọn */
+.ant-menu-dark.ant-menu-horizontal > .ant-menu-item.ant-menu-item-selected {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-radius: 0px; /* Đảm bảo viền bo đẹp */
+}
+
+/*
+  3) Avatar - thêm hiệu ứng hover
+*/
+.ant-avatar {
+  transition: transform 0.3s;
+}
+
+.ant-avatar:hover {
+  transform: scale(1.05);
+}
+
+/*
+  4) Tùy chỉnh màu nền chính
+*/
+.ant-layout {
+  background-color: #f5f7f9 !important;
+}
+
+/*
+  5) Content box
+*/
+.ant-layout-content {
+  /* Đã có inline style, nhưng ta bổ sung thêm hiệu ứng */
+  transition: box-shadow 0.3s;
+}
+
+.ant-layout-content:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
