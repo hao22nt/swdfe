@@ -34,7 +34,7 @@ import UserProfile from './pages/User/profile/index';
 import Subject from './pages/Admin/Subject';
 import Chatbot from './pages/User/ChatPopup';
 import ScoreInput from './pages/User/scores';
-
+import AdmissionsPage1 from './pages/Admin/Admissionin4';
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const userRole = localStorage.getItem('userRole');
@@ -119,6 +119,10 @@ function App() {
         {
           path: '/admission',
           element: <Admission />,
+        },
+        {
+          path: '/admissionin4',
+          element: <AdmissionsPage1 />,
         },
         {
           path: '/admission/:id',
