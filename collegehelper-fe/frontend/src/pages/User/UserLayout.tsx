@@ -3,8 +3,9 @@ import { Layout, Menu, Dropdown, Avatar } from 'antd';
 import { UserOutlined, LogoutOutlined, BookOutlined, HeartOutlined, FileTextOutlined, HomeOutlined } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Chatbot from './ChatPopup';
+import './UserLayout.css';
 
-const { Header, Content } = Layout;
+const { Header, Content, Footer } = Layout;
 
 const UserLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -32,12 +33,18 @@ const UserLayout: React.FC = () => {
     <Layout style={{ minHeight: '100vh', background: '#fff' }}>
       {/* Header - Thanh menu ngang */}
       <Header style={{
-        background: '#1890ff', 
+        background: '#1A3D7C', 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
         padding: '0 24px',
       }}>
+        {/* Logo và chuyển hướng về trang chủ */}
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/user/homepage')}>
+          <img src="/src/assets/logo/logoweb.png" alt="Logo" style={{ height: '80px', marginRight: '10px' }} />
+          <span style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold', paddingRight: '70px'  }}>TuyensinhPro</span>
+        </div>
+
         {/* Menu điều hướng */}
         <Menu 
           theme="dark" 
@@ -58,7 +65,7 @@ const UserLayout: React.FC = () => {
         </Dropdown>
       </Header>
 
-      {/* Nội dung trang */}
+      {/* Nội dung trang và Footer */}
       <Layout style={{ background: '#f5f7f9' }}>
         <Content style={{
           margin: '24px',
@@ -70,6 +77,9 @@ const UserLayout: React.FC = () => {
         }}>
           <Outlet />
         </Content>
+        <Footer style={{ textAlign: 'center', background: '#fff', padding: '10px 24px' }}>
+          ©2025 TuyensinhPRO - SWD Project.
+        </Footer>
       </Layout>
       <Chatbot />
     </Layout>
