@@ -8,11 +8,14 @@ import { AdmissionInfo,AdmissionDetail, InforMethod } from '.././pages/User/type
 
  
 
-const API_BASE_URL =
-  "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/major?pageNumber=1&pageSize=5";
 
-const getToken = (): string | null => {
-  const token = localStorage.getItem("accessToken"); // Lấy token từ localStorage
+
+
+
+const API_BASE_URL = "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/major";
+
+const getToken = () => {
+  const token = localStorage.getItem("accessToken");
   console.log("🔑 Token lấy từ localStorage:", token);
   return token;
 };
@@ -42,30 +45,67 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-export const fetchMajors = async () => {
+export const fetchMajors = async (pageNumber = 1, pageSize = 5) => {
   try {
     console.log("🚀 Gọi API Major...");
-    const response = await axiosInstance.get("");
-
+    const response = await axiosInstance.get(`?pageNumber=${pageNumber}&pageSize=${pageSize}`);
     console.log("✅ API Response:", response.data);
-
-    if (!response.data || !response.data.message || !response.data.message.items || !Array.isArray(response.data.message.items.$values)) {
+    if (
+      !response.data ||
+      !response.data.message ||
+      !response.data.message.items ||
+      !Array.isArray(response.data.message.items.$values)
+    ) {
       throw new Error("❌ API không trả về danh sách majors hợp lệ!");
     }
-
-    return response.data.message.items.$values; // Trả về danh sách majors
-  } catch (error: any) {
+    return response.data.message.items.$values;
+  } catch (error) {
     console.error("❌ Lỗi khi tải Major:", error?.response?.status, error?.response?.data);
-
     if (error.response?.status === 401) {
       console.warn("⚠ Token có thể đã hết hạn, cần đăng nhập lại!");
       localStorage.removeItem("accessToken");
       window.location.href = "/login";
     }
-
     return [];
   }
 };
+
+export const createMajor = async (data) => {
+  try {
+    console.log("🚀 Tạo Major với dữ liệu:", data);
+    const response = await axiosInstance.post("", data);
+    console.log("✅ API Response (createMajor):", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Lỗi khi tạo Major:", error?.response?.status, error?.response?.data);
+    throw error;
+  }
+};
+
+export const updateMajor = async (id, data) => {
+  try {
+    console.log("🚀 Cập nhật Major với id:", id, "dữ liệu:", data);
+    const response = await axiosInstance.patch(`/${id}`, data);
+    console.log("✅ API Response (updateMajor):", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Lỗi khi cập nhật Major:", error?.response?.status, error?.response?.data);
+    throw error;
+  }
+};
+
+export const deleteMajor = async (id) => {
+  try {
+    console.log("🚀 Xóa Major với id:", id);
+    const response = await axiosInstance.delete(`/${id}`);
+    console.log("✅ API Response (deleteMajor):", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Lỗi khi xóa Major:", error?.response?.status, error?.response?.data);
+    throw error;
+  }
+};
+
 
 
 
