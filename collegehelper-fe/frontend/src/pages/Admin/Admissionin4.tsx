@@ -1,4 +1,4 @@
-// pages/AdminAdmissionsPage.tsx
+
 import React, { useState, useEffect } from 'react';
 import { Table, Button, message, Card, Modal, Descriptions, List, Form, Input, InputNumber } from 'antd';
 import { getAdmissionList, getAdmissionDetail, createAdmission } from '../../api/ApiCollection';
@@ -8,10 +8,10 @@ const AdmissionsPage1: React.FC = () => {
   const [admissionData, setAdmissionData] = useState<AdmissionInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const [createModalVisible, setCreateModalVisible] = useState(false); // Thêm state cho modal tạo mới
+  const [createModalVisible, setCreateModalVisible] = useState(false);
   const [selectedAdmission, setSelectedAdmission] = useState<(AdmissionDetail & { universityName?: string; majorName?: string }) | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [form] = Form.useForm(); // Form instance để quản lý dữ liệu nhập
+  const [form] = Form.useForm();
 
   useEffect(() => {
     const fetchAdmissions = async () => {
@@ -35,10 +35,12 @@ const AdmissionsPage1: React.FC = () => {
   const handleView = async (id: string) => {
     setDetailLoading(true);
     try {
-      const response = await getAdmissionDetail(id);
+      // Sử dụng union type để xử lý cả hai trường hợp
+      const response = await getAdmissionDetail(id) as AdmissionDetail | { message: AdmissionDetail };
       console.log('🔍 Fetched Admission Detail Response:', JSON.stringify(response, null, 2));
 
-      const detail = response.message || response;
+      // Kiểm tra xem response có message không
+      const detail = 'message' in response ? response.message : response;
       const admission = admissionData.find((item) => item.id === id);
       const universityName = admission ? admission.universityName : 'N/A';
       const majorName = admission ? admission.majorName : 'N/A';
@@ -46,9 +48,9 @@ const AdmissionsPage1: React.FC = () => {
       const formattedDetail = {
         id: detail.id || 'N/A',
         quota: detail.quota ?? 'N/A',
-        admissionDate: detail.admissionDate || detail.admisstionDate || 'N/A',
+        admissionDate: detail.admissionDate || detail.admissionDate || 'N/A', // Hỗ trợ typo nếu có
         deadline: detail.deadline || 'N/A',
-        inforMethods: detail.inforMethods?.$values || detail.inforMethods || [],
+        inforMethods: detail.inforMethods || [], // Đảm bảo inforMethods là mảng
         universityName,
         majorName,
       };
@@ -85,19 +87,18 @@ const AdmissionsPage1: React.FC = () => {
 
       const createdAdmission = await createAdmission(newAdmission);
       message.success('Tạo thông tin tuyển sinh thành công!');
-      
-      // Cập nhật danh sách sau khi tạo thành công (giả định API trả về dữ liệu tương thích với AdmissionInfo)
+
       setAdmissionData((prev) => [
         ...prev,
         {
-          id: createdAdmission.uniMajorId, // Dùng uniMajorId làm id tạm thời
-          universityName: "N/A", // Cần API trả về universityName nếu có
-          majorName: "N/A", // Cần API trả về majorName nếu có
+          id: createdAdmission.uniMajorId,
+          universityName: "N/A",
+          majorName: "N/A",
           admissionDate: createdAdmission.admissionDate,
           deadline: createdAdmission.deadline,
           quota: createdAdmission.quota,
           isBookmarked: false,
-          baseScore: 0, // Giá trị mặc định
+          baseScore: 0,
         },
       ]);
 
@@ -402,4 +403,3 @@ const AdmissionsPage1: React.FC = () => {
 };
 
 export default AdmissionsPage1;
-
