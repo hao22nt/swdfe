@@ -11,11 +11,11 @@ import {
 import Home from './pages/Admin/Home';
 import Users from './pages/Users';
 import Admission from './pages/Admin/Admission';
-import Navbar from './components/Navbar';
+import Navbar from './pages/Admin/Navbar';
 import Footer from './components/Footer';
 import Menu from './components/menu/Menu';
 import Error from './pages/Error';
-import Profile from './pages/Profile';
+import Profile from './pages/Admin/Profile';
 import Major from './pages/Admin/Major';
 import Posts from './pages/Admin/Posts';
 import Charts from './pages/Admin/Charts';
@@ -26,26 +26,34 @@ import User from './pages/User';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import University from './pages/Admin/University';
-import UserLayout from './userpages/UserLayout';
-import AdmissionPage from './userpages/admission';
-import WishlistPage from './userpages/wishlist';
-import NewsPage from './userpages/news';
-
+import UserLayout from './pages/User/UserLayout';
+import AdmissionPage from './pages/User/admission';
+import WishlistPage from './pages/User/wishlist';
+import Homepage from './pages/User/Homepage';
+import UserProfile from './pages/User/profile/index';
+import Subject from './pages/Admin/Subject';
+import Chatbot from './pages/User/ChatPopup';
+import ScoreInput from './pages/User/scores';
+import AdmissionsPage1 from './pages/Admin/Admissionin4';
 // Sửa lại component bảo vệ route
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isGoogleUser = localStorage.getItem('isGoogleUser') === 'true';
+  const userRole = localStorage.getItem('userRole');
   const location = useLocation();
-  const isUserPath = location.pathname.startsWith('/user'); // /user routes
-  const isUsersPath = location.pathname.startsWith('/users'); // /users routes
+  const isUserPath = location.pathname.startsWith('/user');
   
-  // Nếu là Google user và cố truy cập route không phải /user
-  if (isGoogleUser && !isUserPath) {
-    return <Navigate to="/user" replace />;
+  // Nếu chưa đăng nhập, chuyển về trang login
+  if (!localStorage.getItem('accessToken')) {
+    return <Navigate to="/login" replace />;
   }
 
-  // Nếu là admin (không phải Google user) và cố truy cập route /user (không phải /users)
-  if (!isGoogleUser && isUserPath && !isUsersPath) {
-    return <Navigate to="/" replace />;
+  // Admin có thể truy cập mọi route
+  if (userRole === 'admin') {
+    return <>{children}</>;
+  }
+
+  // User thường chỉ được vào /user routes
+  if (userRole === 'user' && !isUserPath) {
+    return <Navigate to="/user" replace />;
   }
 
   return <>{children}</>;
@@ -57,10 +65,7 @@ function App() {
     const isUserPage = location.pathname === '/user' || location.pathname.startsWith('/user/');
 
     return (
-      <div
-        id="rootContainer"
-        className="w-full p-0 m-0 overflow-visible min-h-screen flex flex-col justify-between"
-      >
+      <div className="w-full p-0 m-0 overflow-visible min-h-screen flex flex-col justify-between">
         <ToasterProvider />
         <ScrollRestoration />
         <div>
@@ -73,7 +78,8 @@ function App() {
             )}
             <div className="w-full px-4 xl:px-4 2xl:px-5 xl:py-2 overflow-clip">
               <Outlet />
-            </div>
+            </div> 
+            <Chatbot /> 
           </div>
         </div>
         <Footer />
@@ -95,14 +101,6 @@ function App() {
           element: <Home />,
         },
         {
-          path: '/profile',
-          element: <Profile />,
-        },
-        {
-          path: '/profile/edit',
-          element: <EditProfile />,
-        },
-        {
           path: '/users',
           element: <Users />,
         },
@@ -111,8 +109,20 @@ function App() {
           element: <User />,
         },
         {
+          path: '/profile',
+          element: <Profile />,
+        },
+        {
+          path: '/profile/edit',
+          element: <EditProfile />,
+        },
+        {
           path: '/admission',
           element: <Admission />,
+        },
+        {
+          path: '/admissionin4',
+          element: <AdmissionsPage1 />,
         },
         {
           path: '/admission/:id',
@@ -123,9 +133,14 @@ function App() {
           element: <Major />,
         },
         {
+          path: '/subjects',
+          element: <Subject />,
+        },
+        {
           path: '/posts',
           element: <Posts />,
         },
+        
         {
           path: '/charts',
           element: <Charts />,
@@ -143,6 +158,14 @@ function App() {
           element: <UserLayout />,
           children: [
             {
+              path: 'homepage',
+              element: <Homepage />,
+            },
+            {
+              path: 'profile',
+              element: <UserProfile />,
+            },
+            {
               path: 'admission',
               element: <AdmissionPage />,
             },
@@ -151,12 +174,13 @@ function App() {
               element: <WishlistPage />,
             },
             {
-              path: 'news',
-              element: <NewsPage />,
+              path: 'scores',
+              element: <ScoreInput />,
             },
+            
             {
               index: true,
-              element: <Navigate to="admission" replace />,
+              element: <Navigate to="homepage" replace />,
             },
           ],
         },

@@ -1,111 +1,110 @@
 import React from 'react';
 import { GridColDef } from '@mui/x-data-grid';
 import DataTable from '../../components/DataTable';
-import { getAdmissionMethod, createAdmissionMethod, deleteAdmissionMethod, updateAdmissionMethod, AdmissionMethod, AdmissionInput } from '../../api/ApiCollection';
+import { type Subject, type SubjectInput, getSubjects, createSubject, updateSubject, deleteSubject } from '../../api/ApiCollection';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import AddData from '../../components/AddData';
 import { HiOutlineXMark } from 'react-icons/hi2';
 
-const Admission = () => {
+const SubjectPage = () => {
   const [isOpen, setIsOpen] = React.useState(false); // Modal thêm mới
   const [viewOpen, setViewOpen] = React.useState(false); // Modal xem chi tiết
   const [editOpen, setEditOpen] = React.useState(false); // Modal chỉnh sửa
-  const [selectedMethod, setSelectedMethod] = React.useState<AdmissionMethod | null>(null); // Dữ liệu được chọn
+  const [selectedSubject, setSelectedSubject] = React.useState<Subject | null>(null); // Dữ liệu được chọn
   const queryClient = useQueryClient();
 
-  const { isLoading, isError, isSuccess, data } = useQuery<AdmissionMethod[]>({
-    queryKey: ['allAdmissions'],
-    queryFn: getAdmissionMethod,
+  const { isLoading, isError, isSuccess, data } = useQuery<Subject[]>({
+    queryKey: ['allSubjects'],
+    queryFn: getSubjects,
   });
 
   const createMutation = useMutation({
-    mutationFn: createAdmissionMethod,
+    mutationFn: createSubject,
     onSuccess: () => {
-      toast.success("Admission method created successfully!");
-      queryClient.invalidateQueries({ queryKey: ['allAdmissions'] });
+      toast.success("Subject created successfully!");
+      queryClient.invalidateQueries({ queryKey: ['allSubjects'] });
       setIsOpen(false);
     },
     onError: (error: Error) => {
-      toast.error(`Error creating admission method: ${error.message}`);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteAdmissionMethod,
-    onSuccess: () => {
-      toast.success("Admission method deleted successfully!");
-      queryClient.invalidateQueries({ queryKey: ['allAdmissions'] });
-    },
-    onError: (error: Error) => {
-      toast.error(`Error deleting admission method: ${error.message}`);
+      toast.error(`Error creating subject: ${error.message}`);
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: AdmissionInput }) => updateAdmissionMethod(id, data),
+    mutationFn: ({ id, data }: { id: string; data: SubjectInput }) => updateSubject(id, data),
     onSuccess: () => {
-      toast.success("Admission method updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ['allAdmissions'] });
+      toast.success("Subject updated successfully!");
+      queryClient.invalidateQueries({ queryKey: ['allSubjects'] });
       setEditOpen(false);
     },
     onError: (error: Error) => {
-      toast.error(`Error updating admission method: ${error.message}`);
+      toast.error(`Error updating subject: ${error.message}`);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteSubject,
+    onSuccess: () => {
+      toast.success("Subject deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ['allSubjects'] });
+    },
+    onError: (error: Error) => {
+      toast.error(`Error deleting subject: ${error.message}`);
     },
   });
 
   const columns: GridColDef[] = [
     //{ field: 'id', headerName: 'ID', width: 120 },
-    { field: 'methodName', headerName: 'Method Name', minWidth: 250, flex: 1 },
-    { field: 'requiredDocuments', headerName: 'Required Documents', minWidth: 200, flex: 1 },
+    { field: 'name', headerName: 'Name', minWidth: 200, flex: 1 },
     { field: 'description', headerName: 'Description', minWidth: 300, flex: 1 },
   ];
 
   React.useEffect(() => {
     if (isLoading) {
-      toast.loading('Loading...', { id: 'promiseAdmissions' });
+      toast.loading('Loading...', { id: 'promiseSubjects' });
     }
     if (isError) {
-      toast.error('Error while getting the data!', { id: 'promiseAdmissions' });
+      toast.error('Error while getting the data!', { id: 'promiseSubjects' });
     }
     if (isSuccess) {
-      toast.success('Got the admission data successfully!', { id: 'promiseAdmissions' });
+      toast.success('Got the subject data successfully!', { id: 'promiseSubjects' });
     }
   }, [isError, isLoading, isSuccess]);
 
-  const handleCreate = (newData: AdmissionInput) => {
+  const handleCreate = (newData: SubjectInput) => {
     createMutation.mutate(newData);
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this admission method?")) {
+    if (window.confirm("Are you sure you want to delete this subject?")) {
       deleteMutation.mutate(id);
     }
   };
 
   const handleView = (id: string) => {
-    const method = data?.find((item) => item.id === id);
-    if (method) {
-      setSelectedMethod(method);
+    const subject = data?.find((item) => item.id === id);
+    if (subject) {
+      setSelectedSubject(subject);
       setViewOpen(true);
     } else {
-      toast.error("Admission method not found!");
+      toast.error("Subject not found!");
     }
   };
 
   const handleEdit = (id: string) => {
-    const method = data?.find((item) => item.id === id);
-    if (method) {
-      setSelectedMethod(method);
+    const subject = data?.find((item) => item.id === id);
+    if (subject) {
+      setSelectedSubject(subject);
       setEditOpen(true);
     } else {
-      toast.error("Admission method not found!");
+      toast.error("Subject not found!");
     }
   };
 
-  const handleUpdate = (newData: AdmissionInput) => {
-    if (selectedMethod) {
-      updateMutation.mutate({ id: selectedMethod.id, data: newData });
+  const handleUpdate = (newData: SubjectInput) => {
+    if (selectedSubject) {
+      updateMutation.mutate({ id: selectedSubject.id, data: newData });
     }
   };
 
@@ -115,11 +114,11 @@ const Admission = () => {
         <div className="w-full flex justify-between xl:mb-5">
           <div className="flex gap-1 justify-start flex-col items-start">
             <h2 className="font-bold text-2xl xl:text-4xl mt-0 pt-0 text-base-content dark:text-neutral-200">
-              Admission Methods
+              Subjects
             </h2>
             {data && data.length > 0 && (
               <span className="text-neutral dark:text-neutral-content font-medium text-base">
-                {data.length} Admission Methods Found
+                {data.length} Subjects Found
               </span>
             )}
           </div>
@@ -127,40 +126,40 @@ const Admission = () => {
             onClick={() => setIsOpen(true)}
             className={`btn ${isLoading ? 'btn-disabled' : 'btn-primary'}`}
           >
-            Add New Admission Method +
+            Add New Subject +
           </button>
         </div>
 
         {isLoading ? (
           <DataTable
-            slug="admission-methods"
+            slug="subjects"
             columns={columns}
             rows={[]}
             includeActionColumn={true}
             onDelete={handleDelete}
             onView={handleView}
-            onEdit={handleEdit} // Thêm prop onEdit
+            onEdit={handleEdit}
           />
         ) : isSuccess ? (
           <DataTable
-            slug="admission-methods"
+            slug="subjects"
             columns={columns}
             rows={data || []}
             includeActionColumn={true}
             onDelete={handleDelete}
             onView={handleView}
-            onEdit={handleEdit} // Thêm prop onEdit
+            onEdit={handleEdit}
           />
         ) : (
           <>
             <DataTable
-              slug="admission-methods"
+              slug="subjects"
               columns={columns}
               rows={[]}
               includeActionColumn={true}
               onDelete={handleDelete}
               onView={handleView}
-              onEdit={handleEdit} // Thêm prop onEdit
+              onEdit={handleEdit}
             />
             <div className="w-full flex justify-center">Error while getting the data!</div>
           </>
@@ -168,21 +167,20 @@ const Admission = () => {
 
         {/* Modal thêm mới */}
         {isOpen && (
-          <AddData
-            slug="admission-method"
+          <AddData<SubjectInput>
+            slug="subject"
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             onSubmit={handleCreate}
             fields={[
-              { name: 'methodName', label: 'Method Name', type: 'text', required: true },
-              { name: 'requiredDocuments', label: 'Required Documents', type: 'text' },
+              { name: 'name', label: 'Name', type: 'text', required: true },
               { name: 'description', label: 'Description', type: 'textarea' },
             ]}
           />
         )}
 
         {/* Modal xem chi tiết */}
-        {viewOpen && selectedMethod && (
+        {viewOpen && selectedSubject && (
           <div className="w-screen h-screen fixed top-0 left-0 flex justify-center items-center bg-black/75 z-[99]">
             <div className="w-[80%] xl:w-[50%] rounded-lg p-7 bg-base-100 relative flex flex-col items-stretch gap-5">
               <button
@@ -191,12 +189,11 @@ const Admission = () => {
               >
                 <HiOutlineXMark className="text-xl font-bold" />
               </button>
-              <h3 className="text-2xl font-bold">Admission Method Details</h3>
+              <h3 className="text-2xl font-bold">Subject Details</h3>
               <div className="flex flex-col gap-4">
-                <div><strong>ID:</strong> {selectedMethod.id}</div>
-                <div><strong>Method Name:</strong> {selectedMethod.methodName}</div>
-                <div><strong>Required Documents:</strong> {selectedMethod.requiredDocuments || 'None'}</div>
-                <div><strong>Description:</strong> {selectedMethod.description || 'No description'}</div>
+                <div><strong>ID:</strong> {selectedSubject.id}</div>
+                <div><strong>Name:</strong> {selectedSubject.name}</div>
+                <div><strong>Description:</strong> {selectedSubject.description || 'No description'}</div>
               </div>
               <button
                 onClick={() => setViewOpen(false)}
@@ -209,21 +206,19 @@ const Admission = () => {
         )}
 
         {/* Modal chỉnh sửa */}
-        {editOpen && selectedMethod && (
-          <AddData
-            slug="admission-method"
+        {editOpen && selectedSubject && (
+          <AddData<SubjectInput>
+            slug="subject"
             isOpen={editOpen}
             setIsOpen={setEditOpen}
             onSubmit={handleUpdate}
             fields={[
-              { name: 'methodName', label: 'Method Name', type: 'text', required: true },
-              { name: 'requiredDocuments', label: 'Required Documents', type: 'text' },
+              { name: 'name', label: 'Name', type: 'text', required: true },
               { name: 'description', label: 'Description', type: 'textarea' },
             ]}
             initialData={{
-              methodName: selectedMethod.methodName,
-              requiredDocuments: selectedMethod.requiredDocuments || '',
-              description: selectedMethod.description || '',
+              name: selectedSubject.name,
+              description: selectedSubject.description || null,
             }}
           />
         )}
@@ -232,4 +227,4 @@ const Admission = () => {
   );
 };
 
-export default Admission;
+export default SubjectPage;

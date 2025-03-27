@@ -3,9 +3,9 @@ import { FaBookReader } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
 import { HiBars3CenterLeft } from 'react-icons/hi2';
 import { RxEnterFullScreen, RxExitFullScreen } from 'react-icons/rx';
-import ChangeThemes from './ChangesThemes';
-import { menu } from './menu/data';
-import MenuItem from './menu/MenuItem';
+import ChangeThemes from '../../components/ChangesThemes';
+import { menu } from '../../components/menu/data';
+import MenuItem from '../../components/menu/MenuItem';
 
 const Navbar = () => {
   const [isFullScreen, setIsFullScreen] = React.useState(true);
