@@ -1,18 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, FormEvent } from 'react';
 import { fetchAllMajors, createMajor, updateMajor, deleteMajor } from '../../api/ApiCollection';
+
+interface MajorType {
+  id: string;
+  name: string;
+  relatedSkills: string;
+  description: string;
+  // Thêm các thuộc tính khác nếu cần
+}
 
 const Major = () => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingMajor, setEditingMajor] = useState(null);
+  const [editingMajor, setEditingMajor] = useState<MajorType | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize] = useState(5); // Nếu không thay đổi thì có thể giữ nguyên
 
   // Fetch all majors
-  const { isLoading, isError, data } = useQuery({
+  const { isLoading, isError, data } = useQuery<{ items: MajorType[]; total: number }>({
     queryKey: ['majors'],
     queryFn: fetchAllMajors,
   });
@@ -46,39 +54,39 @@ const Major = () => {
     }
   };
 
-  // Handle create, update, and delete
-  const createMutation = useMutation({
+  // Mutations with generic types
+  const createMutation = useMutation<any, unknown, any>({
     mutationFn: createMajor,
     onSuccess: () => {
-      queryClient.invalidateQueries(['majors']);
+      queryClient.invalidateQueries({ queryKey: ['majors'] });
       toast.success('Major created successfully!');
       setIsModalOpen(false);
     },
-    onError: (error) => {
+    onError: () => {
       toast.error('Failed to create major!');
     },
   });
 
-  const updateMutation = useMutation({
+  const updateMutation = useMutation<any, unknown, { id: string; data: any }>({
     mutationFn: ({ id, data }) => updateMajor(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['majors']);
+      queryClient.invalidateQueries({ queryKey: ['majors'] });
       toast.success('Major updated successfully!');
       setIsModalOpen(false);
       setEditingMajor(null);
     },
-    onError: (error) => {
+    onError: () => {
       toast.error('Failed to update major!');
     },
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useMutation<any, unknown, string>({
     mutationFn: deleteMajor,
     onSuccess: () => {
-      queryClient.invalidateQueries(['majors']);
+      queryClient.invalidateQueries({ queryKey: ['majors'] });
       toast.success('Major deleted successfully!');
     },
-    onError: (error) => {
+    onError: () => {
       toast.error('Failed to delete major!');
     },
   });
@@ -94,12 +102,13 @@ const Major = () => {
     }
   }, [isLoading, isError]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
     const formData = {
-      name: e.target.name.value,
-      relatedSkills: e.target.relatedSkills.value,
-      description: e.target.description.value,
+      name: (form.elements.namedItem('name') as HTMLInputElement).value,
+      relatedSkills: (form.elements.namedItem('relatedSkills') as HTMLInputElement).value,
+      description: (form.elements.namedItem('description') as HTMLTextAreaElement).value,
     };
 
     if (editingMajor) {
