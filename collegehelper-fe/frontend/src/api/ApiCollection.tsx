@@ -815,7 +815,47 @@ export const updateUniversity = async (id: string, university: UniversityApi) =>
     throw error;
   }
 };
-// api/ApiCollection.ts
+
+export const getUniversityById = async (id: string) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("Không có token, vui lòng đăng nhập");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      console.warn("Yêu cầu bị hủy do timeout sau 10 giây");
+    }, 10000);
+
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/university/${id}`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => response.statusText);
+      const errorMessage = errorData.message || JSON.stringify(errorData) || response.statusText;
+      throw new Error(`Không thể lấy thông tin trường đại học: ${errorMessage}`);
+    }
+
+    const data = await response.json();
+    console.log(`Đã lấy thông tin trường đại học với id: ${id}`, data);
+    return data; // Trả về dữ liệu trường đại học
+  } catch (error) {
+    console.error("Lỗi khi lấy thông tin trường đại học:", error);
+    throw error;
+  }
+};
+
 
 // api/ApiCollection.ts
 

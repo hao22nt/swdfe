@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { fetchUniversity, addUniversity, deleteUniversity, updateUniversity } from "../../api/ApiCollection";
+import { fetchUniversity, addUniversity, deleteUniversity, updateUniversity, getUniversityById } from "../../api/ApiCollection";
+
+interface Major {
+  id: string;
+  tuitionFee: string;
+  majorCode: string;
+  universityName: string;
+  majorName: string;
+}
 
 interface University {
   id: string;
@@ -11,10 +19,11 @@ interface University {
   establishedDate: string;
   accreditation: string;
   type: string;
-  description: string;
+  description: string | null;
   rankingNational: number;
   rankingInternational: number;
   image: string | null;
+  majors?: Major[];
 }
 
 interface UniversityApi {
@@ -38,6 +47,8 @@ const UniversityPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedUniversity, setSelectedUniversity] = useState<University | null>(null);
   const [newUniversity, setNewUniversity] = useState<UniversityApi>({
     Name: "",
     Location: "",
@@ -236,7 +247,7 @@ const UniversityPage = () => {
       Description: uni.description || "",
       RankingNational: uni.rankingNational,
       RankingInternational: uni.rankingInternational,
-      Image: null, // Không điền sẵn file, để người dùng chọn lại nếu muốn
+      Image: null,
     });
     setIsEditModalOpen(true);
   };
@@ -304,6 +315,69 @@ const UniversityPage = () => {
     }
   };
 
+  const handleViewUniversity = async (id: string) => {
+    try {
+      const response = await getUniversityById(id);
+      console.log("API Response:", response);
+
+      const universityData = response.message;
+      if (!universityData) {
+        throw new Error("Không tìm thấy thông tin trường đại học");
+      }
+
+      // Xử lý Majors: kiểm tra xem Majors là mảng trực tiếp hay có $values
+      const majors = Array.isArray(universityData.Majors)
+        ? universityData.Majors.map((major: any) => ({
+            id: major.Id,
+            tuitionFee: major.TuitionFee,
+            majorCode: major.MajorCode,
+            universityName: major.UniversityName,
+            majorName: major.MajorName,
+          }))
+        : universityData.Majors && universityData.Majors.$values
+        ? universityData.Majors.$values.map((major: any) => ({
+            id: major.Id,
+            tuitionFee: major.TuitionFee,
+            majorCode: major.MajorCode,
+            universityName: major.UniversityName,
+            majorName: major.MajorName,
+          }))
+        : [];
+
+      // Ánh xạ dữ liệu từ PascalCase sang camelCase
+      const university: University = {
+        id: universityData.Id,
+        name: universityData.Name,
+        location: universityData.Location,
+        universityCode: universityData.UniversityCode,
+        email: universityData.Email,
+        phoneNumber: universityData.PhoneNumber,
+        establishedDate: universityData.EstablishedDate,
+        accreditation: universityData.Accreditation,
+        type: universityData.Type,
+        description: universityData.Description,
+        rankingNational: universityData.RankingNational,
+        rankingInternational: universityData.RankingInternational,
+        image: universityData.Image,
+        majors: majors,
+      };
+
+      setSelectedUniversity(university);
+      setIsViewModalOpen(true);
+
+      // Log để kiểm tra trạng thái
+      console.log("Selected University:", university);
+      console.log("Is View Modal Open:", true);
+    } catch (error) {
+      console.error("Error fetching university details:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Không thể lấy thông tin chi tiết trường đại học"
+      );
+    }
+  };
+
   if (loading) return <p className="text-center text-gray-500">Đang tải...</p>;
   if (error && universities.length === 0)
     return <p className="text-center text-red-500">{error}</p>;
@@ -352,6 +426,12 @@ const UniversityPage = () => {
             <p className="text-sm text-gray-500"><strong>Thứ hạng quốc tế:</strong> {uni.rankingInternational}</p>
             <div className="absolute top-2 right-2 flex gap-2">
               <button
+                onClick={() => handleViewUniversity(uni.id)}
+                className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
+              >
+                Xem
+              </button>
+              <button
                 onClick={() => handleEditUniversity(uni)}
                 className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
               >
@@ -368,6 +448,7 @@ const UniversityPage = () => {
         ))}
       </div>
 
+      {/* Modal Add University */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
@@ -526,6 +607,7 @@ const UniversityPage = () => {
         </div>
       )}
 
+      {/* Modal Edit University */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
@@ -680,6 +762,100 @@ const UniversityPage = () => {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Modal View University */}
+      {isViewModalOpen && selectedUniversity ? (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">Thông tin chi tiết trường đại học</h2>
+            <div className="space-y-4">
+              {selectedUniversity.image ? (
+                <img
+                  src={selectedUniversity.image}
+                  alt={selectedUniversity.name}
+                  className="w-full h-48 object-cover rounded-md mb-2"
+                />
+              ) : (
+                <div className="w-full h-48 bg-gray-300 rounded-md flex items-center justify-center text-gray-500">
+                  No Image
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tên trường:</label>
+                <p className="text-gray-900">{selectedUniversity.name}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Địa điểm:</label>
+                <p className="text-gray-900">{selectedUniversity.location}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Mã trường:</label>
+                <p className="text-gray-900">{selectedUniversity.universityCode}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email:</label>
+                <p className="text-gray-900">{selectedUniversity.email}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Số điện thoại:</label>
+                <p className="text-gray-900">{selectedUniversity.phoneNumber}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Ngày thành lập:</label>
+                <p className="text-gray-900">{new Date(selectedUniversity.establishedDate).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Kiểm định:</label>
+                <p className="text-gray-900">{selectedUniversity.accreditation}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Loại trường:</label>
+                <p className="text-gray-900">{selectedUniversity.type}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Mô tả:</label>
+                <p className="text-gray-900">{selectedUniversity.description || "Không có mô tả"}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Thứ hạng quốc gia:</label>
+                <p className="text-gray-900">{selectedUniversity.rankingNational}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Thứ hạng quốc tế:</label>
+                <p className="text-gray-900">{selectedUniversity.rankingInternational}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Danh sách ngành học:</label>
+                {selectedUniversity.majors && selectedUniversity.majors.length > 0 ? (
+                  <ul className="list-disc pl-5 space-y-2">
+                    {selectedUniversity.majors.map((major) => (
+                      <li key={major.id} className="text-gray-900">
+                        <strong>{major.majorName}</strong> (Mã ngành: {major.majorCode}) - Học phí: {major.tuitionFee}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-900">Không có ngành học nào</p>
+                )}
+              </div>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setIsViewModalOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div>
+          {isViewModalOpen && !selectedUniversity && (
+            <p className="text-center text-red-500">Không có dữ liệu để hiển thị</p>
+          )}
         </div>
       )}
     </div>
