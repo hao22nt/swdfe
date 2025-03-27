@@ -1,9 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import DataTable from '../../components/DataTable';
-import { GridColDef } from '@mui/x-data-grid';
-import { fetchMajors, createMajor, updateMajor, deleteMajor } from '../../api/ApiCollection';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { fetchAllMajors, createMajor, updateMajor, deleteMajor } from '../../api/ApiCollection';
 
 const Major = () => {
   const queryClient = useQueryClient();
@@ -13,24 +11,42 @@ const Major = () => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
 
-  // Fetch majors với phân trang
+  // Fetch all majors
   const { isLoading, isError, data } = useQuery({
-    queryKey: ['majors', page, pageSize],
-    queryFn: () => fetchMajors(page + 1, pageSize), // Giả sử API nhận pageNumber và pageSize
+    queryKey: ['majors'],
+    queryFn: fetchAllMajors,
   });
 
-  // Thêm displayId để hiển thị ID theo thứ tự số
-  const transformedData = data?.map((item, index) => ({
-    ...item,
-    displayId: index + 1 + page * pageSize, // Tính thứ tự dựa trên trang
-  })) || [];
+  // Filter data based on search term
+  const filteredData = useMemo(() => {
+    return (data?.items || []).filter((item) =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [data, searchTerm]);
 
-  // Lọc dữ liệu theo searchTerm
-  const filteredData = transformedData.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Paginate data
+  const paginatedData = useMemo(() => {
+    const start = page * pageSize;
+    return filteredData.slice(start, start + pageSize).map((item, index) => ({
+      ...item,
+      displayId: start + index + 1,
+    }));
+  }, [filteredData, page, pageSize]);
 
-  // Mutation để tạo mới major
+  // Handle Next and Previous
+  const handleNext = () => {
+    if ((page + 1) * pageSize < filteredData.length) {
+      setPage(page + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (page > 0) {
+      setPage(page - 1);
+    }
+  };
+
+  // Handle create, update, and delete
   const createMutation = useMutation({
     mutationFn: createMajor,
     onSuccess: () => {
@@ -39,12 +55,10 @@ const Major = () => {
       setIsModalOpen(false);
     },
     onError: (error) => {
-      console.error('Error creating major:', error);
       toast.error('Failed to create major!');
     },
   });
 
-  // Mutation để cập nhật major
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => updateMajor(id, data),
     onSuccess: () => {
@@ -54,12 +68,10 @@ const Major = () => {
       setEditingMajor(null);
     },
     onError: (error) => {
-      console.error('Error updating major:', error);
       toast.error('Failed to update major!');
     },
   });
 
-  // Mutation để xóa major
   const deleteMutation = useMutation({
     mutationFn: deleteMajor,
     onSuccess: () => {
@@ -67,7 +79,6 @@ const Major = () => {
       toast.success('Major deleted successfully!');
     },
     onError: (error) => {
-      console.error('Error deleting major:', error);
       toast.error('Failed to delete major!');
     },
   });
@@ -82,37 +93,6 @@ const Major = () => {
       toast.error('Failed to fetch majors!');
     }
   }, [isLoading, isError]);
-
-  const columns: GridColDef[] = [
-    { field: 'displayId', headerName: 'ID', width: 90, sortable: false },
-    { field: 'name', headerName: 'Major Name', minWidth: 300, sortable: true },
-    { field: 'relatedSkills', headerName: 'Related Skills', minWidth: 250, sortable: true },
-    { field: 'description', headerName: 'Description', minWidth: 400, sortable: true },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 150,
-      renderCell: (params) => (
-        <div className="flex gap-2">
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={() => {
-              setEditingMajor(params.row);
-              setIsModalOpen(true);
-            }}
-          >
-            Edit
-          </button>
-          <button
-            className="btn btn-sm btn-error"
-            onClick={() => deleteMutation.mutate(params.row.id)}
-          >
-            Delete
-          </button>
-        </div>
-      ),
-    },
-  ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -132,14 +112,15 @@ const Major = () => {
   return (
     <div className="w-full p-0 m-0">
       <div className="w-full flex flex-col items-stretch gap-3">
+        {/* Header */}
         <div className="w-full flex justify-between mb-5">
           <div className="flex gap-1 justify-start flex-col items-start">
             <h2 className="font-bold text-2xl xl:text-4xl mt-0 pt-0 text-base-content dark:text-neutral-200">
               Major List
             </h2>
-            {data?.length > 0 && (
+            {filteredData.length > 0 && (
               <span className="text-neutral dark:text-neutral-content font-medium text-base">
-                {data.length} Majors Found
+                {filteredData.length} Majors Found
               </span>
             )}
           </div>
@@ -154,17 +135,21 @@ const Major = () => {
           </button>
         </div>
 
-        {/* Ô tìm kiếm */}
+        {/* Search Input */}
         <div className="w-full mb-3">
           <input
             type="text"
             placeholder="Search by Major Name"
             className="input input-bordered w-full"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0); // Reset page on search
+            }}
           />
         </div>
 
+        {/* Table or Loading/Error Message */}
         {isLoading ? (
           <div className="w-full flex justify-center">Loading majors...</div>
         ) : isError ? (
@@ -172,21 +157,75 @@ const Major = () => {
             Error while fetching majors!
           </div>
         ) : (
-          <DataTable
-            slug="majors"
-            columns={columns}
-            rows={filteredData}
-            page={page}
-            pageSize={pageSize}
-            rowCount={data?.total || filteredData.length} // Giả sử API trả về total
-            onPageChange={(newPage) => setPage(newPage)}
-            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-            rowsPerPageOptions={[5, 10, 20]}
-            pagination
-          />
+          <div className="w-full">
+            {/* Render Table */}
+            <table className="table w-full border">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Major Name</th>
+                  <th>Related Skills</th>
+                  <th>Description</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedData.map((major) => (
+                  <tr key={major.id}>
+                    <td>{major.displayId}</td>
+                    <td>{major.name}</td>
+                    <td>{major.relatedSkills}</td>
+                    <td>{major.description}</td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-primary mr-2"
+                        onClick={() => {
+                          setEditingMajor(major);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-error"
+                        onClick={() => deleteMutation.mutate(major.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-between items-center mt-4">
+              <span>
+                {page * pageSize + 1}–
+                {Math.min((page + 1) * pageSize, filteredData.length)} of{' '}
+                {filteredData.length} items
+              </span>
+              <div className="flex gap-2">
+                <button
+                  className="btn btn-sm"
+                  onClick={handlePrevious}
+                  disabled={page === 0}
+                >
+                  Previous
+                </button>
+                <button
+                  className="btn btn-sm"
+                  onClick={handleNext}
+                  disabled={(page + 1) * pageSize >= filteredData.length}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
-        {/* Modal để thêm/sửa */}
+        {/* Modal for Add/Edit */}
         {isModalOpen && (
           <div className="modal modal-open">
             <div className="modal-box">

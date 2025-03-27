@@ -45,10 +45,64 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-export const fetchMajors = async (pageNumber = 1, pageSize = 5) => {
+// export const fetchMajors = async (pageNumber = 1, pageSize = 5) => {
+//   try {
+//     console.log("🚀 Gọi API Major...");
+//     const response = await axiosInstance.get(`?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+//     console.log("✅ API Response:", response.data);
+//     if (
+//       !response.data ||
+//       !response.data.message ||
+//       !response.data.message.items ||
+//       !Array.isArray(response.data.message.items.$values)
+//     ) {
+//       throw new Error("❌ API không trả về danh sách majors hợp lệ!");
+//     }
+//     return response.data.message.items.$values;
+//   } catch (error) {
+//     console.error("❌ Lỗi khi tải Major:", error?.response?.status, error?.response?.data);
+//     if (error.response?.status === 401) {
+//       console.warn("⚠ Token có thể đã hết hạn, cần đăng nhập lại!");
+//       localStorage.removeItem("accessToken");
+//       window.location.href = "/login";
+//     }
+//     return [];
+//   }
+// };
+
+
+// export const fetchMajors = async (pageNumber = 1, pageSize = 500) => {
+//   try {
+//     console.log("🚀 Gọi API Major...");
+//     const response = await axiosInstance.get(`?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+//     console.log("✅ API Response:", response.data);
+//     if (
+//       !response.data ||
+//       !response.data.message ||
+//       !response.data.message.items ||
+//       !Array.isArray(response.data.message.items.$values)
+//     ) {
+//       throw new Error("❌ API không trả về danh sách majors hợp lệ!");
+//     }
+//     const items = response.data.message.items.$values;
+//     // Giả sử API trả về tổng số bản ghi tại response.data.message.total, nếu không có thì dùng độ dài mảng
+//     const total = response.data.message.total || items.length;
+//     return { items, total };
+//   } catch (error) {
+//     console.error("❌ Lỗi khi tải Major:", error?.response?.status, error?.response?.data);
+//     if (error.response?.status === 401) {
+//       console.warn("⚠ Token có thể đã hết hạn, cần đăng nhập lại!");
+//       localStorage.removeItem("accessToken");
+//       window.location.href = "/login";
+//     }
+//     return { items: [], total: 0 };
+//   }
+// };
+
+export const fetchAllMajors = async () => {
   try {
-    console.log("🚀 Gọi API Major...");
-    const response = await axiosInstance.get(`?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    console.log("🚀 Gọi API Major với pageSize lớn...");
+    const response = await axiosInstance.get(`?pageNumber=1&pageSize=1000`);
     console.log("✅ API Response:", response.data);
     if (
       !response.data ||
@@ -58,7 +112,10 @@ export const fetchMajors = async (pageNumber = 1, pageSize = 5) => {
     ) {
       throw new Error("❌ API không trả về danh sách majors hợp lệ!");
     }
-    return response.data.message.items.$values;
+    const items = response.data.message.items.$values;
+    // Giả sử API có trả về tổng số bản ghi, nếu không thì dùng items.length
+    const total = response.data.message.total || items.length;
+    return { items, total };
   } catch (error) {
     console.error("❌ Lỗi khi tải Major:", error?.response?.status, error?.response?.data);
     if (error.response?.status === 401) {
@@ -66,9 +123,10 @@ export const fetchMajors = async (pageNumber = 1, pageSize = 5) => {
       localStorage.removeItem("accessToken");
       window.location.href = "/login";
     }
-    return [];
+    return { items: [], total: 0 };
   }
 };
+
 
 export const createMajor = async (data) => {
   try {
