@@ -54,45 +54,47 @@ const Chatbot: React.FC = () => {
   }, []);
 
   // Lấy lịch sử chat từ Firebase
-  useEffect(() => {
-    if (!isAuthenticated || !userId) {
-      console.log('Cannot fetch chat history: user not authenticated or userId is null');
-      setChatHistory([]);
-      return;
-    }
+ // Lấy lịch sử chat từ Firebase
+useEffect(() => {
+  if (!isAuthenticated || !userId) {
+    console.log('Cannot fetch chat history: user not authenticated or userId is null');
+    setChatHistory([]);
+    return;
+  }
 
-    console.log('Fetching chat history for user:', userId);
-    const chatHistoryRef = ref(database, `ChatHistory/${userId}`);
-    const unsubscribe = onValue(
-      chatHistoryRef,
-      (snapshot) => {
-        const data = snapshot.val();
-        console.log('ChatHistory data:', data); // Debug dữ liệu từ Firebase
-        if (data) {
-          const chatList: ChatSession[] = Object.entries(data).map(([id, chat]: [string, any]) => {
-            const messages = chat.messages ? Object.values(chat.messages) : [];
-            console.log(`Chat ${id} messages:`, messages); // Debug tin nhắn của từng chat
-            return {
-              id,
-              name: chat.chatName || `Cuộc trò chuyện ${id}`, // Nếu không có chatName, dùng ID
-              preview: messages.slice(-4), // Lấy 4 tin nhắn gần nhất (dùng để load chat, không hiển thị)
-            };
-          });
-          console.log('Processed chat list:', chatList); // Debug danh sách chat đã xử lý
-          setChatHistory(chatList);
-        } else {
-          setChatHistory([]);
-          console.log('No chat history found for user:', userId);
-        }
-      },
-      (error) => {
-        console.error('Error fetching chat history:', error);
-        setAuthError('Không thể lấy lịch sử chat. Vui lòng kiểm tra quyền truy cập hoặc thử lại.');
+  console.log('Fetching chat history for user:', userId);
+  const chatHistoryRef = ref(database, `ChatHistory/${userId}`);
+  const unsubscribe = onValue(
+    chatHistoryRef,
+    (snapshot) => {
+      const data = snapshot.val();
+      console.log('ChatHistory data:', data); // Debug dữ liệu từ Firebase
+      if (data) {
+        const chatList: ChatSession[] = Object.entries(data).map(([id, chat]: [string, any]) => {
+          const messages = chat.messages ? Object.values(chat.messages) : [];
+          console.log(`Chat ${id} messages:`, messages); // Debug tin nhắn của từng chat
+          return {
+            id,
+            name: chat.chatName || `Cuộc trò chuyện ${id}`, // Nếu không có chatName, dùng ID
+            // Ép kiểu preview thành ChatMessage[]
+            preview: messages.slice(-4) as ChatMessage[],
+          };
+        });
+        console.log('Processed chat list:', chatList); // Debug danh sách chat đã xử lý
+        setChatHistory(chatList);
+      } else {
+        setChatHistory([]);
+        console.log('No chat history found for user:', userId);
       }
-    );
+    },
+    (error) => {
+      console.error('Error fetching chat history:', error);
+      setAuthError('Không thể lấy lịch sử chat. Vui lòng kiểm tra quyền truy cập hoặc thử lại.');
+    }
+  );
 
-    return () => unsubscribe(); // Cleanup listener khi component unmount
-  }, [userId, isAuthenticated]);
+  return () => unsubscribe(); // Cleanup listener khi component unmount
+}, [userId, isAuthenticated]);
 
   const createNewChat = () => {
     if (!isAuthenticated || !userId) {
