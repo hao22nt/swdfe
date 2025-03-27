@@ -1841,6 +1841,219 @@ export const getWishlist = async () => {
 // get score =================================================================
 
 
+interface Score {
+  id: string;
+  subjectName: string;
+  year: string;
+  score: number;
+  examType: string;
+  class: string;
+}
+
+// GET /api/subjectscore (Lấy danh sách điểm)
+export const getScore = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    console.log("Token:", token);
+
+    if (!token) {
+      throw new Error("Không tìm thấy token, vui lòng đăng nhập");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore?pageNumber=1&pageSize=5`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    console.log("Response status:", response.status);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log("Error response text:", errorText);
+      throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách điểm:", error);
+    throw error;
+  }
+};
+
+// POST /api/subjectscore (Thêm điểm mới)
+export const createScore = async (scoreData: Omit<Score, "id">) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    console.log("Token:", token);
+
+    if (!token) {
+      throw new Error("Không tìm thấy token, vui lòng đăng nhập");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(scoreData),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    console.log("Response status:", response.status);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log("Error response text:", errorText);
+      throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Lỗi khi tạo điểm:", error);
+    throw error;
+  }
+};
+
+// PATCH /api/subjectscore/{id} (Cập nhật điểm)
+export const updateScore = async (id: string, scoreData: Partial<Score>) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    console.log("Token:", token);
+
+    if (!token) {
+      throw new Error("Không tìm thấy token, vui lòng đăng nhập");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore/${id}`;
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(scoreData),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    console.log("Response status:", response.status);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log("Error response text:", errorText);
+      throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Lỗi khi cập nhật điểm:", error);
+    throw error;
+  }
+};
+
+// DELETE /api/subjectscore/{id} (Xóa điểm)
+// export const deleteScore = async (id: string) => {
+//   try {
+//     const token = localStorage.getItem("accessToken");
+//     console.log("Token:", token);
+
+//     if (!token) {
+//       throw new Error("Không tìm thấy token, vui lòng đăng nhập");
+//     }
+
+//     const controller = new AbortController();
+//     const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+//     const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore/${id}`;
+
+//     const response = await fetch(url, {
+//       method: "DELETE",
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         "Content-Type": "application/json",
+//       },
+//       signal: controller.signal,
+//     });
+
+//     clearTimeout(timeoutId);
+
+//     console.log("Response status:", response.status);
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       console.log("Error response text:", errorText);
+//       throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
+//     }
+
+//     return await response.json();
+//   } catch (error) {
+//     console.error("Lỗi khi xóa điểm:", error);
+//     throw error;
+//   }
+// };
+
+// GET /api/subjectscore/{id} (Lấy chi tiết điểm theo id)
+export const getScoreById = async (id: string) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    console.log("Token:", token);
+
+    if (!token) {
+      throw new Error("Không tìm thấy token, vui lòng đăng nhập");
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore/${id}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    console.log("Response status:", response.status);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log("Error response text:", errorText);
+      throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết điểm:", error);
+    throw error;
+  }
+};
+
+
+
 
 
 
