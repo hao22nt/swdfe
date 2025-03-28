@@ -33,7 +33,7 @@ const AdmissionsPage1: React.FC = () => {
         setUniMajors(majors);
       } catch (error) {
         const err = error as Error;
-        message.error('Không thể tải dữ liệu: ' + err.message);
+        message.error('Failed to load data: ' + err.message);
       } finally {
         setLoading(false);
       }
@@ -64,7 +64,7 @@ const AdmissionsPage1: React.FC = () => {
       setDetailModalVisible(true);
     } catch (error) {
       const err = error as Error;
-      message.error('Không thể tải thông tin chi tiết: ' + err.message);
+      message.error('Failed to load details: ' + err.message);
     } finally {
       setDetailLoading(false);
     }
@@ -92,7 +92,7 @@ const AdmissionsPage1: React.FC = () => {
       };
 
       const createdAdmission = await createAdmission(newAdmission);
-      message.success('Tạo thông tin tuyển sinh thành công!');
+      message.success('Admission info created successfully!');
 
       const selectedUniMajor = uniMajors.find((item) => item.id === values.uniMajorId);
       setAdmissionData((prev) => [
@@ -113,43 +113,45 @@ const AdmissionsPage1: React.FC = () => {
       form.resetFields();
     } catch (error) {
       const err = error as Error;
-      message.error('Không thể tạo thông tin tuyển sinh: ' + err.message);
+      message.error('Failed to create admission info: ' + err.message);
     }
   };
 
   const handleDelete = async (id: string) => {
     Modal.confirm({
-      title: 'Xác nhận xóa',
-      content: 'Bạn có chắc muốn xóa thông tin tuyển sinh này?',
+      title: 'Confirm Deletion',
+      content: 'Are you sure you want to delete this admission info?',
       onOk: async () => {
         try {
           const success = await deleteAdmissionInfo(id);
           if (success) {
             const updatedAdmissions = await getAdmissionList();
             setAdmissionData(updatedAdmissions);
-            message.success('Xóa thông tin tuyển sinh thành công!');
+            message.success('Admission info deleted successfully!');
           }
         } catch (error) {
           const err = error as Error;
-          message.error('Không thể xóa thông tin tuyển sinh: ' + err.message);
+          message.error('Failed to delete admission info: ' + err.message);
         }
       },
+      okText: 'Yes',
+      cancelText: 'No',
     });
   };
 
   const columns = [
-    { title: 'Trường', dataIndex: 'universityName', key: 'universityName', sorter: (a: AdmissionInfo, b: AdmissionInfo) => a.universityName.localeCompare(b.universityName) },
-    { title: 'Ngành', dataIndex: 'majorName', key: 'majorName' },
-    { title: 'Chỉ tiêu', dataIndex: 'quota', key: 'quota', render: (text: string | number | undefined) => (text ?? 'N/A') },
-    { title: 'Thời gian xét tuyển', dataIndex: 'admissionDate', key: 'admissionDate', render: (text: string) => (!text || text === '0001-01-01T00:00:00' ? 'Chưa xác định' : new Date(text).toLocaleDateString()) },
-    { title: 'Hạn nộp hồ sơ', dataIndex: 'deadline', key: 'deadline', render: (text: string | undefined) => (!text || text === '0001-01-01T00:00:00' ? 'Chưa xác định' : new Date(text).toLocaleDateString()) },
+    { title: 'University', dataIndex: 'universityName', key: 'universityName', sorter: (a: AdmissionInfo, b: AdmissionInfo) => a.universityName.localeCompare(b.universityName) },
+    { title: 'Major', dataIndex: 'majorName', key: 'majorName' },
+    { title: 'Quota', dataIndex: 'quota', key: 'quota', render: (text: string | number | undefined) => (text ?? 'N/A') },
+    { title: 'Admission Date', dataIndex: 'admissionDate', key: 'admissionDate', render: (text: string) => (!text || text === '0001-01-01T00:00:00' ? 'Not Specified' : new Date(text).toLocaleDateString()) },
+    { title: 'Deadline', dataIndex: 'deadline', key: 'deadline', render: (text: string | undefined) => (!text || text === '0001-01-01T00:00:00' ? 'Not Specified' : new Date(text).toLocaleDateString()) },
     {
-      title: 'Thao tác',
+      title: 'Actions',
       key: 'action',
       render: (_: React.ReactNode, record: AdmissionInfo) => (
         <div className="flex gap-2">
-          <Button type="link" onClick={() => handleView(record.id)} className="text-blue-600 hover:text-blue-800">Xem chi tiết</Button>
-          <Button type="link" danger onClick={() => handleDelete(record.id)} className="text-red-600 hover:text-red-800">Xóa</Button>
+          <Button type="link" onClick={() => handleView(record.id)} className="text-blue-600 hover:text-blue-800">View Details</Button>
+          <Button type="link" danger onClick={() => handleDelete(record.id)} className="text-red-600 hover:text-red-800">Delete</Button>
         </div>
       ),
     },
@@ -159,14 +161,14 @@ const AdmissionsPage1: React.FC = () => {
     <div className="container mx-auto p-6">
       {/* Card with Tailwind */}
       <Card
-        title={<h1 className="text-2xl font-bold text-gray-800">Quản lý thông tin tuyển sinh</h1>}
+        title={<h1 className="text-2xl font-bold text-gray-800">Admission Management</h1>}
         extra={
           <Button
             type="primary"
             onClick={() => setCreateModalVisible(true)}
             className="bg-blue-600 hover:bg-blue-700 border-none"
           >
-            Tạo mới
+            Create New
           </Button>
         }
         className="shadow-lg rounded-lg"
@@ -183,7 +185,7 @@ const AdmissionsPage1: React.FC = () => {
 
       {/* Detail Modal with Tailwind */}
       <Modal
-        title={<h2 className="text-xl font-semibold text-gray-800">Chi tiết thông tin tuyển sinh</h2>}
+        title={<h2 className="text-xl font-semibold text-gray-800">Admission Details</h2>}
         open={detailModalVisible}
         onCancel={() => setDetailModalVisible(false)}
         footer={null}
@@ -191,24 +193,24 @@ const AdmissionsPage1: React.FC = () => {
         className="rounded-lg"
       >
         {detailLoading ? (
-          <div className="text-center text-gray-500">Đang tải...</div>
+          <div className="text-center text-gray-500">Loading...</div>
         ) : selectedAdmission ? (
           <div className="space-y-4">
             <Descriptions bordered column={1} className="bg-white rounded-lg shadow-sm">
-              <Descriptions.Item label={<span className="font-semibold">Trường</span>}>
+              <Descriptions.Item label={<span className="font-semibold">University</span>}>
                 {selectedAdmission.universityName}
               </Descriptions.Item>
-              <Descriptions.Item label={<span className="font-semibold">Ngành</span>}>
+              <Descriptions.Item label={<span className="font-semibold">Major</span>}>
                 {selectedAdmission.majorName}
               </Descriptions.Item>
-              <Descriptions.Item label={<span className="font-semibold">Chỉ tiêu</span>}>
+              <Descriptions.Item label={<span className="font-semibold">Quota</span>}>
                 {selectedAdmission.quota}
               </Descriptions.Item>
-              <Descriptions.Item label={<span className="font-semibold">Thời gian xét tuyển</span>}>
-                {selectedAdmission.admisstionDate === 'N/A' ? 'Chưa xác định' : new Date(selectedAdmission.admisstionDate).toLocaleDateString()}
+              <Descriptions.Item label={<span className="font-semibold">Admission Date</span>}>
+                {selectedAdmission.admisstionDate === 'N/A' ? 'Not Specified' : new Date(selectedAdmission.admisstionDate).toLocaleDateString()}
               </Descriptions.Item>
-              <Descriptions.Item label={<span className="font-semibold">Hạn nộp hồ sơ</span>}>
-                {selectedAdmission.deadline === 'N/A' ? 'Chưa xác định' : new Date(selectedAdmission.deadline).toLocaleDateString()}
+              <Descriptions.Item label={<span className="font-semibold">Deadline</span>}>
+                {selectedAdmission.deadline === 'N/A' ? 'Not Specified' : new Date(selectedAdmission.deadline).toLocaleDateString()}
               </Descriptions.Item>
             </Descriptions>
             {selectedAdmission.inforMethods.length > 0 && (
@@ -217,16 +219,16 @@ const AdmissionsPage1: React.FC = () => {
                 renderItem={(method) => (
                   <List.Item>
                     <Descriptions bordered column={1} className="bg-white rounded-lg shadow-sm">
-                      <Descriptions.Item label={<span className="font-semibold">Phương thức</span>}>
+                      <Descriptions.Item label={<span className="font-semibold">Method</span>}>
                         {method.methodName}
                       </Descriptions.Item>
-                      <Descriptions.Item label={<span className="font-semibold">Khối</span>}>
+                      <Descriptions.Item label={<span className="font-semibold">Score Type</span>}>
                         {method.scoreType}
                       </Descriptions.Item>
-                      <Descriptions.Item label={<span className="font-semibold">Điểm yêu cầu</span>}>
+                      <Descriptions.Item label={<span className="font-semibold">Score Requirement</span>}>
                         {method.scoreRequirement}
                       </Descriptions.Item>
-                      <Descriptions.Item label={<span className="font-semibold">Tỷ lệ chỉ tiêu</span>}>
+                      <Descriptions.Item label={<span className="font-semibold">Quota Percentage</span>}>
                         {method.percentageOfQuota}%
                       </Descriptions.Item>
                     </Descriptions>
@@ -237,13 +239,13 @@ const AdmissionsPage1: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="text-center text-gray-500">Không có dữ liệu</div>
+          <div className="text-center text-gray-500">No data available</div>
         )}
       </Modal>
 
       {/* Create Modal with Tailwind */}
       <Modal
-        title={<h2 className="text-xl font-semibold text-gray-800">Tạo thông tin tuyển sinh mới</h2>}
+        title={<h2 className="text-xl font-semibold text-gray-800">Create New Admission</h2>}
         open={createModalVisible}
         onCancel={() => setCreateModalVisible(false)}
         footer={null}
@@ -253,10 +255,10 @@ const AdmissionsPage1: React.FC = () => {
         <Form form={form} layout="vertical" onFinish={handleCreate} className="space-y-4">
           <Form.Item
             name="uniMajorId"
-            label={<span className="font-semibold">Ngành - Trường</span>}
-            rules={[{ required: true, message: 'Vui lòng chọn ngành - trường!' }]}
+            label={<span className="font-semibold">Major - University</span>}
+            rules={[{ required: true, message: 'Please select a major and university!' }]}
           >
-            <Select placeholder="Chọn ngành và trường" className="rounded-md">
+            <Select placeholder="Select major and university" className="rounded-md">
               {uniMajors.map((item) => (
                 <Option key={item.id} value={item.id}>{`${item.universityName} - ${item.majorName}`}</Option>
               ))}
@@ -265,20 +267,20 @@ const AdmissionsPage1: React.FC = () => {
 
           <Form.Item
             name="academicYearId"
-            label={<span className="font-semibold">Năm học</span>}
-            rules={[{ required: true, message: 'Vui lòng chọn năm học!' }]}
+            label={<span className="font-semibold">Academic Year</span>}
+            rules={[{ required: true, message: 'Please select an academic year!' }]}
           >
-            <Select placeholder="Chọn năm học" className="rounded-md">
+            <Select placeholder="Select academic year" className="rounded-md">
               {academicYears.map((item) => (
-                <Option key={item.id} value={item.id}>{item.year === 0 ? "Không xác định" : item.year}</Option>
+                <Option key={item.id} value={item.id}>{item.year === 0 ? "Not Specified" : item.year}</Option>
               ))}
             </Select>
           </Form.Item>
 
           <Form.Item
             name="admissionDate"
-            label={<span className="font-semibold">Thời gian xét tuyển</span>}
-            rules={[{ required: true, message: 'Vui lòng nhập thời gian xét tuyển!' }]}
+            label={<span className="font-semibold">Admission Date</span>}
+            rules={[{ required: true, message: 'Please enter the admission date!' }]}
           >
             <Input
               type="datetime-local"
@@ -289,15 +291,15 @@ const AdmissionsPage1: React.FC = () => {
 
           <Form.Item
             name="deadline"
-            label={<span className="font-semibold">Hạn nộp hồ sơ</span>}
+            label={<span className="font-semibold">Deadline</span>}
             rules={[
-              { required: true, message: 'Vui lòng nhập hạn nộp hồ sơ!' },
+              { required: true, message: 'Please enter the deadline!' },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || new Date(value) > new Date(getFieldValue('admissionDate'))) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('Hạn nộp phải sau thời gian xét tuyển!'));
+                  return Promise.reject(new Error('Deadline must be after admission date!'));
                 },
               }),
             ]}
@@ -311,10 +313,10 @@ const AdmissionsPage1: React.FC = () => {
 
           <Form.Item
             name="quota"
-            label={<span className="font-semibold">Chỉ tiêu</span>}
+            label={<span className="font-semibold">Quota</span>}
             rules={[
-              { required: true, message: 'Vui lòng nhập chỉ tiêu!' },
-              { type: 'number', min: 1, message: 'Chỉ tiêu phải lớn hơn 0!' }
+              { required: true, message: 'Please enter the quota!' },
+              { type: 'number', min: 1, message: 'Quota must be greater than 0!' }
             ]}
           >
             <InputNumber min={1} className="w-full rounded-md" />
@@ -322,10 +324,10 @@ const AdmissionsPage1: React.FC = () => {
 
           <Form.Item
             name="admissionMethodId"
-            label={<span className="font-semibold">Phương thức xét tuyển</span>}
-            rules={[{ required: true, message: 'Vui lòng chọn phương thức!' }]}
+            label={<span className="font-semibold">Admission Method</span>}
+            rules={[{ required: true, message: 'Please select an admission method!' }]}
           >
-            <Select placeholder="Chọn phương thức xét tuyển" className="rounded-md">
+            <Select placeholder="Select admission method" className="rounded-md">
               {admissionMethods.map((item) => (
                 <Option key={item.id} value={item.id}>{item.methodName}</Option>
               ))}
@@ -334,18 +336,18 @@ const AdmissionsPage1: React.FC = () => {
 
           <Form.Item
             name="scoreType"
-            label={<span className="font-semibold">Khối</span>}
-            rules={[{ required: true, message: 'Vui lòng nhập khối!' }]}
+            label={<span className="font-semibold">Score Type</span>}
+            rules={[{ required: true, message: 'Please enter the score type!' }]}
           >
             <Input className="rounded-md border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200" />
           </Form.Item>
 
           <Form.Item
             name="scoreRequirement"
-            label={<span className="font-semibold">Điểm yêu cầu</span>}
+            label={<span className="font-semibold">Score Requirement</span>}
             rules={[
-              { required: true, message: 'Vui lòng nhập điểm yêu cầu!' },
-              { type: 'number', min: 0, message: 'Điểm phải lớn hơn hoặc bằng 0!' }
+              { required: true, message: 'Please enter the score requirement!' },
+              { type: 'number', min: 0, message: 'Score must be greater than or equal to 0!' }
             ]}
           >
             <InputNumber min={0} max={30} className="w-full rounded-md" />
@@ -353,10 +355,10 @@ const AdmissionsPage1: React.FC = () => {
 
           <Form.Item
             name="percentageOfQuota"
-            label={<span className="font-semibold">Tỷ lệ chỉ tiêu (%)</span>}
+            label={<span className="font-semibold">Quota Percentage (%)</span>}
             rules={[
-              { required: true, message: 'Vui lòng nhập tỷ lệ chỉ tiêu!' },
-              { type: 'number', min: 1, max: 100, message: 'Tỷ lệ phải từ 1-100%!' }
+              { required: true, message: 'Please enter the quota percentage!' },
+              { type: 'number', min: 1, max: 100, message: 'Percentage must be between 1-100%!' }
             ]}
           >
             <InputNumber min={1} max={100} className="w-full rounded-md" />
@@ -368,7 +370,7 @@ const AdmissionsPage1: React.FC = () => {
               htmlType="submit"
               className="bg-blue-600 hover:bg-blue-700 border-none w-full rounded-md"
             >
-              Tạo mới
+              Create
             </Button>
           </Form.Item>
         </Form>
