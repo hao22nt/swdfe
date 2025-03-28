@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Carousel, Button, Statistic, Timeline, List, Tag, Badge } from 'antd';
 import { 
   BookOutlined, SearchOutlined, HeartOutlined, BellOutlined,
@@ -6,48 +7,72 @@ import {
   MessageOutlined, PhoneOutlined, CustomerServiceOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { fetchTotalUniversities } from '../../api/ApiCollection'; // Import API
 
-const Homepage = () => {
+interface TotalUniversitiesData {
+  number: number;
+  chartData: { name: string; value: number }[];
+}
+
+const Homepage: React.FC = () => {
   const navigate = useNavigate();
   const username = localStorage.getItem('username');
+  const [totalUniversities, setTotalUniversities] = useState<number>(0); // State cho số trường
+  const [loading, setLoading] = useState<boolean>(true); // State cho trạng thái tải
+
+  // Fetch dữ liệu từ API khi component mount
+  useEffect(() => {
+    const loadTotalUniversities = async () => {
+      try {
+        setLoading(true);
+        const data: TotalUniversitiesData = await fetchTotalUniversities();
+        setTotalUniversities(data.number);
+      } catch (error) {
+        console.error('Failed to fetch total universities:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadTotalUniversities();
+  }, []);
 
   const features = [
     {
       icon: <SearchOutlined className="text-3xl text-blue-500" />,
-      title: "Tra cứu tuyển sinh",
-      description: "Tìm kiếm thông tin tuyển sinh",
+      title: "Search Admissions",
+      description: "Find admission information",
       path: "/user/admission"
     },
     {
       icon: <HeartOutlined className="text-3xl text-red-500" />,
-      title: "Danh sách yêu thích",
-      description: "Quản lý danh sách trường bạn quan tâm",
+      title: "Wishlist",
+      description: "Manage your favorite universities",
       path: "/user/wishlist"
     },
     {
       icon: <BellOutlined className="text-3xl text-yellow-500" />,
-      title: "Tin tức mới nhất",
-      description: "Cập nhật tin tức tuyển sinh và giáo dục",
+      title: "Latest News",
+      description: "Stay updated with admission and education news",
       path: "/user/news"
     }
   ];
 
   const carouselItems = [
     {
-      title: "Chào mừng đến với Hệ thống Tra cứu Đại học",
-      description: "Khám phá và tìm kiếm thông tin tuyển sinh dễ dàng",
+      title: "Welcome to the University Search System",
+      description: "Easily explore and search for admission information",
       bgColor: "from-blue-500 to-purple-600",
       icon: <RocketOutlined className="text-6xl mb-4" />
     },
     {
-      title: "Mùa tuyển sinh 2024",
-      description: "Cập nhật thông tin mới nhất về kỳ thi THPT và xét tuyển đại học",
+      title: "2024 Admission Season",
+      description: "Get the latest updates on the national exam and university admissions",
       bgColor: "from-green-400 to-cyan-500",
       icon: <StarOutlined className="text-6xl mb-4" />
     },
     {
-      title: "Cơ hội học bổng",
-      description: "Khám phá các suất học bổng giá trị từ các trường hàng đầu",
+      title: "Scholarship Opportunities",
+      description: "Discover valuable scholarships from top universities",
       bgColor: "from-yellow-400 to-orange-500",
       icon: <ThunderboltOutlined className="text-6xl mb-4" />
     }
@@ -55,35 +80,35 @@ const Homepage = () => {
 
   const quickGuides = [
     {
-      title: "Hướng dẫn chọn ngành",
-      content: "Các bước để chọn ngành học phù hợp với bản thân",
+      title: "Guide to Choosing a Major",
+      content: "Steps to select a major that suits you",
       icon: <BookOutlined className="text-2xl text-green-500" />
     },
     {
-      title: "Chuẩn bị hồ sơ",
-      content: "Danh sách giấy tờ cần thiết cho hồ sơ xét tuyển",
+      title: "Prepare Your Application",
+      content: "List of necessary documents for your application",
       icon: <BookOutlined className="text-2xl text-purple-500" />
     },
     {
-      title: "Tra cứu điểm chuẩn",
-      content: "Xem điểm chuẩn các năm trước của các trường",
+      title: "Check Admission Scores",
+      content: "View past admission scores of universities",
       icon: <BookOutlined className="text-2xl text-blue-500" />
     }
   ];
 
   const upcomingEvents = [
     {
-      title: "Mở đăng ký xét tuyển đợt 1",
+      title: "Start of Admission Registration Wave 1",
       date: "15/06/2024",
       type: "success"
     },
     {
-      title: "Hạn chót nộp hồ sơ đợt 1",
+      title: "Deadline for Wave 1 Applications",
       date: "30/06/2024",
       type: "warning"
     },
     {
-      title: "Công bố kết quả đợt 1",
+      title: "Announcement of Wave 1 Results",
       date: "15/07/2024",
       type: "processing"
     }
@@ -91,35 +116,35 @@ const Homepage = () => {
 
   const latestNews = [
     {
-      title: "Thông báo về kỳ thi THPT Quốc gia 2024",
+      title: "Announcement on 2024 National High School Exam",
       date: "01/05/2024",
-      tags: ["Tuyển sinh", "Hot"]
+      tags: ["Admission", "Hot"]
     },
     {
-      title: "Danh sách các trường xét tuyển học bạ",
+      title: "List of Universities Accepting Academic Records",
       date: "28/04/2024",
-      tags: ["Xét tuyển"]
+      tags: ["Admission"]
     },
     {
-      title: "Chính sách ưu tiên tuyển sinh năm 2024",
+      title: "Admission Priority Policies for 2024",
       date: "25/04/2024",
-      tags: ["Chính sách"]
+      tags: ["Policy"]
     }
   ];
 
   const statistics = [
     {
-      title: "Trường Đại học",
-      value: 237,
+      title: "Universities",
+      value: loading ? "Loading..." : totalUniversities, // Dùng dữ liệu từ API
       icon: <BookOutlined className="text-blue-500" />
     },
     {
-      title: "Ngành học",
-      value: 1500,
+      title: "Majors",
+      value: 67,
       icon: <CheckCircleOutlined className="text-green-500" />
     },
     {
-      title: "Thí sinh đăng ký",
+      title: "Registered Candidates",
       value: "1M+",
       icon: <UserOutlined className="text-purple-500" />
     }
@@ -127,17 +152,17 @@ const Homepage = () => {
 
   return (
     <div className="container mx-auto p-6 animate-fadeIn">
-      {/* Welcome Section với animation */}
+      {/* Welcome Section */}
       <div className="mb-8 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white p-6 rounded-lg shadow-lg transform hover:scale-102 transition-all">
         <h1 className="text-3xl font-bold mb-2 animate-pulse">
-          Xin chào, {username || 'Người dùng'}! 👋
+          Hello, {username || 'User'}! 👋
         </h1>
         <p className="text-lg opacity-90">
-          Chào mừng bạn đến với hệ thống tra cứu thông tin tuyển sinh đại học
+          Welcome to the university admission search system
         </p>
       </div>
 
-      {/* Banner Carousel với gradient và animation */}
+      {/* Banner Carousel */}
       <Carousel autoplay className="mb-8 [&_.slick-dots_li_button]:bg-white/50 [&_.slick-dots_li.slick-active_button]:bg-white">
         {carouselItems.map((item, index) => (
           <div key={index}>
@@ -152,7 +177,7 @@ const Homepage = () => {
         ))}
       </Carousel>
 
-      {/* Statistics Section với animation */}
+      {/* Statistics Section */}
       <Row gutter={[16, 16]} className="mb-8">
         {statistics.map((stat, index) => (
           <Col span={8} key={index}>
@@ -179,6 +204,7 @@ const Homepage = () => {
                     fontSize: '28px',
                     fontWeight: 'bold'
                   }}
+                  loading={stat.title === "Universities" && loading} // Hiển thị loading khi đang fetch
                 />
               </Badge.Ribbon>
             </Card>
@@ -186,15 +212,14 @@ const Homepage = () => {
         ))}
       </Row>
 
-      {/* Main Features với gradient cards */}
+      {/* Main Features */}
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-        Tính năng chính
+        Main Features
       </h2>
       <Row gutter={[16, 16]} className="mb-8">
         {features.map((feature, index) => (
           <Col span={8} key={index}>
             <Card 
-              
               className="text-center h-full transform hover:scale-105 transition-all"
               style={{
                 background: 'linear-gradient(135deg, #fff 0%, #f8f9ff 100%)',
@@ -204,13 +229,13 @@ const Homepage = () => {
               onClick={() => navigate(feature.path)}
             >
               <div className="flex flex-col items-center gap-4">
-                <div className="text-4xl p-3 rounded-full  from-blue-500 to-purple-500 text-white">
+                <div className="text-4xl p-3 rounded-full from-blue-500 to-purple-500 text-white">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-semibold">{feature.title}</h3>
                 <p className="text-gray-600">{feature.description}</p>
                 <Button type="primary" size="large" className="bg-gradient-to-r from-blue-500 to-purple-500 border-0">
-                  Truy cập ngay
+                  Access Now
                 </Button>
               </div>
             </Card>
@@ -218,14 +243,14 @@ const Homepage = () => {
         ))}
       </Row>
 
-      {/* Timeline & News Section với glass effect */}
+      {/* Timeline & News Section */}
       <Row gutter={[16, 16]} className="mb-8">
         <Col span={12}>
           <Card 
             title={
               <span className="flex items-center gap-2 text-lg">
                 <CalendarOutlined className="text-blue-500" />
-                Sự kiện sắp diễn ra
+                Upcoming Events
               </span>
             }
             className="backdrop-blur-md bg-white/90 shadow-xl"
@@ -248,7 +273,12 @@ const Homepage = () => {
           </Card>
         </Col>
         <Col span={12}>
-          <Card title="Tin tức mới nhất" extra={<BellOutlined />}>
+          <Card 
+            title="Latest News" 
+            extra={<BellOutlined />}
+            className="backdrop-blur-md bg-white/90 shadow-xl"
+            style={{ borderRadius: '15px' }}
+          >
             <List
               itemLayout="horizontal"
               dataSource={latestNews}
@@ -280,11 +310,15 @@ const Homepage = () => {
       </Row>
 
       {/* Quick Guides */}
-      <h2 className="text-2xl font-bold mb-4">Hướng dẫn nhanh</h2>
+      <h2 className="text-2xl font-bold mb-4">Quick Guides</h2>
       <Row gutter={[16, 16]} className="mb-8">
         {quickGuides.map((guide, index) => (
           <Col span={8} key={index}>
-            <Card hoverable>
+            <Card 
+              hoverable 
+              className="transform hover:scale-105 transition-all"
+              style={{ borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}
+            >
               <div className="flex items-start gap-4">
                 {guide.icon}
                 <div>
@@ -297,7 +331,7 @@ const Homepage = () => {
         ))}
       </Row>
 
-      {/* Additional Resources Section với 3D effect */}
+      {/* Additional Resources Section */}
       <Row gutter={[16, 16]} className="mb-8">
         <Col span={24}>
           <Card 
@@ -309,10 +343,10 @@ const Homepage = () => {
           >
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-2xl font-bold mb-2">Tài liệu ôn thi</h3>
-                <p className="mb-4 text-lg">Truy cập kho tài liệu ôn thi THPT Quốc gia miễn phí</p>
+                <h3 className="text-2xl font-bold mb-2">Exam Preparation Resources</h3>
+                <p className="mb-4 text-lg">Access free resources for national exam preparation</p>
                 <Button type="primary" size="large" ghost className="hover:bg-white hover:text-purple-600">
-                  Xem ngay
+                  View Now
                 </Button>
               </div>
               <BookOutlined className="text-8xl opacity-50 animate-float" />
@@ -321,7 +355,7 @@ const Homepage = () => {
         </Col>
       </Row>
 
-      {/* Help Section với modern design */}
+      {/* Help Section */}
       <Card 
         className="bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 text-white overflow-hidden relative"
         style={{ 
@@ -330,9 +364,9 @@ const Homepage = () => {
         }}
       >
         <div className="text-center relative z-10">
-          <h2 className="text-3xl font-bold mb-4">Bạn cần giúp đỡ?</h2>
+          <h2 className="text-3xl font-bold mb-4">Need Help?</h2>
           <p className="text-xl mb-6 opacity-90">
-            Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giúp đỡ bạn 24/7
+            Our support team is available 24/7 to assist you
           </p>
           <div className="flex justify-center gap-4">
             <Button 
@@ -342,7 +376,7 @@ const Homepage = () => {
               className="hover:bg-white hover:text-blue-600 min-w-[200px]"
               icon={<MessageOutlined />}
             >
-              Chat với tư vấn viên
+              Chat with Advisor
             </Button>
             <Button 
               type="primary" 
@@ -351,7 +385,7 @@ const Homepage = () => {
               className="hover:bg-white hover:text-blue-600 min-w-[200px]"
               icon={<PhoneOutlined />}
             >
-              Gọi hotline
+              Call Hotline
             </Button>
           </div>
         </div>
@@ -363,4 +397,4 @@ const Homepage = () => {
   );
 };
 
-export default Homepage; 
+export default Homepage;

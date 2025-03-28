@@ -139,24 +139,33 @@ useEffect(() => {
 
   const loadChatHistory = (chatId: string) => {
     if (!isAuthenticated || !userId) {
-      console.log('Cannot load chat history: user not authenticated');
+      console.log("Cannot load chat history: user not authenticated");
       return;
     }
     setSelectedChat(chatId);
-
+  
     const chatRef = ref(database, `ChatHistory/${userId}/${chatId}/messages`);
     onValue(
       chatRef,
       (snapshot) => {
         const data = snapshot.val();
         console.log(`Messages for chat ${chatId}:`, data); // Debug tin nhắn của chat
-        setMessages(data ? Object.values(data) : []);
+        setMessages(
+          data
+            ? Object.values(data).map((msg: any) => ({
+                ...(typeof msg === "object" && msg !== null ? msg : {}), // Ensure msg is an object
+                Text: (msg?.Text ?? "Unknown message")
+                  .replace(/\*/g, " ") // Thay thế toàn bộ dấu `*` bằng khoảng trắng
+                  .trim(), // Loại bỏ khoảng trắng đầu và cuối
+              }))
+            : []
+        );
       },
       (error) => {
-        console.error('Error fetching messages:', error);
+        console.error("Error fetching messages:", error);
       }
     );
-  };
+  };  
 
   const saveMessageToChat = (chatId: string, message: ChatMessage) => {
     if (!isAuthenticated || !userId || !chatId) {
