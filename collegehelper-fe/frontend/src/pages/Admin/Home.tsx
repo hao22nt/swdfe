@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { MdGroup, MdInventory2, MdLogin } from 'react-icons/md'; // Thêm MdLogin
 import {
   fetchTotalUniversities,
-  fetchTotalProfit,
+ // fetchTotalProfit,
   fetchTotalSource,
   fetchTotalUsers,
   fetchUserLoginStats, // Thay fetchTotalVisit
@@ -32,10 +32,10 @@ const Home = () => {
     queryFn: fetchUserLoginStats,
   });
 
-  const queryGetTotalProfit = useQuery({
-    queryKey: ['totalprofit'],
-    queryFn: fetchTotalProfit,
-  });
+  // const queryGetTotalProfit = useQuery({
+  //   queryKey: ['totalprofit'],
+  //   queryFn: fetchTotalProfit,
+  // });
 
   return (
     <div className="home w-full p-0 m-0">
@@ -91,7 +91,7 @@ const Home = () => {
             isSuccess={queryGetUserLoginStats.isSuccess}
           />
         </div>
-        <div className="box col-span-full sm:col-span-1 xl:col-span-1 3xl:row-span-2">
+        {/* <div className="box col-span-full sm:col-span-1 xl:col-span-1 3xl:row-span-2">
           <ChartBox
             chartType={'bar'}
             title="Total Profit"
@@ -99,7 +99,7 @@ const Home = () => {
             isLoading={queryGetTotalProfit.isLoading}
             isSuccess={queryGetTotalProfit.isSuccess}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

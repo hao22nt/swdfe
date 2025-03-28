@@ -677,7 +677,7 @@ export const fetchUniversity = async () => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch("https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/university?pageNumber=1&pageSize=9", {
+    const response = await fetch("https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/university?pageNumber=1&pageSize=5", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -1023,8 +1023,9 @@ export const getUserList = async (): Promise<User[]> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
+    // Tăng pageSize lên 1000 để đảm bảo lấy hết dữ liệu
     const response = await fetch(
-      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/user?pageNumber=1&pageSize=5",
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/user?pageNumber=1&pageSize=1000",
       {
         method: "GET",
         headers: {
@@ -1814,12 +1815,17 @@ export const deleteAcademicYear = async (id: string) => {
 };
 
 // api/subject
-
 export interface Subject {
   id: string;
   name: string;
   description: string | null;
 }
+
+export interface SubjectList {
+  $id: string;
+  $values: Subject[];
+}
+
 
 export interface SubjectInput {
   name: string;
@@ -1841,8 +1847,11 @@ export interface PaginatedResponse<T> {
   cache?: boolean;
 }
 
-// Lấy danh sách Subject
-export const getSubjects = async (): Promise<Subject[]> => {
+// Lấy danh sách Subject với phân trang
+export const getSubjects = async (
+  pageNumber: number = 1,
+  pageSize: number = 1000
+): Promise<PaginatedResponse<Subject>> => {
   try {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -1852,17 +1861,17 @@ export const getSubjects = async (): Promise<Subject[]> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch(
-      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subject",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        signal: controller.signal,
-      }
-    );
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subject?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "text/plain",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
 
     clearTimeout(timeoutId);
 
@@ -1872,7 +1881,8 @@ export const getSubjects = async (): Promise<Subject[]> => {
     }
 
     const data: PaginatedResponse<Subject> = await response.json();
-    return data.message.items.$values; // Trả về mảng Subject
+    console.log("Subject data: ", data);
+    return data;
   } catch (error) {
     console.error("Error fetching subjects:", error);
     throw error;
@@ -2115,7 +2125,24 @@ export const getWishlist = async () => {
 };
 
 // get score =================================================================
+export interface ScoreItem {
+  id: string;
+  subjectName: string;
+  year: string;
+  score: number;
+  examType: string;
+  class: string;
+}
 
+export interface ScoreResponse {
+  items: ScoreItem[];
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
 
 interface Score {
   id: string;
@@ -2127,7 +2154,7 @@ interface Score {
 }
 
 // GET /api/subjectscore (Lấy danh sách điểm)
-export const getScore = async () => {
+export const getScore = async (userId: string, pageNumber: number, pageSize: number) => {
   try {
     const token = localStorage.getItem("accessToken");
     console.log("Token:", token);
@@ -2139,12 +2166,14 @@ export const getScore = async () => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore?pageNumber=1&pageSize=5`;
+    // Sửa URL để bao gồm userId và các tham số phân trang
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore?userId=${userId}&pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Accept": "text/plain", // Thêm header Accept theo yêu cầu API
+        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       signal: controller.signal,
@@ -2159,7 +2188,19 @@ export const getScore = async () => {
       throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("Response data:", data);
+    
+    // Trả về dữ liệu đã được định dạng theo cấu trúc response
+    return {
+      items: data.message.items.$values,
+      totalItems: data.message.totalItems,
+      currentPage: data.message.currentPage,
+      totalPages: data.message.totalPages,
+      pageSize: data.message.pageSize,
+      hasPreviousPage: data.message.hasPreviousPage,
+      hasNextPage: data.message.hasNextPage
+    };
   } catch (error) {
     console.error("Lỗi khi lấy danh sách điểm:", error);
     throw error;
@@ -2167,11 +2208,16 @@ export const getScore = async () => {
 };
 
 // POST /api/subjectscore (Thêm điểm mới)
-export const createScore = async (scoreData: Omit<Score, "id">) => {
+export const createScore = async (scoreData: {
+  subjectId: string;
+  userId: string;
+  year: string;
+  score: number;
+  examType: string;
+  class: string;
+}) => {
   try {
     const token = localStorage.getItem("accessToken");
-    console.log("Token:", token);
-
     if (!token) {
       throw new Error("Không tìm thấy token, vui lòng đăng nhập");
     }
@@ -2179,12 +2225,13 @@ export const createScore = async (scoreData: Omit<Score, "id">) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore`;
+    const url = "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore";
 
     const response = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Accept": "text/plain",
+        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(scoreData),
@@ -2193,14 +2240,13 @@ export const createScore = async (scoreData: Omit<Score, "id">) => {
 
     clearTimeout(timeoutId);
 
-    console.log("Response status:", response.status);
     if (!response.ok) {
       const errorText = await response.text();
-      console.log("Error response text:", errorText);
       throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data; // Trả về dữ liệu response từ server (có thể là object điểm vừa tạo)
   } catch (error) {
     console.error("Lỗi khi tạo điểm:", error);
     throw error;
@@ -2248,45 +2294,40 @@ export const updateScore = async (id: string, scoreData: Partial<Score>) => {
   }
 };
 
-// DELETE /api/subjectscore/{id} (Xóa điểm)
-// export const deleteScore = async (id: string) => {
-//   try {
-//     const token = localStorage.getItem("accessToken");
-//     console.log("Token:", token);
+//DELETE /api/subjectscore/{id} (Xóa điểm)
+export const deleteScore = async (id: string) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) throw new Error("Không tìm thấy token, vui lòng đăng nhập");
 
-//     if (!token) {
-//       throw new Error("Không tìm thấy token, vui lòng đăng nhập");
-//     }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-//     const controller = new AbortController();
-//     const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch(
+      `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Accept": "text/plain",
+          "Authorization": `Bearer ${token}`,
+        },
+        signal: controller.signal,
+      }
+    );
 
-//     const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subjectscore/${id}`;
+    clearTimeout(timeoutId);
 
-//     const response = await fetch(url, {
-//       method: "DELETE",
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         "Content-Type": "application/json",
-//       },
-//       signal: controller.signal,
-//     });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
+    }
 
-//     clearTimeout(timeoutId);
-
-//     console.log("Response status:", response.status);
-//     if (!response.ok) {
-//       const errorText = await response.text();
-//       console.log("Error response text:", errorText);
-//       throw new Error(`Lỗi HTTP ${response.status}: ${errorText}`);
-//     }
-
-//     return await response.json();
-//   } catch (error) {
-//     console.error("Lỗi khi xóa điểm:", error);
-//     throw error;
-//   }
-// };
+    return true; // Trả về true nếu xóa thành công
+  } catch (error) {
+    console.error("Lỗi khi xóa điểm:", error);
+    throw error;
+  }
+};
 
 // GET /api/subjectscore/{id} (Lấy chi tiết điểm theo id)
 export const getScoreById = async (id: string) => {

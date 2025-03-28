@@ -5,7 +5,7 @@ import {
   HiOutlineUsers,
   HiOutlineCube,
   HiOutlineClipboardDocumentList,
-  HiOutlineDocumentChartBar,
+ // HiOutlineDocumentChartBar,
   HiAcademicCap, 
 } from 'react-icons/hi2';
 import { FaBook } from "react-icons/fa";
@@ -63,12 +63,12 @@ export const menu = [
         icon: HiOutlineClipboardDocumentList,
         label: 'Major',
       },
-      {
-        isLink: true,
-        url: '/posts',
-        icon: HiOutlineDocumentChartBar,
-        label: 'posts',
-      },
+      // {
+      //   isLink: true,
+      //   url: '/posts',
+      //   icon: HiOutlineDocumentChartBar,
+      //   label: 'posts',
+      // },
       {
         isLink: true,
         url: '/university',
