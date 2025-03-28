@@ -21,7 +21,7 @@ export interface InforMethod {
 export interface AdmissionDetail {
   id: string;
   quota: number;
-  admissionDate: string;
+  admisstionDate: string;
   deadline: string;
   inforMethods: InforMethod[];
 }

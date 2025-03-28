@@ -1262,11 +1262,12 @@ export const getAdmissionList = async (): Promise<AdmissionInfo[]> => {
     throw error;
   }
 };
-interface CreateAdmissionRequest {
+
+export interface CreateAdmissionRequest {
   uniMajorId: string;
   academicYearId: string;
   deadline: string;
-  admissionDate: string; // Sử dụng admissionDate thay vì admisstionDate để tránh typo
+  admissionDate: string; // Sửa typo từ admisstionDate thành admissionDate
   quota: number;
   inforMethods: {
     admissionMethodId: string;
@@ -1327,35 +1328,41 @@ export const createAdmission = async (
     const data = await response.json();
     console.log("🔍 Create Admission API Response:", JSON.stringify(data, null, 2));
 
-    // Xử lý response từ API
-    let createdAdmission;
-    if (data && data.message) {
-      createdAdmission = data.message; // Giả định API trả về dữ liệu trong message
-    } else {
-      createdAdmission = data; // Nếu không có message, dùng dữ liệu trực tiếp
+    // Kiểm tra nếu API chỉ trả về message thay vì dữ liệu chi tiết
+    if (typeof data === "string" || (data.message && typeof data.message === "string")) {
+      console.warn("API only returned a success message, using request data as fallback");
+      // Trả về dữ liệu đầu vào vì API không cung cấp dữ liệu chi tiết
+      return {
+        ...admissionData,
+        admissionDate: admissionData.admissionDate, // Đã sửa typo
+        inforMethods: admissionData.inforMethods.map((method) => ({
+          admissionMethodId: method.admissionMethodId,
+          scoreType: method.scoreType,
+          scoreRequirement: method.scoreRequirement,
+          percentageOfQuota: method.percentageOfQuota,
+        })),
+      };
     }
 
-    if (!createdAdmission) {
-      throw new Error("Invalid data structure from API");
-    }
-
+    // Nếu API trả về dữ liệu chi tiết
+    const createdAdmission = data.message || data;
     console.log("🔍 Raw Created Admission:", JSON.stringify(createdAdmission, null, 2));
 
-    // Chuẩn hóa dữ liệu trả về theo CreateAdmissionResponse
+    // Chuẩn hóa dữ liệu trả về
     const normalizedAdmission: CreateAdmissionResponse = {
-      uniMajorId: createdAdmission.uniMajorId || "N/A",
-      academicYearId: createdAdmission.academicYearId || "N/A",
-      admissionDate: createdAdmission.admissionDate || createdAdmission.admisstionDate || "N/A", // Hỗ trợ typo nếu có
-      deadline: createdAdmission.deadline || "N/A",
-      quota: createdAdmission.quota !== undefined && createdAdmission.quota !== null ? createdAdmission.quota : 0,
+      uniMajorId: createdAdmission.uniMajorId || admissionData.uniMajorId,
+      academicYearId: createdAdmission.academicYearId || admissionData.academicYearId,
+      admissionDate: createdAdmission.admissionDate || admissionData.admissionDate,
+      deadline: createdAdmission.deadline || admissionData.deadline,
+      quota: createdAdmission.quota ?? admissionData.quota,
       inforMethods: Array.isArray(createdAdmission.inforMethods)
         ? createdAdmission.inforMethods.map((method: any) => ({
-            admissionMethodId: method.admissionMethodId || "N/A",
-            scoreType: method.scoreType || "N/A",
-            scoreRequirement: method.scoreRequirement || 0,
-            percentageOfQuota: method.percentageOfQuota || 0,
+            admissionMethodId: method.admissionMethodId || admissionData.inforMethods[0].admissionMethodId,
+            scoreType: method.scoreType || admissionData.inforMethods[0].scoreType,
+            scoreRequirement: method.scoreRequirement ?? admissionData.inforMethods[0].scoreRequirement,
+            percentageOfQuota: method.percentageOfQuota ?? admissionData.inforMethods[0].percentageOfQuota,
           }))
-        : [],
+        : admissionData.inforMethods,
     };
 
     console.log("🔍 Normalized Admission:", JSON.stringify(normalizedAdmission, null, 2));
@@ -1417,7 +1424,7 @@ export const getAdmissionDetail = async (id: string): Promise<AdmissionDetail> =
     const admissionDetail: AdmissionDetail = {
       id: message.id || "unknown",
       quota: message.quota || "N/A",
-      admissionDate: message.admisstionDate || message.admissionDate || "N/A",
+      admisstionDate: message.admisstionDate || message.admissionDate || "N/A",
       deadline: message.deadline || "N/A",
       inforMethods,
     };

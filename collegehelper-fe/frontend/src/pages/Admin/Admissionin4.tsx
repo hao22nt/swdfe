@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, message, Card, Modal, Descriptions, List, Form, Input, InputNumber, Select } from 'antd';
-import { getAdmissionList, getAdmissionDetail, createAdmission,getAcademicYears,getAdmissionMethod, UniMajor,getUniMajors,deleteAdmissionInfo } from '../../api/ApiCollection';
-
+import {CreateAdmissionRequest, getAdmissionList, getAdmissionDetail, createAdmission, getAcademicYears, getAdmissionMethod, UniMajor, getUniMajors, deleteAdmissionInfo } from '../../api/ApiCollection';
 import type { AdmissionInfo, AdmissionDetail, AcademicYear, AdmissionMethod } from '../User/types';
 
 const { Option } = Select;
@@ -54,7 +53,7 @@ const AdmissionsPage1: React.FC = () => {
       const formattedDetail = {
         id: detail.id || 'N/A',
         quota: detail.quota ?? 'N/A',
-        admissionDate: detail.admissionDate || 'N/A',
+        admisstionDate: detail.admisstionDate || 'N/A',
         deadline: detail.deadline || 'N/A',
         inforMethods: detail.inforMethods || [],
         universityName,
@@ -73,11 +72,15 @@ const AdmissionsPage1: React.FC = () => {
 
   const handleCreate = async (values: any) => {
     try {
-      const newAdmission = {
+      // Format datetime fields to ISO string
+      const admissionDate = new Date(values.admissionDate).toISOString();
+      const deadline = new Date(values.deadline).toISOString();
+  
+      const newAdmission: CreateAdmissionRequest = {
         uniMajorId: values.uniMajorId,
         academicYearId: values.academicYearId,
-        deadline: values.deadline,
-        admissionDate: values.admissionDate,
+        deadline: deadline,
+        admissionDate: admissionDate, // Đã sửa từ admisstionDate
         quota: values.quota,
         inforMethods: [
           {
@@ -88,25 +91,25 @@ const AdmissionsPage1: React.FC = () => {
           },
         ],
       };
-
+  
       const createdAdmission = await createAdmission(newAdmission);
-      message.success('Tạo thông tin tuyển sinh thành công!');
+    message.success('Tạo thông tin tuyển sinh thành công!');
 
-      const selectedUniMajor = uniMajors.find((item) => item.id === values.uniMajorId);
-      setAdmissionData((prev) => [
-        ...prev,
-        {
-          id: createdAdmission.uniMajorId,
-          universityName: selectedUniMajor?.universityName || "N/A",
-          majorName: selectedUniMajor?.majorName || "N/A",
-          admissionDate: createdAdmission.admissionDate,
-          deadline: createdAdmission.deadline,
-          quota: createdAdmission.quota,
-          isBookmarked: false,
-          baseScore: 0,
-        },
-      ]);
-
+    const selectedUniMajor = uniMajors.find((item) => item.id === values.uniMajorId);
+    setAdmissionData((prev) => [
+      ...prev,
+      {
+        id: createdAdmission.uniMajorId,
+        universityName: selectedUniMajor?.universityName || "N/A",
+        majorName: selectedUniMajor?.majorName || "N/A",
+        admissionDate: createdAdmission.admissionDate,
+        deadline: createdAdmission.deadline,
+        quota: createdAdmission.quota,
+        isBookmarked: false,
+        baseScore: 0,
+      },
+    ]);
+  
       setCreateModalVisible(false);
       form.resetFields();
     } catch (error) {
@@ -171,7 +174,7 @@ const AdmissionsPage1: React.FC = () => {
               <Descriptions.Item label="Trường">{selectedAdmission.universityName}</Descriptions.Item>
               <Descriptions.Item label="Ngành">{selectedAdmission.majorName}</Descriptions.Item>
               <Descriptions.Item label="Chỉ tiêu">{selectedAdmission.quota}</Descriptions.Item>
-              <Descriptions.Item label="Thời gian xét tuyển">{selectedAdmission.admissionDate === 'N/A' ? 'Chưa xác định' : new Date(selectedAdmission.admissionDate).toLocaleDateString()}</Descriptions.Item>
+              <Descriptions.Item label="Thời gian xét tuyển">{selectedAdmission.admisstionDate === 'N/A' ? 'Chưa xác định' : new Date(selectedAdmission.admisstionDate).toLocaleDateString()}</Descriptions.Item>
               <Descriptions.Item label="Hạn nộp hồ sơ">{selectedAdmission.deadline === 'N/A' ? 'Chưa xác định' : new Date(selectedAdmission.deadline).toLocaleDateString()}</Descriptions.Item>
             </Descriptions>
             {selectedAdmission.inforMethods.length > 0 && (
@@ -195,49 +198,127 @@ const AdmissionsPage1: React.FC = () => {
         )}
       </Modal>
 
-      <Modal title="Tạo thông tin tuyển sinh mới" open={createModalVisible} onCancel={() => setCreateModalVisible(false)} footer={null} width={600}>
+      <Modal
+        title="Tạo thông tin tuyển sinh mới"
+        open={createModalVisible}
+        onCancel={() => setCreateModalVisible(false)}
+        footer={null}
+        width={600}
+      >
         <Form form={form} layout="vertical" onFinish={handleCreate}>
-          <Form.Item name="uniMajorId" label="Ngành - Trường" rules={[{ required: true, message: 'Vui lòng chọn ngành - trường!' }]}>
+          <Form.Item
+            name="uniMajorId"
+            label="Ngành - Trường"
+            rules={[{ required: true, message: 'Vui lòng chọn ngành - trường!' }]}
+          >
             <Select placeholder="Chọn ngành và trường">
               {uniMajors.map((item) => (
                 <Option key={item.id} value={item.id}>{`${item.universityName} - ${item.majorName}`}</Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="academicYearId" label="Năm học" rules={[{ required: true, message: 'Vui lòng chọn năm học!' }]}>
+
+          <Form.Item
+            name="academicYearId"
+            label="Năm học"
+            rules={[{ required: true, message: 'Vui lòng chọn năm học!' }]}
+          >
             <Select placeholder="Chọn năm học">
               {academicYears.map((item) => (
                 <Option key={item.id} value={item.id}>{item.year === 0 ? "Không xác định" : item.year}</Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="admissionDate" label="Thời gian xét tuyển" rules={[{ required: true, message: 'Vui lòng nhập thời gian xét tuyển!' }]}>
-            <Input type="datetime-local" />
+
+          <Form.Item
+            name="admissionDate"
+            label="Thời gian xét tuyển"
+            rules={[{ required: true, message: 'Vui lòng nhập thời gian xét tuyển!' }]}
+          >
+            <Input
+              type="datetime-local"
+              step="1" // Cho phép chọn đến giây
+            />
           </Form.Item>
-          <Form.Item name="deadline" label="Hạn nộp hồ sơ" rules={[{ required: true, message: 'Vui lòng nhập hạn nộp hồ sơ!' }]}>
-            <Input type="datetime-local" />
+
+          <Form.Item
+            name="deadline"
+            label="Hạn nộp hồ sơ"
+            rules={[
+              { required: true, message: 'Vui lòng nhập hạn nộp hồ sơ!' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || new Date(value) > new Date(getFieldValue('admissionDate'))) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Hạn nộp phải sau thời gian xét tuyển!'));
+                },
+              }),
+            ]}
+          >
+            <Input
+              type="datetime-local"
+              step="1"
+            />
           </Form.Item>
-          <Form.Item name="quota" label="Chỉ tiêu" rules={[{ required: true, message: 'Vui lòng nhập chỉ tiêu!' }]}>
-            <InputNumber min={0} style={{ width: '100%' }} />
+
+          <Form.Item
+            name="quota"
+            label="Chỉ tiêu"
+            rules={[
+              { required: true, message: 'Vui lòng nhập chỉ tiêu!' },
+              { type: 'number', min: 1, message: 'Chỉ tiêu phải lớn hơn 0!' }
+            ]}
+          >
+            <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="admissionMethodId" label="Phương thức xét tuyển" rules={[{ required: true, message: 'Vui lòng chọn phương thức!' }]}>
+
+          <Form.Item
+            name="admissionMethodId"
+            label="Phương thức xét tuyển"
+            rules={[{ required: true, message: 'Vui lòng chọn phương thức!' }]}
+          >
             <Select placeholder="Chọn phương thức xét tuyển">
               {admissionMethods.map((item) => (
                 <Option key={item.id} value={item.id}>{item.methodName}</Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="scoreType" label="Khối" rules={[{ required: true, message: 'Vui lòng nhập khối!' }]}>
+
+          <Form.Item
+            name="scoreType"
+            label="Khối"
+            rules={[{ required: true, message: 'Vui lòng nhập khối!' }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="scoreRequirement" label="Điểm yêu cầu" rules={[{ required: true, message: 'Vui lòng nhập điểm yêu cầu!' }]}>
-            <InputNumber min={0} style={{ width: '100%' }} />
+
+          <Form.Item
+            name="scoreRequirement"
+            label="Điểm yêu cầu"
+            rules={[
+              { required: true, message: 'Vui lòng nhập điểm yêu cầu!' },
+              { type: 'number', min: 0, message: 'Điểm phải lớn hơn hoặc bằng 0!' }
+            ]}
+          >
+            <InputNumber min={0} max={30} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="percentageOfQuota" label="Tỷ lệ chỉ tiêu (%)" rules={[{ required: true, message: 'Vui lòng nhập tỷ lệ chỉ tiêu!' }]}>
-            <InputNumber min={0} max={100} style={{ width: '100%' }} />
+
+          <Form.Item
+            name="percentageOfQuota"
+            label="Tỷ lệ chỉ tiêu (%)"
+            rules={[
+              { required: true, message: 'Vui lòng nhập tỷ lệ chỉ tiêu!' },
+              { type: 'number', min: 1, max: 100, message: 'Tỷ lệ phải từ 1-100%!' }
+            ]}
+          >
+            <InputNumber min={1} max={100} style={{ width: '100%' }} />
           </Form.Item>
+
           <Form.Item>
-            <Button type="primary" htmlType="submit">Tạo mới</Button>
+            <Button type="primary" htmlType="submit">
+              Tạo mới
+            </Button>
           </Form.Item>
         </Form>
       </Modal>
