@@ -7,7 +7,7 @@ interface Score {
   year: string;
   score: number;
   examType: string;
-  class: string;
+  class: string | null;
 }
 
 const ScoreInput: React.FC = () => {
@@ -23,7 +23,7 @@ const ScoreInput: React.FC = () => {
         const scoreData = response.message.items.$values;
         setScores(scoreData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải dữ liệu");
+        setError(err instanceof Error ? err.message : "An error occurred while loading data");
       } finally {
         setLoading(false);
       }
@@ -44,7 +44,7 @@ const ScoreInput: React.FC = () => {
     try {
       const scoreToUpdate = scores.find(score => score.id === id);
       if (!scoreToUpdate) {
-        throw new Error("Không tìm thấy điểm để cập nhật");
+        throw new Error("Score not found for update");
       }
 
       const updatedData = {
@@ -53,9 +53,9 @@ const ScoreInput: React.FC = () => {
       };
 
       await updateScore(id, updatedData);
-      alert("Cập nhật điểm thành công!");
+      alert("Score updated successfully!");
     } catch (err) {
-      alert("Lỗi khi cập nhật điểm: " + (err instanceof Error ? err.message : "Unknown error"));
+      alert("Error updating score: " + (err instanceof Error ? err.message : "Unknown error"));
     }
   };
 
@@ -63,7 +63,7 @@ const ScoreInput: React.FC = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
-        <span className="ml-4 text-lg text-gray-600">Đang tải dữ liệu...</span>
+        <span className="ml-4 text-lg text-gray-600">Loading data...</span>
       </div>
     );
   }
@@ -93,19 +93,22 @@ const ScoreInput: React.FC = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-white shadow-lg rounded-xl mt-10">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Nhập Điểm Môn Học</h2>
+    <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-xl mt-10">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Enter Subject Scores</h2>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-              <th className="p-4 text-left rounded-tl-lg">Môn học</th>
-              <th className="p-4 text-left">Điểm</th>
-              <th className="p-4 text-left rounded-tr-lg">Hành động</th>
+              <th className="p-4 text-left rounded-tl-lg">Subject</th>
+              <th className="p-4 text-left">Year</th>
+              <th className="p-4 text-left">Score</th>
+              <th className="p-4 text-left">Exam Type</th>
+              <th className="p-4 text-left">Class</th>
+              <th className="p-4 text-left rounded-tr-lg">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {scores.map(({ id, subjectName, score }, index) => (
+            {scores.map(({ id, subjectName, year, score, examType, class: className }, index) => (
               <tr
                 key={id}
                 className={`${
@@ -113,6 +116,9 @@ const ScoreInput: React.FC = () => {
                 } hover:bg-blue-50 transition-colors duration-200`}
               >
                 <td className="p-4 text-gray-700 font-medium">{subjectName}</td>
+                <td className="p-4 text-gray-700">
+                  {year === "0001-01-01T00:00:00" ? "N/A" : new Date(year).toLocaleDateString()}
+                </td>
                 <td className="p-4">
                   <input
                     type="number"
@@ -124,12 +130,14 @@ const ScoreInput: React.FC = () => {
                     max="10"
                   />
                 </td>
+                <td className="p-4 text-gray-700">{examType}</td>
+                <td className="p-4 text-gray-700">{className || "N/A"}</td>
                 <td className="p-4">
                   <button
                     onClick={() => handleSaveScore(id)}
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-200"
                   >
-                    Lưu
+                    Save
                   </button>
                 </td>
               </tr>
