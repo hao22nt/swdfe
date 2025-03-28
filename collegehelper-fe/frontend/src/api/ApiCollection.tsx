@@ -1843,8 +1843,8 @@ export interface PaginatedResponse<T> {
 // Lấy danh sách Subject với phân trang
 export const getSubjects = async (
   pageNumber: number = 1,
-  pageSize: number = 5
-): Promise<Subject[]> => {
+  pageSize: number = 1000
+): Promise<PaginatedResponse<Subject>> => {
   try {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -1854,14 +1854,13 @@ export const getSubjects = async (
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    // Thêm query parameters vào URL
     const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/subject?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        "Accept": "text/plain", // Thêm header Accept theo curl
-        "Authorization": `Bearer ${token}`,
+        Accept: "text/plain",
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       signal: controller.signal,
@@ -1875,7 +1874,7 @@ export const getSubjects = async (
     }
 
     const data: PaginatedResponse<Subject> = await response.json();
-    return data.message.items.$values; // Trả về mảng Subject
+    return data;
   } catch (error) {
     console.error("Error fetching subjects:", error);
     throw error;
