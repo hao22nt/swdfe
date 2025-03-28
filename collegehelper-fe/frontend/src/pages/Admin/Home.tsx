@@ -32,10 +32,10 @@ const Home = () => {
     queryFn: fetchUserLoginStats,
   });
 
-  const queryGetTotalProfit = useQuery({
-    queryKey: ['totalprofit'],
-    queryFn: fetchTotalProfit,
-  });
+  // const queryGetTotalProfit = useQuery({
+  //   queryKey: ['totalprofit'],
+  //   queryFn: fetchTotalProfit,
+  // });
 
   return (
     <div className="home w-full p-0 m-0">

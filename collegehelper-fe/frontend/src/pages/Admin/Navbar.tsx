@@ -3,7 +3,7 @@ import { FaBookReader } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
 import { HiBars3CenterLeft } from 'react-icons/hi2';
 import { RxEnterFullScreen, RxExitFullScreen } from 'react-icons/rx';
-import ChangeThemes from '../../components/ChangesThemes';
+// import ChangeThemes from '../../components/ChangesThemes';
 import { menu } from '../../components/menu/data';
 import MenuItem from '../../components/menu/MenuItem';
 
