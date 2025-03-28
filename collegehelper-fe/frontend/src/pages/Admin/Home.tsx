@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { MdGroup, MdInventory2, MdLogin } from 'react-icons/md'; // Thêm MdLogin
 import {
   fetchTotalUniversities,
-  fetchTotalProfit,
+ // fetchTotalProfit,
   fetchTotalSource,
   fetchTotalUsers,
   fetchUserLoginStats, // Thay fetchTotalVisit
