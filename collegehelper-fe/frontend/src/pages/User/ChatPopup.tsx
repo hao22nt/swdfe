@@ -136,6 +136,7 @@ useEffect(() => {
         console.error('Error deleting chat:', error);
       });
   };
+  
 
   const loadChatHistory = (chatId: string) => {
     if (!isAuthenticated || !userId) {
@@ -150,7 +151,13 @@ useEffect(() => {
       (snapshot) => {
         const data = snapshot.val();
         console.log(`Messages for chat ${chatId}:`, data); // Debug tin nhắn của chat
-        setMessages(data ? Object.values(data) : []);
+        setMessages(data ? Object.values(data).map((msg: any) => ({
+          ...(typeof msg === "object" && msg !== null ? msg : {}), // Ensure msg is an object
+          Text: (msg?.Text ?? "Unknown message")
+              .replaceAll("\n", "\n")
+              .replaceAll("*", " ")
+              .trim()
+        })) : []);
       },
       (error) => {
         console.error('Error fetching messages:', error);

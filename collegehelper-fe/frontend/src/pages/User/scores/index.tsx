@@ -83,7 +83,7 @@ const ScoreInput: React.FC = () => {
       setTotalPages(Math.ceil(scoreResponse.totalItems / scoresPerPage));
 
       const subjectResponse = await getSubjects(1, 10);
-      setSubjects(subjectResponse);
+      setSubjects(subjectResponse.items);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải dữ liệu");
     } finally {
