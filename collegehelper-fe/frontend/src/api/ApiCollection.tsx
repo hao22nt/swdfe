@@ -1267,7 +1267,7 @@ export interface CreateAdmissionRequest {
   uniMajorId: string;
   academicYearId: string;
   deadline: string;
-  admissionDate: string; // Sửa typo từ admisstionDate thành admissionDate
+  admisstionDate: string; // Sửa typo từ admisstionDate thành admissionDate
   quota: number;
   inforMethods: {
     admissionMethodId: string;
@@ -1278,11 +1278,11 @@ export interface CreateAdmissionRequest {
 }
 
 // Interface cho response từ API
-interface CreateAdmissionResponse {
+export interface CreateAdmissionResponse {
   uniMajorId: string;
   academicYearId: string;
   deadline: string;
-  admissionDate: string;
+  admisstionDate: string;
   quota: number;
   inforMethods: {
     admissionMethodId: string;
@@ -1334,7 +1334,7 @@ export const createAdmission = async (
       // Trả về dữ liệu đầu vào vì API không cung cấp dữ liệu chi tiết
       return {
         ...admissionData,
-        admissionDate: admissionData.admissionDate, // Đã sửa typo
+        admisstionDate: admissionData.admisstionDate, // Đã sửa typo
         inforMethods: admissionData.inforMethods.map((method) => ({
           admissionMethodId: method.admissionMethodId,
           scoreType: method.scoreType,
@@ -1352,7 +1352,7 @@ export const createAdmission = async (
     const normalizedAdmission: CreateAdmissionResponse = {
       uniMajorId: createdAdmission.uniMajorId || admissionData.uniMajorId,
       academicYearId: createdAdmission.academicYearId || admissionData.academicYearId,
-      admissionDate: createdAdmission.admissionDate || admissionData.admissionDate,
+      admisstionDate: createdAdmission.admissionDate || admissionData.admisstionDate,
       deadline: createdAdmission.deadline || admissionData.deadline,
       quota: createdAdmission.quota ?? admissionData.quota,
       inforMethods: Array.isArray(createdAdmission.inforMethods)

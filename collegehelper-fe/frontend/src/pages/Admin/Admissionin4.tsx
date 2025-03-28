@@ -80,7 +80,7 @@ const AdmissionsPage1: React.FC = () => {
         uniMajorId: values.uniMajorId,
         academicYearId: values.academicYearId,
         deadline: deadline,
-        admissionDate: admissionDate, // Đã sửa từ admisstionDate
+        admisstionDate: admissionDate, // Đã sửa từ admisstionDate
         quota: values.quota,
         inforMethods: [
           {
@@ -102,7 +102,7 @@ const AdmissionsPage1: React.FC = () => {
         id: createdAdmission.uniMajorId,
         universityName: selectedUniMajor?.universityName || "N/A",
         majorName: selectedUniMajor?.majorName || "N/A",
-        admissionDate: createdAdmission.admissionDate,
+        admissionDate: createdAdmission.admisstionDate,
         deadline: createdAdmission.deadline,
         quota: createdAdmission.quota,
         isBookmarked: false,
