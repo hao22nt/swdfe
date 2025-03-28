@@ -76,7 +76,6 @@ const Login: React.FC = () => {
         console.log('Decoded Token:', decodedToken);
 
         // Lấy role từ decoded token
-        // Lấy role từ decoded token
         const userRole = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'].toLowerCase();
 
         localStorage.setItem("accessToken", accessToken);
