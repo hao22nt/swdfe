@@ -1,5 +1,4 @@
-// src/types/index.ts
-// src/types/index.ts
+
 export interface AdmissionInfo {
   id: string;
   universityName: string;
@@ -35,6 +34,18 @@ export interface WishlistItem {
   admissionDate?: string;
   deadline?: string;
   quota?: string | number;
+}
+
+export interface AcademicYear {
+  id: string;
+  year: number;
+}
+
+export interface AdmissionMethod {
+  id: string;
+  methodName: string;
+  requiredDocuments?: string | null;
+  description?: string | null;
 }
 
 

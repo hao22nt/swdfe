@@ -2321,6 +2321,113 @@ export const getScoreById = async (id: string) => {
   }
 };
 
+export interface UniMajor {
+  id: string;
+  tuitionFee: string;
+  majorCode: string;
+  universityName: string;
+  majorName: string;
+}
+export const getUniMajors = async (): Promise<UniMajor[]> => {
+  try {
+    // Lấy token từ localStorage
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    // Thiết lập AbortController để xử lý timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    // Gọi API
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/unimajor?pageNumber=1&pageSize=5",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    // Xóa timeout nếu yêu cầu hoàn thành trước 10 giây
+    clearTimeout(timeoutId);
+
+    // Kiểm tra phản hồi từ API
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("🔍 UniMajor API Response:", JSON.stringify(data, null, 2));
+
+    // Extract uniMajors array from response
+    let uniMajors = [];
+    if (data && data.message && data.message.items && data.message.items.$values) {
+      uniMajors = data.message.items.$values;
+    } else {
+      throw new Error("Invalid data structure from API");
+    }
+
+    // Normalize the uniMajor data with explicit type
+    const normalizedUniMajors: UniMajor[] = uniMajors.map((uniMajor: UniMajor) => ({
+      id: uniMajor.id || "unknown",
+      tuitionFee: uniMajor.tuitionFee || "N/A",
+      majorCode: uniMajor.majorCode || "N/A",
+      universityName: uniMajor.universityName || "N/A",
+      majorName: uniMajor.majorName || "N/A",
+    }));
+
+    return normalizedUniMajors;
+  } catch (error) {
+    console.error("Error fetching uniMajors:", error);
+    throw error;
+  }
+};
+
+export const deleteAdmissionInfo = async (id: string): Promise<boolean> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    console.log("ID cần xóa:", id);
+    console.log("Token sử dụng:", token);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    // Sửa endpoint thành /api/admissioninfor
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor/${id}`;
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: response.statusText }));
+      const errorMessage = errorData.message || `Không tìm thấy thông tin tuyển sinh với id: ${id} (HTTP ${response.status})`;
+      throw new Error(errorMessage);
+    }
+
+    console.log(`Đã xóa thông tin tuyển sinh với id: ${id}`);
+    return true;
+  } catch (error) {
+    console.error("Lỗi khi xóa thông tin tuyển sinh:", error);
+    throw error;
+  }
+};
 
 
 
