@@ -26,18 +26,18 @@ const Navbar = () => {
         document.exitFullscreen();
       }
     } else {
-      element?.requestFullscreen({ navigationUI: 'auto' }).catch((err) => {
-        console.error('Failed to enter fullscreen:', err);
-      });
+      element
+        ?.requestFullscreen({ navigationUI: 'auto' })
+        .catch((err) => console.error('Failed to enter fullscreen:', err));
     }
   }, [isFullScreen]);
 
   return (
-    // navbar screen
-    <div className="fixed z-[3] top-0 left-0 right-0 bg-base-100 w-full flex justify-between px-3 xl:px-4 py-3 xl:py-5 gap-4 xl:gap-0">
-      {/* container */}
+    // Thanh ngang cố định trên cùng, đổi sang màu xanh đậm + chữ trắng
+    <div className="fixed z-[3] top-0 left-0 right-0 bg-blue-700 text-white w-full flex justify-between px-3 xl:px-4 py-3 xl:py-5 gap-4 xl:gap-0">
+      {/* Container Left */}
       <div className="flex gap-3 items-center">
-        {/* for mobile */}
+        {/* Drawer cho mobile */}
         <div className="drawer w-auto p-0 mr-1 xl:hidden">
           <input
             id="drawer-navbar-mobile"
@@ -49,25 +49,25 @@ const Navbar = () => {
           <div className="p-0 w-auto drawer-content">
             <label
               htmlFor="drawer-navbar-mobile"
-              className="p-0 btn btn-ghost drawer-button"
+              className="p-0 btn btn-ghost drawer-button hover:bg-blue-800"
             >
               <HiBars3CenterLeft className="text-2xl" />
             </label>
           </div>
+
+          {/* Sidebar Drawer */}
           <div className="drawer-side z-[99]">
             <label
               htmlFor="drawer-navbar-mobile"
               aria-label="close sidebar"
               className="drawer-overlay"
             ></label>
-            <div className="menu p-4 w-auto min-h-full bg-base-200 text-base-content">
-              <Link
-                to={'/'}
-                className="flex items-center gap-1 xl:gap-2 mt-1 mb-5"
-              >
-                <FaBookReader className="text-3xl sm:text-4xl xl:text-4xl 2xl:text-6xl text-primary" />
-                <span className="text-[16px] leading-[1.2] sm:text-lg xl:text-xl 2xl:text-2xl font-semibold text-base-content dark:text-neutral-200">
-                Admissions management
+            {/* Đổi sang bg-blue-900 + text-white */}
+            <div className="menu p-4 w-auto min-h-full bg-blue-900 text-white">
+              <Link to={'/'} className="flex items-center gap-1 xl:gap-2 mt-1 mb-5">
+                <FaBookReader className="text-3xl sm:text-4xl xl:text-4xl 2xl:text-6xl text-yellow-300" />
+                <span className="text-[16px] leading-[1.2] sm:text-lg xl:text-xl 2xl:text-2xl font-semibold">
+                  Admissions management
                 </span>
               </Link>
               {menu.map((item, index) => (
@@ -82,22 +82,22 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* navbar logo */}
+        {/* Logo bên trái (dành cho desktop) */}
         <Link to={'/'} className="flex items-center gap-1 xl:gap-2">
-          <FaBookReader className="text-3xl sm:text-4xl xl:text-4xl 2xl:text-6xl text-primary" />
-          <span className="text-[16px] leading-[1.2] sm:text-lg xl:text-xl 2xl:text-2xl font-semibold text-base-content dark:text-neutral-200">
+          {/* Đổi icon sang màu vàng cho nổi bật */}
+          <FaBookReader className="text-3xl sm:text-4xl xl:text-4xl 2xl:text-6xl text-yellow-300" />
+          <span className="text-[16px] leading-[1.2] sm:text-lg xl:text-xl 2xl:text-2xl font-semibold">
             Admissions management
           </span>
         </Link>
       </div>
 
-      {/* navbar items to right */}
+      {/* Container Right */}
       <div className="flex items-center gap-0 xl:gap-1 2xl:gap-2 3xl:gap-5">
-       
-        {/* fullscreen */}
+        {/* Fullscreen Button */}
         <button
           onClick={toggleFullScreen}
-          className="hidden xl:inline-flex btn btn-circle btn-ghost"
+          className="hidden xl:inline-flex btn btn-circle btn-ghost hover:bg-blue-800"
         >
           {isFullScreen ? (
             <RxEnterFullScreen className="xl:text-xl 2xl:text-2xl 3xl:text-3xl" />
@@ -106,28 +106,29 @@ const Navbar = () => {
           )}
         </button>
 
-        {/* theme */}
-        <div className="px-0 xl:px-auto btn btn-circle btn-ghost xl:mr-1">
+        {/* Theme Switch
+        <div className="px-0 xl:px-auto btn btn-circle btn-ghost xl:mr-1 hover:bg-blue-800">
           <ChangeThemes />
-        </div>
+        </div> */}
 
-        {/* avatar dropdown */}
+        {/* Avatar Dropdown */}
         <div className="dropdown dropdown-end">
           <div
             tabIndex={0}
             role="button"
-            className="btn btn-ghost btn-circle avatar"
+            className="btn btn-ghost btn-circle avatar hover:bg-blue-800"
           >
-            <div className="w-9  rounded-full">
+            <div className="w-9 rounded-full">
               <img
                 src="https://avatars.githubusercontent.com/u/74099030?v=4"
                 alt="foto-cowok-ganteng"
               />
             </div>
           </div>
+          {/* Đổi background dropdown thành bg-blue-50 để hợp tông */}
           <ul
             tabIndex={0}
-            className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40"
+            className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-blue-50 text-gray-800 rounded-box w-40"
           >
             <li onClick={() => navigate('/login')}>
               <a>Log Out</a>

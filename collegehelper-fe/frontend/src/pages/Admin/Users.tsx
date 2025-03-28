@@ -1,10 +1,10 @@
 import React from 'react';
 import { GridColDef } from '@mui/x-data-grid';
-import DataTable from '../components/DataTable';
-import { getUserList, updateUser, deleteUser, User, UserInput } from '../api/ApiCollection';
+import DataTable from '../../components/DataTable';
+import { getUserList, updateUser, deleteUser, User, UserInput } from '../../api/ApiCollection';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import AddData from '../components/AddData';
+import AddData from '../../components/AddData';
 import { HiOutlineXMark } from 'react-icons/hi2';
 
 const Users = () => {
@@ -54,9 +54,9 @@ const Users = () => {
         </div>
       ),
     },
-    { field: 'userName', headerName: 'Username', minWidth: 150, flex: 1 },
-    { field: 'email', headerName: 'Email', minWidth: 200, flex: 1 },
-    { field: 'phoneNumber', headerName: 'Phone', minWidth: 120, flex: 1 },
+    { field: 'userName', headerName: 'Username', minWidth: 150, },
+    { field: 'email', headerName: 'Email', minWidth: 200,  },
+    { field: 'phoneNumber', headerName: 'Phone', minWidth: 120, },
     {
       field: 'userImage',
       headerName: 'Image',

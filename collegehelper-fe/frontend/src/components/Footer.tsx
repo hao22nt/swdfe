@@ -9,7 +9,7 @@ const Footer = () => {
         
       </span>
       <div className="flex gap-1 items-center">
-        <span className="text-sm">© SWD</span>
+        <span className="text-sm">TuyensinhPro © SWD-Project </span>
         <CiBadgeDollar  className="text-2xl xl:text-xl 2xl:text-2xl text-primary animate-spin-slow" />
       </div>
     </div>

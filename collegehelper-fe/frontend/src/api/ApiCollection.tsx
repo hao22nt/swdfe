@@ -1023,8 +1023,9 @@ export const getUserList = async (): Promise<User[]> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
+    // Tăng pageSize lên 1000 để đảm bảo lấy hết dữ liệu
     const response = await fetch(
-      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/user?pageNumber=1&pageSize=5",
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/user?pageNumber=1&pageSize=1000",
       {
         method: "GET",
         headers: {

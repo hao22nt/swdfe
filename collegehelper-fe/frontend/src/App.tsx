@@ -8,7 +8,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import Home from './pages/Admin/Home';
-import Users from './pages/Users';
+import Users from './pages/Admin/Users';
 import Admission from './pages/Admin/Admission';
 import Navbar from './pages/Admin/Navbar';
 import Footer from './components/Footer';
