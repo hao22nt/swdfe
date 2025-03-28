@@ -24,16 +24,17 @@ const Login: React.FC = () => {
         "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/auth/login-google",
         { token: idToken }
       );
-
+      const decodedToken = decodeJWT(response.data?.accessToken);
+      const userRole = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'].toLowerCase();
       // Lưu token và role từ response API
       localStorage.setItem('accessToken', response.data?.accessToken);
       localStorage.setItem('isGoogleUser', 'true');
-      localStorage.setItem('userRole', 'admin');
+      localStorage.setItem('userRole', userRole);
 
       console.log('Google Login Info:', {
         user: result.user.displayName,
         email: result.user.email,
-        role: 'admin',
+        role: userRole,
         isGoogleUser: true
       });
 
@@ -75,7 +76,12 @@ const Login: React.FC = () => {
         console.log('Decoded Token:', decodedToken);
 
         // Lấy role từ decoded token
+        // Lấy role từ decoded token
         const userRole = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'].toLowerCase();
+
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem('isGoogleUser', 'false');
+        localStorage.setItem('userRole', userRole);
 
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem('isGoogleUser', 'false');

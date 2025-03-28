@@ -269,9 +269,9 @@ const AdmissionPage: React.FC = () => {
                 {selectedAdmission.quota}
               </Descriptions.Item>
               <Descriptions.Item label="Thời gian xét tuyển" className="text-gray-700 font-medium">
-                {selectedAdmission.admissionDate === 'N/A'
+                {selectedAdmission.admisstionDate === 'N/A'
                   ? 'Chưa xác định'
-                  : new Date(selectedAdmission.admissionDate).toLocaleDateString()}
+                  : new Date(selectedAdmission.admisstionDate).toLocaleDateString()}
               </Descriptions.Item>
               <Descriptions.Item label="Hạn nộp hồ sơ" className="text-gray-700 font-medium">
                 {selectedAdmission.deadline === 'N/A'

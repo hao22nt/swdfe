@@ -1262,11 +1262,12 @@ export const getAdmissionList = async (): Promise<AdmissionInfo[]> => {
     throw error;
   }
 };
-interface CreateAdmissionRequest {
+
+export interface CreateAdmissionRequest {
   uniMajorId: string;
   academicYearId: string;
   deadline: string;
-  admissionDate: string; // Sử dụng admissionDate thay vì admisstionDate để tránh typo
+  admisstionDate: string; // Sửa typo từ admisstionDate thành admissionDate
   quota: number;
   inforMethods: {
     admissionMethodId: string;
@@ -1277,11 +1278,11 @@ interface CreateAdmissionRequest {
 }
 
 // Interface cho response từ API
-interface CreateAdmissionResponse {
+export interface CreateAdmissionResponse {
   uniMajorId: string;
   academicYearId: string;
   deadline: string;
-  admissionDate: string;
+  admisstionDate: string;
   quota: number;
   inforMethods: {
     admissionMethodId: string;
@@ -1327,35 +1328,41 @@ export const createAdmission = async (
     const data = await response.json();
     console.log("🔍 Create Admission API Response:", JSON.stringify(data, null, 2));
 
-    // Xử lý response từ API
-    let createdAdmission;
-    if (data && data.message) {
-      createdAdmission = data.message; // Giả định API trả về dữ liệu trong message
-    } else {
-      createdAdmission = data; // Nếu không có message, dùng dữ liệu trực tiếp
+    // Kiểm tra nếu API chỉ trả về message thay vì dữ liệu chi tiết
+    if (typeof data === "string" || (data.message && typeof data.message === "string")) {
+      console.warn("API only returned a success message, using request data as fallback");
+      // Trả về dữ liệu đầu vào vì API không cung cấp dữ liệu chi tiết
+      return {
+        ...admissionData,
+        admisstionDate: admissionData.admisstionDate, // Đã sửa typo
+        inforMethods: admissionData.inforMethods.map((method) => ({
+          admissionMethodId: method.admissionMethodId,
+          scoreType: method.scoreType,
+          scoreRequirement: method.scoreRequirement,
+          percentageOfQuota: method.percentageOfQuota,
+        })),
+      };
     }
 
-    if (!createdAdmission) {
-      throw new Error("Invalid data structure from API");
-    }
-
+    // Nếu API trả về dữ liệu chi tiết
+    const createdAdmission = data.message || data;
     console.log("🔍 Raw Created Admission:", JSON.stringify(createdAdmission, null, 2));
 
-    // Chuẩn hóa dữ liệu trả về theo CreateAdmissionResponse
+    // Chuẩn hóa dữ liệu trả về
     const normalizedAdmission: CreateAdmissionResponse = {
-      uniMajorId: createdAdmission.uniMajorId || "N/A",
-      academicYearId: createdAdmission.academicYearId || "N/A",
-      admissionDate: createdAdmission.admissionDate || createdAdmission.admisstionDate || "N/A", // Hỗ trợ typo nếu có
-      deadline: createdAdmission.deadline || "N/A",
-      quota: createdAdmission.quota !== undefined && createdAdmission.quota !== null ? createdAdmission.quota : 0,
+      uniMajorId: createdAdmission.uniMajorId || admissionData.uniMajorId,
+      academicYearId: createdAdmission.academicYearId || admissionData.academicYearId,
+      admisstionDate: createdAdmission.admissionDate || admissionData.admisstionDate,
+      deadline: createdAdmission.deadline || admissionData.deadline,
+      quota: createdAdmission.quota ?? admissionData.quota,
       inforMethods: Array.isArray(createdAdmission.inforMethods)
         ? createdAdmission.inforMethods.map((method: any) => ({
-            admissionMethodId: method.admissionMethodId || "N/A",
-            scoreType: method.scoreType || "N/A",
-            scoreRequirement: method.scoreRequirement || 0,
-            percentageOfQuota: method.percentageOfQuota || 0,
+            admissionMethodId: method.admissionMethodId || admissionData.inforMethods[0].admissionMethodId,
+            scoreType: method.scoreType || admissionData.inforMethods[0].scoreType,
+            scoreRequirement: method.scoreRequirement ?? admissionData.inforMethods[0].scoreRequirement,
+            percentageOfQuota: method.percentageOfQuota ?? admissionData.inforMethods[0].percentageOfQuota,
           }))
-        : [],
+        : admissionData.inforMethods,
     };
 
     console.log("🔍 Normalized Admission:", JSON.stringify(normalizedAdmission, null, 2));
@@ -1417,7 +1424,7 @@ export const getAdmissionDetail = async (id: string): Promise<AdmissionDetail> =
     const admissionDetail: AdmissionDetail = {
       id: message.id || "unknown",
       quota: message.quota || "N/A",
-      admissionDate: message.admisstionDate || message.admissionDate || "N/A",
+      admisstionDate: message.admisstionDate || message.admissionDate || "N/A",
       deadline: message.deadline || "N/A",
       inforMethods,
     };
@@ -2321,6 +2328,113 @@ export const getScoreById = async (id: string) => {
   }
 };
 
+export interface UniMajor {
+  id: string;
+  tuitionFee: string;
+  majorCode: string;
+  universityName: string;
+  majorName: string;
+}
+export const getUniMajors = async (): Promise<UniMajor[]> => {
+  try {
+    // Lấy token từ localStorage
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    // Thiết lập AbortController để xử lý timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    // Gọi API
+    const response = await fetch(
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/unimajor?pageNumber=1&pageSize=5",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      }
+    );
+
+    // Xóa timeout nếu yêu cầu hoàn thành trước 10 giây
+    clearTimeout(timeoutId);
+
+    // Kiểm tra phản hồi từ API
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("🔍 UniMajor API Response:", JSON.stringify(data, null, 2));
+
+    // Extract uniMajors array from response
+    let uniMajors = [];
+    if (data && data.message && data.message.items && data.message.items.$values) {
+      uniMajors = data.message.items.$values;
+    } else {
+      throw new Error("Invalid data structure from API");
+    }
+
+    // Normalize the uniMajor data with explicit type
+    const normalizedUniMajors: UniMajor[] = uniMajors.map((uniMajor: UniMajor) => ({
+      id: uniMajor.id || "unknown",
+      tuitionFee: uniMajor.tuitionFee || "N/A",
+      majorCode: uniMajor.majorCode || "N/A",
+      universityName: uniMajor.universityName || "N/A",
+      majorName: uniMajor.majorName || "N/A",
+    }));
+
+    return normalizedUniMajors;
+  } catch (error) {
+    console.error("Error fetching uniMajors:", error);
+    throw error;
+  }
+};
+
+export const deleteAdmissionInfo = async (id: string): Promise<boolean> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("No token found, please login");
+    }
+
+    console.log("ID cần xóa:", id);
+    console.log("Token sử dụng:", token);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    // Sửa endpoint thành /api/admissioninfor
+    const url = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor/${id}`;
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: response.statusText }));
+      const errorMessage = errorData.message || `Không tìm thấy thông tin tuyển sinh với id: ${id} (HTTP ${response.status})`;
+      throw new Error(errorMessage);
+    }
+
+    console.log(`Đã xóa thông tin tuyển sinh với id: ${id}`);
+    return true;
+  } catch (error) {
+    console.error("Lỗi khi xóa thông tin tuyển sinh:", error);
+    throw error;
+  }
+};
 
 
 
