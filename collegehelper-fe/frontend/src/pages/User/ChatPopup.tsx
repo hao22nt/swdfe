@@ -187,25 +187,40 @@ useEffect(() => {
       console.log('Cannot send message: user not authenticated or no chat selected');
       return;
     }
-
+  
     const userMessage = {
       Sender: 'user',
       Text: input.trim(),
       Timestamp: new Date().toISOString(),
     };
-
+  
+    // Thêm tin nhắn người dùng vào danh sách messages ngay lập tức
     setMessages((prev) => [...prev, userMessage]);
     saveMessageToChat(selectedChat, userMessage);
     setInput('');
     setIsSending(true);
-
+  
     try {
       const token = localStorage.getItem('accessToken');
       if (!token) throw new Error('No token found, please login');
-
-      const requestBody = JSON.stringify([{ sender: 'user', message: input.trim(), timestamp: new Date().toISOString() }]);
-      const apiUrl = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/gemini?prompt=${encodeURIComponent(input.trim())}`;
-
+  
+      // Tạo lịch sử tin nhắn để gửi lên API, bao gồm tất cả tin nhắn hiện tại
+      const chatHistoryToSend = [...messages, userMessage].map((msg) => ({
+        sender: msg.Sender,
+        message: msg.Text,
+        timestamp: msg.Timestamp,
+      }));
+  
+      // Giới hạn số lượng tin nhắn nếu cần (ví dụ: chỉ gửi 10 tin nhắn cuối cùng để tránh quá tải)
+      const limitedHistory = chatHistoryToSend.slice(-10); // Lấy 10 tin nhắn cuối cùng
+  
+      // Chuẩn bị request body với lịch sử chat
+      const requestBody = JSON.stringify(limitedHistory);
+  
+      const apiUrl = `https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/gemini?prompt=${encodeURIComponent(
+        input.trim()
+      )}`;
+  
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -215,25 +230,29 @@ useEffect(() => {
         },
         body: requestBody,
       });
-
+  
       if (!response.ok) throw new Error(await response.text());
-
+  
       const responseData = await response.json();
       const botReply = {
         Sender: 'bot',
         Text: responseData?.message?.content || 'Không có nội dung phản hồi',
         Timestamp: new Date().toISOString(),
       };
-
+  
       setMessages((prev) => [...prev, botReply]);
       saveMessageToChat(selectedChat, botReply);
     } catch (error) {
       console.error('❌ Error in sendMessage:', error);
-      const errorMessage = { Sender: 'bot', Text: 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại!', Timestamp: new Date().toISOString() };
+      const errorMessage = {
+        Sender: 'bot',
+        Text: 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại!',
+        Timestamp: new Date().toISOString(),
+      };
       setMessages((prev) => [...prev, errorMessage]);
       saveMessageToChat(selectedChat, errorMessage);
     }
-
+  
     setIsSending(false);
   };
 
