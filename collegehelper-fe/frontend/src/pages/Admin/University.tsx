@@ -78,10 +78,8 @@ const UniversityPage = () => {
     Image: null,
   });
   const [editId, setEditId] = useState<string>("");
-
-  // State cho phân trang
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(6); // Số lượng trường đại học trên mỗi trang
+  const [itemsPerPage] = useState(6);
 
   useEffect(() => {
     const loadUniversities = async () => {
@@ -126,7 +124,6 @@ const UniversityPage = () => {
     loadUniversities();
   }, []);
 
-  // Logic phân trang
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentUniversities = universities.slice(indexOfFirstItem, indexOfLastItem);
@@ -209,7 +206,7 @@ const UniversityPage = () => {
         RankingInternational: 0,
         Image: null,
       });
-      setCurrentPage(1); // Quay về trang đầu tiên sau khi thêm
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error adding university:", error);
       setError(
@@ -229,7 +226,6 @@ const UniversityPage = () => {
       await deleteUniversity(id);
       setUniversities((prev) => prev.filter((uni) => uni.id !== id));
       setError(null);
-      // Điều chỉnh trang hiện tại nếu cần
       if (currentUniversities.length === 1 && currentPage > 1) {
         setCurrentPage(currentPage - 1);
       }
@@ -321,46 +317,44 @@ const UniversityPage = () => {
   const handleViewUniversity = async (id: string) => {
     try {
       const response = await getUniversityById(id);
-      const universityData = response.message;
+      console.log("API Response:", JSON.stringify(response, null, 2));
+
+      const universityData = response.message || response;
       if (!universityData) {
         throw new Error("Không tìm thấy thông tin trường đại học");
       }
 
-      const majors = Array.isArray(universityData.Majors)
-        ? universityData.Majors.map((major: any) => ({
-            id: major.Id,
-            tuitionFee: major.TuitionFee,
-            majorCode: major.MajorCode,
-            universityName: major.UniversityName,
-            majorName: major.MajorName,
-          }))
-        : universityData.Majors && universityData.Majors.$values
-        ? universityData.Majors.$values.map((major: any) => ({
-            id: major.Id,
-            tuitionFee: major.TuitionFee,
-            majorCode: major.MajorCode,
-            universityName: major.UniversityName,
-            majorName: major.MajorName,
-          }))
-        : [];
+      let majors: Major[] = [];
+      if (universityData.majors && universityData.majors.$values) {
+        majors = universityData.majors.$values.map((major: any) => ({
+          id: major.id,
+          tuitionFee: major.tuitionFee,
+          majorCode: major.majorCode,
+          universityName: major.universityName,
+          majorName: major.majorName,
+        }));
+      } else {
+        console.warn("Không tìm thấy dữ liệu ngành học trong phản hồi API");
+      }
 
       const university: University = {
-        id: universityData.Id,
-        name: universityData.Name,
-        location: universityData.Location,
-        universityCode: universityData.UniversityCode,
-        email: universityData.Email,
-        phoneNumber: universityData.PhoneNumber,
-        establishedDate: universityData.EstablishedDate,
-        accreditation: universityData.Accreditation,
-        type: universityData.Type,
-        description: universityData.Description,
-        rankingNational: universityData.RankingNational,
-        rankingInternational: universityData.RankingInternational,
-        image: universityData.Image,
+        id: universityData.id,
+        name: universityData.name,
+        location: universityData.location,
+        universityCode: universityData.universityCode,
+        email: universityData.email,
+        phoneNumber: universityData.phoneNumber,
+        establishedDate: universityData.establishedDate,
+        accreditation: universityData.accreditation,
+        type: universityData.type,
+        description: universityData.description || null,
+        rankingNational: universityData.rankingNational || 0,
+        rankingInternational: universityData.rankingInternational || 0,
+        image: universityData.image || null,
         majors: majors,
       };
 
+      console.log("Mapped University:", university);
       setSelectedUniversity(university);
       setIsViewModalOpen(true);
     } catch (error) {
@@ -370,6 +364,8 @@ const UniversityPage = () => {
           ? error.message
           : "Không thể lấy thông tin chi tiết trường đại học"
       );
+      setIsViewModalOpen(false);
+      setSelectedUniversity(null);
     }
   };
 
@@ -443,7 +439,6 @@ const UniversityPage = () => {
         ))}
       </div>
 
-      {/* Phân trang */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-6 space-x-2">
           <button
@@ -476,7 +471,6 @@ const UniversityPage = () => {
         </div>
       )}
 
-      {/* Modal Add University */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
@@ -635,7 +629,6 @@ const UniversityPage = () => {
         </div>
       )}
 
-      {/* Modal Edit University */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
@@ -793,8 +786,7 @@ const UniversityPage = () => {
         </div>
       )}
 
-      {/* Modal View University */}
-      {isViewModalOpen && selectedUniversity ? (
+      {isViewModalOpen && selectedUniversity && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">Thông tin chi tiết trường đại học</h2>
@@ -879,11 +871,20 @@ const UniversityPage = () => {
             </div>
           </div>
         </div>
-      ) : (
-        <div>
-          {isViewModalOpen && !selectedUniversity && (
+      )}
+      {isViewModalOpen && !selectedUniversity && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
             <p className="text-center text-red-500">Không có dữ liệu để hiển thị</p>
-          )}
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setIsViewModalOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
