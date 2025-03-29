@@ -79,6 +79,10 @@ const UniversityPage = () => {
   });
   const [editId, setEditId] = useState<string>("");
 
+  // State cho phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6); // Số lượng trường đại học trên mỗi trang
+
   useEffect(() => {
     const loadUniversities = async () => {
       setLoading(true);
@@ -122,6 +126,14 @@ const UniversityPage = () => {
     loadUniversities();
   }, []);
 
+  // Logic phân trang
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentUniversities = universities.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(universities.length / itemsPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
     setUniversity: React.Dispatch<React.SetStateAction<UniversityApi>>
@@ -129,8 +141,8 @@ const UniversityPage = () => {
     const { name, value } = e.target;
     setUniversity((prev) => ({
       ...prev,
-      [name]: name === "RankingNational" || name === "RankingInternational" 
-        ? Number(value) 
+      [name]: name === "RankingNational" || name === "RankingInternational"
+        ? Number(value)
         : value,
     }));
   };
@@ -180,14 +192,7 @@ const UniversityPage = () => {
         return;
       }
 
-      console.log("Dữ liệu gốc (newUniversity):", {
-        ...newUniversity,
-        Image: newUniversity.Image ? newUniversity.Image.name : null,
-      });
-
       const addedUniversity = await addUniversity(newUniversity);
-      console.log("Dữ liệu trả về từ API (chuẩn hóa):", JSON.stringify(addedUniversity, null, 2));
-
       setUniversities((prev) => [...prev, addedUniversity]);
       setIsAddModalOpen(false);
       setNewUniversity({
@@ -204,6 +209,7 @@ const UniversityPage = () => {
         RankingInternational: 0,
         Image: null,
       });
+      setCurrentPage(1); // Quay về trang đầu tiên sau khi thêm
     } catch (error) {
       console.error("Error adding university:", error);
       setError(
@@ -223,6 +229,10 @@ const UniversityPage = () => {
       await deleteUniversity(id);
       setUniversities((prev) => prev.filter((uni) => uni.id !== id));
       setError(null);
+      // Điều chỉnh trang hiện tại nếu cần
+      if (currentUniversities.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
     } catch (error) {
       console.error("Error deleting university:", error);
       setError(
@@ -278,14 +288,7 @@ const UniversityPage = () => {
         return;
       }
 
-      console.log("Dữ liệu cập nhật (editUniversity):", {
-        ...editUniversity,
-        Image: editUniversity.Image ? editUniversity.Image.name : null,
-      });
-
       const updatedUniversity = await updateUniversity(editId, editUniversity);
-      console.log("Dữ liệu trả về từ API (chuẩn hóa):", JSON.stringify(updatedUniversity, null, 2));
-
       setUniversities((prev) =>
         prev.map((uni) => (uni.id === editId ? updatedUniversity : uni))
       );
@@ -318,14 +321,11 @@ const UniversityPage = () => {
   const handleViewUniversity = async (id: string) => {
     try {
       const response = await getUniversityById(id);
-      console.log("API Response:", response);
-
       const universityData = response.message;
       if (!universityData) {
         throw new Error("Không tìm thấy thông tin trường đại học");
       }
 
-      // Xử lý Majors: kiểm tra xem Majors là mảng trực tiếp hay có $values
       const majors = Array.isArray(universityData.Majors)
         ? universityData.Majors.map((major: any) => ({
             id: major.Id,
@@ -344,7 +344,6 @@ const UniversityPage = () => {
           }))
         : [];
 
-      // Ánh xạ dữ liệu từ PascalCase sang camelCase
       const university: University = {
         id: universityData.Id,
         name: universityData.Name,
@@ -364,10 +363,6 @@ const UniversityPage = () => {
 
       setSelectedUniversity(university);
       setIsViewModalOpen(true);
-
-      // Log để kiểm tra trạng thái
-      console.log("Selected University:", university);
-      console.log("Is View Modal Open:", true);
     } catch (error) {
       console.error("Error fetching university details:", error);
       setError(
@@ -401,7 +396,7 @@ const UniversityPage = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {universities.map((uni) => (
+        {currentUniversities.map((uni) => (
           <div key={uni.id} className="border p-4 rounded-lg shadow-md relative">
             {uni.image ? (
               <img
@@ -447,6 +442,39 @@ const UniversityPage = () => {
           </div>
         ))}
       </div>
+
+      {/* Phân trang */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6 space-x-2">
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            Trước
+          </button>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === index + 1
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            Sau
+          </button>
+        </div>
+      )}
 
       {/* Modal Add University */}
       {isAddModalOpen && (
