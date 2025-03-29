@@ -11,6 +11,8 @@ const AdmissionPage: React.FC = () => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedAdmission, setSelectedAdmission] = useState<(AdmissionDetail & { universityName?: string }) | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // State cho trang hiện tại
+  const pageSize = 5; // Số bản ghi mỗi trang
 
   useEffect(() => {
     const fetchAdmissions = async () => {
@@ -56,7 +58,12 @@ const AdmissionPage: React.FC = () => {
         item.majorName.toLowerCase().includes(searchText.toLowerCase())
     );
     setFilteredData(filtered);
+    setCurrentPage(1); // Reset về trang đầu khi lọc dữ liệu
   }, [searchText, admissionData]);
+
+  // Tính toán dữ liệu hiển thị cho trang hiện tại
+  const paginatedData = filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = Math.ceil(filteredData.length / pageSize);
 
   const handleView = async (id: string) => {
     setDetailLoading(true);
@@ -72,6 +79,51 @@ const AdmissionPage: React.FC = () => {
       console.error('Fetch admission detail error:', err);
     } finally {
       setDetailLoading(false);
+    }
+  };
+
+  const handleBookmark = async (id: string) => {
+    const item = admissionData.find((item) => item.id === id);
+    if (!item) {
+      message.error("Không tìm thấy thông tin tuyển sinh.");
+      return;
+    }
+
+    const willBookmark = !item.isBookmarked;
+
+    setAdmissionData((prevData) =>
+      prevData.map((item) =>
+        item.id === id ? { ...item, isBookmarked: willBookmark } : item
+      )
+    );
+    setFilteredData((prevData) =>
+      prevData.map((item) =>
+        item.id === id ? { ...item, isBookmarked: willBookmark } : item
+      )
+    );
+
+    try {
+      if (willBookmark) {
+        await markWishlist(id);
+        message.success("Đã thêm vào danh sách quan tâm");
+      } else {
+        await unmarkWishlist(id);
+        message.success("Đã xóa khỏi danh sách quan tâm");
+      }
+    } catch (error) {
+      const err = error as Error;
+      setAdmissionData((prevData) =>
+        prevData.map((item) =>
+          item.id === id ? { ...item, isBookmarked: !willBookmark } : item
+        )
+      );
+      setFilteredData((prevData) =>
+        prevData.map((item) =>
+          item.id === id ? { ...item, isBookmarked: !willBookmark } : item
+        )
+      );
+      message.error("Không thể cập nhật danh sách quan tâm. Vui lòng thử lại sau.");
+      console.error("Lỗi khi cập nhật trạng thái quan tâm:", err);
     }
   };
 
@@ -144,48 +196,15 @@ const AdmissionPage: React.FC = () => {
     },
   ];
 
-  const handleBookmark = async (id: string) => {
-    const item = admissionData.find((item) => item.id === id);
-    if (!item) {
-      message.error("Không tìm thấy thông tin tuyển sinh.");
-      return;
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
+  };
 
-    const willBookmark = !item.isBookmarked;
-
-    setAdmissionData((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, isBookmarked: willBookmark } : item
-      )
-    );
-    setFilteredData((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, isBookmarked: willBookmark } : item
-      )
-    );
-
-    try {
-      if (willBookmark) {
-        await markWishlist(id);
-        message.success("Đã thêm vào danh sách quan tâm");
-      } else {
-        await unmarkWishlist(id);
-        message.success("Đã xóa khỏi danh sách quan tâm");
-      }
-    } catch (error) {
-      const err = error as Error;
-      setAdmissionData((prevData) =>
-        prevData.map((item) =>
-          item.id === id ? { ...item, isBookmarked: !willBookmark } : item
-        )
-      );
-      setFilteredData((prevData) =>
-        prevData.map((item) =>
-          item.id === id ? { ...item, isBookmarked: !willBookmark } : item
-        )
-      );
-      message.error("Không thể cập nhật danh sách quan tâm. Vui lòng thử lại sau.");
-      console.error("Lỗi khi cập nhật trạng thái quan tâm:", err);
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
     }
   };
 
@@ -217,19 +236,33 @@ const AdmissionPage: React.FC = () => {
         />
         <Table
           columns={columns}
-          dataSource={filteredData}
+          dataSource={paginatedData} // Sử dụng dữ liệu đã phân trang
           rowKey="id"
           loading={loading}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showTotal: (total) => `Tổng ${total} kết quả`,
-            className: 'mt-4',
-          }}
+          pagination={false} // Tắt phân trang mặc định của Table
           className="rounded-lg overflow-hidden"
           rowClassName="hover:bg-gray-50 transition-colors duration-200"
           scroll={{ x: 'max-content' }}
         />
+        <div className="flex justify-between items-center mt-4">
+          <Button
+            onClick={handlePrevious}
+            disabled={currentPage === 1}
+            className="bg-blue-500 text-white hover:bg-blue-600 rounded-lg px-4 py-1 font-medium"
+          >
+            Previous
+          </Button>
+          <span className="text-gray-700 font-medium">
+            Trang {currentPage} / {totalPages} (Tổng {filteredData.length} kết quả)
+          </span>
+          <Button
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+            className="bg-blue-500 text-white hover:bg-blue-600 rounded-lg px-4 py-1 font-medium"
+          >
+            Next
+          </Button>
+        </div>
       </Card>
 
       <Modal

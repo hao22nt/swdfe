@@ -677,7 +677,7 @@ export const fetchUniversity = async () => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch("https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/university?pageNumber=1&pageSize=5", {
+    const response = await fetch("https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/university?pageNumber=1&pageSize=100", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -1212,7 +1212,7 @@ export const getAdmissionList = async (): Promise<AdmissionInfo[]> => {
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     const response = await fetch(
-      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor?pageNumber=1&pageSize=5",
+      "https://swpproject-egd0b4euezg4akg7.southeastasia-01.azurewebsites.net/api/admissioninfor?pageNumber=1&pageSize=100", // Thay pageSize=5 thành pageSize=100
       {
         method: "GET",
         headers: {
@@ -1250,8 +1250,8 @@ export const getAdmissionList = async (): Promise<AdmissionInfo[]> => {
         admissionDate: admission.admisstionDate || admission.admissionDate || "N/A",
         deadline: admission.deadline || "N/A",
         quota: admission.quota !== undefined && admission.quota !== null ? admission.quota : "N/A",
-        isBookmarked: false, // Thêm trường isBookmarked
-        baseScore: admission.baseScore || 0, // Nếu API có baseScore
+        isBookmarked: false,
+        baseScore: admission.baseScore || 0,
       };
       console.log("🔍 Mapped Admission:", JSON.stringify(mappedAdmission, null, 2));
       return mappedAdmission;
